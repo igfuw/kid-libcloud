@@ -15,5 +15,6 @@ script:
   - tar xvzf kid_a_setup.tar.gz
   - cd kid_a_setup
   - sed -i '' -e's/-lnetcdf/-lnetcdff/' src/compiler_options.inc
+  - patch kid_a_setup/src/switches.f90 kid_modif/switches.f90.diff
   - make CASE=1D COMPILER=gfortran NCPATH=/usr/local all
   - make run_cases
