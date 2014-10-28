@@ -1,20 +1,20 @@
 os:
-	- linux
-	- osx
+  - linux
+  - osx
 compiler:
-	- gcc
+  - gcc
 
 before_install:
-	- sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse"
-	- sudo apt-get update
+  - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse"
+  - sudo apt-get update
 
 install:
-	- sudo apt-get install --no-install-recommends gfortran libnetcdf-dev 
+  - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev 
 
 script:
-	- tar xvzf kid_a_setup.tar.gz
-	- cd kid_a_setup
-	- sed -i '' -e's/-lnetcdf/-lnetcdff/' src/compiler_options.inc
-	- make CASE=1D COMPILER=gfortran NCPATH=/usr/local all
-	- make run_cases
+  - tar xvzf kid_a_setup.tar.gz
+  - cd kid_a_setup
+  - sed -i '' -e's/-lnetcdf/-lnetcdff/' src/compiler_options.inc
+  - make CASE=1D COMPILER=gfortran NCPATH=/usr/local all
+  - make run_cases
 	
