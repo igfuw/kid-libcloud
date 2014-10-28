@@ -17,4 +17,3 @@ script:
   - sed -i '' -e's/-lnetcdf/-lnetcdff/' src/compiler_options.inc
   - make CASE=1D COMPILER=gfortran NCPATH=/usr/local all
   - make run_cases
-	
