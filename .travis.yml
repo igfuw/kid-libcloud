@@ -14,7 +14,7 @@ install:
 script:
   - tar xvzf kid_a_setup.tar.gz
   - cd kid_a_setup
-  - sed -i -e's/-lnetcdf/-lnetcdff/' src/compiler_options.inc
+  - sed -i -e's/-lnetcdf$/-lnetcdff/' src/compiler_options.inc
   - patch src/switches.f90 ../kid_modif/switches.f90.diff
-  - make CASE=1D COMPILER=gfortran NCPATH=/usr all
+  - make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
   - make run_cases
