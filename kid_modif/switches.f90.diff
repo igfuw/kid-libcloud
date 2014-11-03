@@ -1,7 +1,0 @@
-99c99,102
-<        ,imphys_4A               =12   ! Shipway scheme
----
->        ,imphys_4A               =12 & ! Shipway scheme
->        ,imphys_libcloud_b1m     =44 & ! libcloudph++: single-moment bulk scheme
->        ,imphys_libcloud_b2m     =45 & ! libcloudph++: double-moment bulk scheme
->        ,imphys_libcloud_lgr     =46   ! libcloudph++: lagrangian scheme (super-droplet)
