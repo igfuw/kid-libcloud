@@ -16,9 +16,16 @@ diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/makefile.inc	2014-11-03 14:51:55.908303423 +0100
-@@ -29,7 +29,7 @@
- OBJS=$(OBJSF) $(OBJSF90)
++++ kid_a_setup/src/makefile.inc	2014-11-03 16:10:22.548464555 +0100
+@@ -24,12 +24,13 @@
+ OBJSF90_4A=$(patsubst %.f90,$(OBJDIR)/%.o,$(wildcard 4A_code/*.f90)) 
+ endif
+ 
++OBJSC=$(patsubst %.c,$(OBJDIR)/%.o,$(wildcard *.c))
+ OBJSF=$(patsubst %.f,$(OBJDIR)/%.o,$(wildcard *.f))
+ OBJSF90=$(patsubst %.f90,$(OBJDIR)/%.o,$(wildcard *.f90))
+-OBJS=$(OBJSF) $(OBJSF90)
++OBJS=$(OBJSF) $(OBJSF90) $(OBJSC)
  
  
 -all: defs $(EXECUTABLE)
@@ -26,7 +33,7 @@ diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' 
  
  defs:
  	touch case.used
-@@ -49,10 +49,13 @@
+@@ -49,10 +50,16 @@
  	$(F90D) -c $< -o $@ $(INCDF)
  
  $(OBJSF90): $(OBJDIR)/%.o: %.f90 
@@ -36,12 +43,49 @@ diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' 
  $(OBJSF): $(OBJDIR)/%.o: %.f 
 -	$(F90D)  -c $< -o $@ $(INCDF)
 +	$(F90D) -c -fPIC $< -o $@ $(INCDF)
++
++$(OBJSC): $(OBJDIR)/%.o: %.c
++	gcc -c -fPIC $< -o $@
  
  $(EXECUTABLE): $(OBJS) $(OBJSF90_UM) $(OBJSF90_4A)
  	$(LD) -o $(EXECDIR)/$(EXECUTABLE) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
 +
-+$(SHARED_LIB): $(OBJS) $(OBJSF90_UM) $(OBJSF90_4A)
++$(SHARED_LIB): $(OBJS) $(OBJPTRUTIL) $(OBJSF90_UM) $(OBJSF90_4A)
 +	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
+diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/ptrutil.c kid_a_setup/src/ptrutil.c
+--- kid_a_setup.orig/src/ptrutil.c	1970-01-01 01:00:00.000000000 +0100
++++ kid_a_setup/src/ptrutil.c	2014-11-03 16:01:20.112445985 +0100
+@@ -0,0 +1,30 @@
++#include <stdio.h>
++#include <assert.h>
++
++typedef void (*funptr_t)();
++
++void save_ptr(const char* fname, const funptr_t ptr)
++{
++  FILE *fp;
++  int stat;
++
++  fp = fopen(fname, "w");
++  assert(fp != NULL);
++  stat = fprintf(fp, "%p", ptr);
++  assert(stat > 0);
++  stat = fclose(fp);
++  assert(stat == 0);
++}
++
++void load_ptr(const char* fname, funptr_t *ptr)
++{
++  FILE *fp;
++  int stat;
++
++  fp = fopen(fname, "r");
++  assert(fp != NULL);
++  stat = fscanf(fp, "%p", ptr);
++  assert(stat == 1);
++  stat = fclose(fp);
++  assert(stat == 0);
++}
 diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/switches.f90 kid_a_setup/src/switches.f90
 --- kid_a_setup.orig/src/switches.f90	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/switches.f90	2014-10-31 23:48:56.368025209 +0100
