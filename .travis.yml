@@ -5,8 +5,8 @@ compiler:
   - gcc
 
 before_install:
-#  - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse"
-#  - sudo apt-get update
+  - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse"
+  - sudo apt-get update
 
 install:
   - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi
