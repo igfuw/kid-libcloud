@@ -2,7 +2,21 @@
 
 import cffi
 ffi = cffi.FFI()
-lib = ffi.dlopen('KiD_1D.so')
-ffd.cdef("void save_ptr(char*,void(*)());")
+
+@ffi.callback("void(void)")
+def hello():
+  print "hello from Python"
+
+# C functions
+ffi.cdef("void save_ptr(char*,void(*)());")
+
+# Fortran functions
 ffi.cdef("void __main_MOD_main_loop();")
+
+lib = ffi.dlopen('KiD_1D.so')
+
+# storing pointers to Python functions
+lib.save_ptr("hello", hello)
+
+# running Fortran stuff
 lib.__main_MOD_main_loop()
