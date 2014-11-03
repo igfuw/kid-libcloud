@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get update
 
 install:
-  - sudo apt-get install --no-install-recommends libnetcdff5
+  - sudo apt-get install --no-install-recommends libnetcdfc7
   - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi
 
 script:
