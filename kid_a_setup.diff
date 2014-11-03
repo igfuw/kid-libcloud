@@ -1,0 +1,59 @@
+diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
+--- kid_a_setup.orig/src/compiler_options.inc	2014-07-25 10:17:28.000000000 +0200
++++ kid_a_setup/src/compiler_options.inc	2014-11-03 14:48:17.380295942 +0100
+@@ -53,10 +53,11 @@
+ LD=$(F90)   # Linker
+ 
+ INCDF=-I$(NCPATH)/include
+-LNCDF=-L$(NCPATH)/lib -lnetcdf
++LNCDF=-L$(NCPATH)/lib -lnetcdff
+ LDFLAGS=$(INCDF) $(LNCDF)
+ 
+ EXECUTABLE=$(MODEL)_$(CASE).exe
++SHARED_LIB=$(MODEL)_$(CASE).so
+ 
+ F2PY=/usr/local/cdat/bin/f2py 
+ F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
+diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
+--- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
++++ kid_a_setup/src/makefile.inc	2014-11-03 14:51:55.908303423 +0100
+@@ -29,7 +29,7 @@
+ OBJS=$(OBJSF) $(OBJSF90)
+ 
+ 
+-all: defs $(EXECUTABLE)
++all: defs $(EXECUTABLE) $(SHARED_LIB)
+ 
+ defs:
+ 	touch case.used
+@@ -49,10 +49,13 @@
+ 	$(F90D) -c $< -o $@ $(INCDF)
+ 
+ $(OBJSF90): $(OBJDIR)/%.o: %.f90 
+-	$(F90D) -c $< -o $@ $(INCDF)
++	$(F90D) -c -fPIC $< -o $@ $(INCDF)
+ 
+ $(OBJSF): $(OBJDIR)/%.o: %.f 
+-	$(F90D)  -c $< -o $@ $(INCDF)
++	$(F90D) -c -fPIC $< -o $@ $(INCDF)
+ 
+ $(EXECUTABLE): $(OBJS) $(OBJSF90_UM) $(OBJSF90_4A)
+ 	$(LD) -o $(EXECDIR)/$(EXECUTABLE) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
++
++$(SHARED_LIB): $(OBJS) $(OBJSF90_UM) $(OBJSF90_4A)
++	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
+diff -ruN '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/switches.f90 kid_a_setup/src/switches.f90
+--- kid_a_setup.orig/src/switches.f90	2014-07-25 10:17:28.000000000 +0200
++++ kid_a_setup/src/switches.f90	2014-10-31 23:48:56.368025209 +0100
+@@ -96,7 +96,10 @@
+        ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
+        ,imphys_wsm6             =10 & ! WSM6 scheme
+        ,imphys_wdm6             =11 & ! WDM6 scheme
+-       ,imphys_4A               =12   ! Shipway scheme
++       ,imphys_4A               =12 & ! Shipway scheme
++       ,imphys_libcloud_b1m     =44 & ! libcloudph++: single-moment bulk scheme
++       ,imphys_libcloud_b2m     =45 & ! libcloudph++: double-moment bulk scheme
++       ,imphys_libcloud_lgr     =46   ! libcloudph++: lagrangian scheme (super-droplet)
+       
+   ! Integer switches to choose input data type and/or test case
+   integer, parameter ::    & 
