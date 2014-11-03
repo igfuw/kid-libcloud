@@ -1,5 +1,5 @@
 #/bin/bash
-diff -r \
+diff -ruN \
   --exclude=*.mod \
   --exclude=*.o \
   --exclude=bin \
@@ -8,5 +8,6 @@ diff -r \
   --exclude=.includes \
   --exclude=case.used \
   --exclude=output \
+  --exclude=gmon.out \
   kid_a_setup.orig kid_a_setup \
   > kid_a_setup.diff
