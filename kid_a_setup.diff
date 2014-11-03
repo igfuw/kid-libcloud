@@ -1,0 +1,14 @@
+Binary files kid_a_setup.orig/gmon.out and kid_a_setup/gmon.out differ
+diff -r '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
+56c56
+< LNCDF=-L$(NCPATH)/lib -lnetcdf
+---
+> LNCDF=-L$(NCPATH)/lib -lnetcdff
+diff -r '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' kid_a_setup.orig/src/switches.f90 kid_a_setup/src/switches.f90
+99c99,102
+<        ,imphys_4A               =12   ! Shipway scheme
+---
+>        ,imphys_4A               =12 & ! Shipway scheme
+>        ,imphys_libcloud_b1m     =44 & ! libcloudph++: single-moment bulk scheme
+>        ,imphys_libcloud_b2m     =45 & ! libcloudph++: double-moment bulk scheme
+>        ,imphys_libcloud_lgr     =46   ! libcloudph++: lagrangian scheme (super-droplet)
