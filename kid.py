@@ -16,7 +16,7 @@ ffi.cdef("void __main_MOD_main_loop();")
 lib = ffi.dlopen('KiD_1D.so')
 
 # storing pointers to Python functions
-lib.save_ptr("hello", hello)
+lib.save_ptr("hello.ptr", hello)
 
 # running Fortran stuff
 lib.__main_MOD_main_loop()
