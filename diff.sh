@@ -1,5 +1,6 @@
 #/bin/bash
 diff -ruN \
+  --exclude=*~ \
   --exclude=*.mod \
   --exclude=*.o \
   --exclude=bin \
