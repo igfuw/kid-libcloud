@@ -1,11 +1,16 @@
 #!/usr/bin/python
 
+import numpy as np
 import cffi
 ffi = cffi.FFI()
 
-@ffi.callback("void(double*)")
-def hello(tablica):
-  print "hello from Python", tablica
+real_t = np.float64
+
+@ffi.callback("void(double*, int, int)")
+def hello(tablica, nz, nx):
+  print "hello from Python", tablica, nx, nz
+  array = np.frombuffer(ffi.buffer(tablica, nx*nz*np.dtype(real_t).itemsize), dtype=real_t)
+  print array.reshape((nx,nz))[1:-1,:]
 
 # C functions
 ffi.cdef("void save_ptr(char*,void*);")
