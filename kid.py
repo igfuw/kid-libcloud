@@ -3,12 +3,12 @@
 import cffi
 ffi = cffi.FFI()
 
-@ffi.callback("void(void)")
-def hello():
-  print "hello from Python"
+@ffi.callback("void(double*)")
+def hello(tablica):
+  print "hello from Python", tablica
 
 # C functions
-ffi.cdef("void save_ptr(char*,void(*)());")
+ffi.cdef("void save_ptr(char*,void*);")
 
 # Fortran functions
 ffi.cdef("void __main_MOD_main_loop();")
