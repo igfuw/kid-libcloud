@@ -6,9 +6,9 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 \ No newline at end of file
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/hello.ptr kid_a_setup/hello.ptr
 --- kid_a_setup.orig/hello.ptr	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/hello.ptr	2014-11-04 14:22:40.000000000 +0100
++++ kid_a_setup/hello.ptr	2014-11-04 14:28:09.000000000 +0100
 @@ -0,0 +1 @@
-+0x10a192fc0
++0x1090b7fc0
 \ No newline at end of file
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/1D.nml kid_a_setup/namelists/1D.nml
 --- kid_a_setup.orig/namelists/1D.nml	2014-07-23 17:16:13.000000000 +0200
@@ -107,8 +107,8 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
    end subroutine mphys_column
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_libcloud_b1m.f90 kid_a_setup/src/mphys_libcloud_b1m.f90
 --- kid_a_setup.orig/src/mphys_libcloud_b1m.f90	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-04 14:13:51.000000000 +0100
-@@ -0,0 +1,51 @@
++++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-04 14:28:04.000000000 +0100
+@@ -0,0 +1,55 @@
 +
 +!Interface to libcloudph++: single-moment bulk scheme
 +
@@ -120,7 +120,7 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 +  Use physconst, only : p0, r_on_cp, pi
 +
 +  Use diagnostics, only: save_dg, i_dgtime ! do we need it?
-+  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char
++  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double
 +
 +  Implicit None
 +
@@ -151,7 +151,11 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 +  Subroutine mphys_libcloud_b1m_interface
 + ! Initialise microphysics                                                             
 +       if (micro_unset)then
-+          print*, "in mphys_libcloud_b1m_interface wp=", wp
++          ! assert for numerical precision  
++          if (wp.ne.c_double) stop("KiD does not use double precision!")          
++
++          !
++          print*, "in mphys_libcloud_b1m_interface wp="
 +            call load_ptr("hello.ptr" // c_null_char,cptr)
 +            call c_f_procpointer(cptr, fptr)
 +            call fptr(theta)
