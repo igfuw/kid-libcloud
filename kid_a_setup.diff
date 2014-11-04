@@ -6,9 +6,9 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 \ No newline at end of file
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/hello.ptr kid_a_setup/hello.ptr
 --- kid_a_setup.orig/hello.ptr	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/hello.ptr	2014-11-03 18:31:28.000000000 +0100
++++ kid_a_setup/hello.ptr	2014-11-04 14:17:16.000000000 +0100
 @@ -0,0 +1 @@
-+0x10ff7dfc0
++0x1051eefc0
 \ No newline at end of file
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/1D.nml kid_a_setup/namelists/1D.nml
 --- kid_a_setup.orig/namelists/1D.nml	2014-07-23 17:16:13.000000000 +0200
@@ -22,6 +22,7 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
  dt=1.0
  dgstart=0.0
  dg_dt=30.0
+Binary files kid_a_setup.orig/src/.column_variables.f90.swp and kid_a_setup/src/.column_variables.f90.swp differ
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_setup.orig/src/compiler_options.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/compiler_options.inc	2014-11-03 17:15:52.000000000 +0100
@@ -105,8 +106,8 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
    end subroutine mphys_column
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_libcloud_b1m.f90 kid_a_setup/src/mphys_libcloud_b1m.f90
 --- kid_a_setup.orig/src/mphys_libcloud_b1m.f90	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-03 18:38:48.000000000 +0100
-@@ -0,0 +1,48 @@
++++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-04 14:13:51.000000000 +0100
+@@ -0,0 +1,51 @@
 +
 +!Interface to libcloudph++: single-moment bulk scheme
 +
@@ -126,7 +127,10 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 +
 +
 +  interface
-+    subroutine hello_py() bind(c)
++    subroutine hello_py(th_ar) bind(c)
++      use iso_c_binding, only: c_double
++      Use parameters, only : nx, nz
++      real(c_double),  intent(inout):: th_ar(nz, 0:nx+1)       
 +    end
 +
 +    subroutine load_ptr(fname, ptr) bind(c)
@@ -146,10 +150,10 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 +  Subroutine mphys_libcloud_b1m_interface
 + ! Initialise microphysics                                                             
 +       if (micro_unset)then
-+          print*, "in mphys_libcloud_b1m_interface"
++          print*, "in mphys_libcloud_b1m_interface wp=", wp
 +            call load_ptr("hello.ptr" // c_null_char,cptr)
 +            call c_f_procpointer(cptr, fptr)
-+            call fptr()
++            call fptr(theta)
 +          micro_unset=.False.
 +       end if
 +  end Subroutine mphys_libcloud_b1m_interface
@@ -228,12 +232,12 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
         print*, 'Did you mean:' 
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/ptrutil.c kid_a_setup/src/ptrutil.c
 --- kid_a_setup.orig/src/ptrutil.c	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/ptrutil.c	2014-11-03 17:15:52.000000000 +0100
++++ kid_a_setup/src/ptrutil.c	2014-11-04 14:16:47.000000000 +0100
 @@ -0,0 +1,30 @@
 +#include <stdio.h>
 +#include <assert.h>
 +
-+typedef void (*funptr_t)();
++typedef void (*funptr_t)(double*);
 +
 +void save_ptr(const char* fname, const funptr_t ptr)
 +{
