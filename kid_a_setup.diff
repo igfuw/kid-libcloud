@@ -6,24 +6,72 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 \ No newline at end of file
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/hello.ptr kid_a_setup/hello.ptr
 --- kid_a_setup.orig/hello.ptr	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/hello.ptr	2014-11-04 15:34:24.000000000 +0100
++++ kid_a_setup/hello.ptr	2014-11-17 18:01:00.000000000 +0100
 @@ -0,0 +1 @@
-+0x106bf6fc0
++0x102a34fc0
 \ No newline at end of file
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/1D.nml kid_a_setup/namelists/1D.nml
---- kid_a_setup.orig/namelists/1D.nml	2014-07-23 17:16:13.000000000 +0200
-+++ kid_a_setup/namelists/1D.nml	2014-11-03 18:05:42.000000000 +0100
-@@ -19,7 +19,7 @@
+diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
+--- kid_a_setup.orig/namelists/SC_2D_input.nml	2014-07-23 17:16:13.000000000 +0200
++++ kid_a_setup/namelists/SC_2D_input.nml	2014-11-17 17:50:02.000000000 +0100
+@@ -3,6 +3,6 @@
+ ! comment out this call (in namelists.nml) and use this file to input
+ ! the value.
+ &namelistToUse
+-fileIn='namelists/SC_2D.nml'
++fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
+ fileOut='output/SC_2D_out.nc'
  /
- 
- &control
--mphys_scheme='thompson09'
+diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/kida_SC_2D_libcloud_lgr.nml kid_a_setup/namelists/kida_SC_2D_libcloud_lgr.nml
+--- kid_a_setup.orig/namelists/kida_SC_2D_libcloud_lgr.nml	1970-01-01 01:00:00.000000000 +0100
++++ kid_a_setup/namelists/kida_SC_2D_libcloud_lgr.nml	2014-11-17 18:10:17.000000000 +0100
+@@ -0,0 +1,47 @@
++! This namelist uses the libcloudph++ lagrangian scheme 
++! with a max updraft (wctrl) of 1 m/s, model timestep (dt) = 1 s,
++! diagnostic output (dg_dt) = 60 s and sim time (tctrl) = 10800 s
++&mphys
++! hydrometeor names
++h_names=  'cloud',  'rain',  'ice',  'snow',  'graupel'  
++! number of moments for each species
++num_h_moments= 0,0,0,0,0
++num_h_bins=1,1,1,1,1
++! Background values for each moment (assumed the same for all species)
++mom_init=0,0,0
++! Aerosol initialization
++num_aero_moments=0,0,0
++num_aero_bins=1
++/
++
++&case
++icase=602
++/
++
++&control
 +mphys_scheme='libcloud_b1m'
- dt=1.0
- dgstart=0.0
- dg_dt=30.0
-Binary files kid_a_setup.orig/src/.column_variables.f90.swp and kid_a_setup/src/.column_variables.f90.swp differ
-Binary files kid_a_setup.orig/src/.ptrutil.c.swp and kid_a_setup/src/.ptrutil.c.swp differ
++dt=1.0
++dgstart=0.0
++dg_dt=60.0
++tctrl(1)=10800.
++wctrl(1)=1.0
++lhf_ctrl(1)=3.
++shf_ctrl(1)=-3.
++/
++
++&switch
++!! Standard switches for the 1D case
++!! do not modify for intercomparison
++l_diverge=.False.
++l_fix_theta=.False.
++l_diverge_advection=.False.
++!! If included in code the switch below can be used to control 
++!! activation scavenging and in-cloud processing. 
++!! Set to true if these processes are NOT required. The 
++!! default is True. 
++l_fix_aerosols=.False.
++/
++
++&addcontrol
++iiwarm=.True.
++/
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_setup.orig/src/compiler_options.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/compiler_options.inc	2014-11-03 17:15:52.000000000 +0100
@@ -107,7 +155,7 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
    end subroutine mphys_column
 diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_libcloud_b1m.f90 kid_a_setup/src/mphys_libcloud_b1m.f90
 --- kid_a_setup.orig/src/mphys_libcloud_b1m.f90	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-04 15:36:30.000000000 +0100
++++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-17 17:54:34.000000000 +0100
 @@ -0,0 +1,56 @@
 +
 +!Interface to libcloudph++: single-moment bulk scheme

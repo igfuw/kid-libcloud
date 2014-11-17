@@ -18,10 +18,12 @@ ffi.cdef("void save_ptr(char*,void*);")
 # Fortran functions
 ffi.cdef("void __main_MOD_main_loop();")
 
-lib = ffi.dlopen('KiD_1D.so')
+lib = ffi.dlopen('KiD_SC_2D.so')
 
 # storing pointers to Python functions
 lib.save_ptr("hello.ptr", hello)
 
 # running Fortran stuff
+# note: not using command line arguments, namelist name hardcoded in
+#       kid_a_setup/namelists/SC_2D_input.nml 
 lib.__main_MOD_main_loop()
