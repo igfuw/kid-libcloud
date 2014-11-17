@@ -16,6 +16,6 @@ script:
   - tar xvzf kid_a_setup.tar.gz
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
-  - make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
+  - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
   #- bin/KiD_1D.exe
   - LD_LIBRARY_PATH=bin python ../kid.py
