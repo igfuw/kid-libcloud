@@ -1,6 +1,8 @@
 #/bin/bash
 diff -ruN \
   --exclude=mphys_libcloud_lgr.f90 \
+  --exclude=kida_SC_2D_libcloud_lgr.nml \
+  --exclude=ptrutil.c \
   --exclude=*~ \
   --exclude=*.mod \
   --exclude=*.o \
