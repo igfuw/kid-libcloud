@@ -6,11 +6,12 @@ ffi = cffi.FFI()
 
 real_t = np.float64
 
-@ffi.callback("void(double*, int, int)")
-def hello(tablica, nz, nx):
-  print "hello from Python", tablica, nx, nz
-  array = np.frombuffer(ffi.buffer(tablica, nx*nz*np.dtype(real_t).itemsize), dtype=real_t)
-  print array.reshape((nx,nz))[1:-1,:]
+@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*)")
+def hello(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, uh_ar, wh_ar):
+  print "hello from Python", th_ar, size_z, size_x
+  print "i_dgtime z fortrana", it_diag
+  array = np.frombuffer(ffi.buffer(th_ar, size_x*size_z*np.dtype(real_t).itemsize), dtype=real_t)
+  print array.reshape((size_x,size_z))[1:-1,:]
 
 # C functions
 ffi.cdef("void save_ptr(char*,void*);")
