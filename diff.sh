@@ -1,5 +1,6 @@
 #/bin/bash
 diff -ruN \
+  --exclude=mphys_libcloud_lgr.f90 \
   --exclude=*~ \
   --exclude=*.mod \
   --exclude=*.o \
