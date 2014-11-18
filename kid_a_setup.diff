@@ -1,16 +1,4 @@
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/hello kid_a_setup/hello
---- kid_a_setup.orig/hello	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/hello	2014-11-03 18:16:39.000000000 +0100
-@@ -0,0 +1 @@
-+0x103c80fc0
-\ No newline at end of file
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/hello.ptr kid_a_setup/hello.ptr
---- kid_a_setup.orig/hello.ptr	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/hello.ptr	2014-11-17 18:01:00.000000000 +0100
-@@ -0,0 +1 @@
-+0x102a34fc0
-\ No newline at end of file
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
 --- kid_a_setup.orig/namelists/SC_2D_input.nml	2014-07-23 17:16:13.000000000 +0200
 +++ kid_a_setup/namelists/SC_2D_input.nml	2014-11-17 17:50:02.000000000 +0100
 @@ -3,6 +3,6 @@
@@ -21,58 +9,7 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 +fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
  fileOut='output/SC_2D_out.nc'
  /
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/namelists/kida_SC_2D_libcloud_lgr.nml kid_a_setup/namelists/kida_SC_2D_libcloud_lgr.nml
---- kid_a_setup.orig/namelists/kida_SC_2D_libcloud_lgr.nml	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/namelists/kida_SC_2D_libcloud_lgr.nml	2014-11-17 18:10:17.000000000 +0100
-@@ -0,0 +1,47 @@
-+! This namelist uses the libcloudph++ lagrangian scheme 
-+! with a max updraft (wctrl) of 1 m/s, model timestep (dt) = 1 s,
-+! diagnostic output (dg_dt) = 60 s and sim time (tctrl) = 10800 s
-+&mphys
-+! hydrometeor names
-+h_names=  'cloud',  'rain',  'ice',  'snow',  'graupel'  
-+! number of moments for each species
-+num_h_moments= 0,0,0,0,0
-+num_h_bins=1,1,1,1,1
-+! Background values for each moment (assumed the same for all species)
-+mom_init=0,0,0
-+! Aerosol initialization
-+num_aero_moments=0,0,0
-+num_aero_bins=1
-+/
-+
-+&case
-+icase=602
-+/
-+
-+&control
-+mphys_scheme='libcloud_b1m'
-+dt=1.0
-+dgstart=0.0
-+dg_dt=60.0
-+tctrl(1)=10800.
-+wctrl(1)=1.0
-+lhf_ctrl(1)=3.
-+shf_ctrl(1)=-3.
-+/
-+
-+&switch
-+!! Standard switches for the 1D case
-+!! do not modify for intercomparison
-+l_diverge=.False.
-+l_fix_theta=.False.
-+l_diverge_advection=.False.
-+!! If included in code the switch below can be used to control 
-+!! activation scavenging and in-cloud processing. 
-+!! Set to true if these processes are NOT required. The 
-+!! default is True. 
-+l_fix_aerosols=.False.
-+/
-+
-+&addcontrol
-+iiwarm=.True.
-+/
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_setup.orig/src/compiler_options.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/compiler_options.inc	2014-11-03 17:15:52.000000000 +0100
 @@ -53,10 +53,11 @@
@@ -88,7 +25,7 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
  
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/makefile.inc	2014-11-03 17:15:52.000000000 +0100
 @@ -24,12 +24,13 @@
@@ -126,156 +63,34 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
 +
 +$(SHARED_LIB): $(OBJS) $(OBJPTRUTIL) $(OBJSF90_UM) $(OBJSF90_4A)
 +	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_interface.f90 kid_a_setup/src/mphys_interface.f90
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_interface.f90 kid_a_setup/src/mphys_interface.f90
 --- kid_a_setup.orig/src/mphys_interface.f90	2014-07-25 10:17:27.000000000 +0200
-+++ kid_a_setup/src/mphys_interface.f90	2014-11-03 17:45:46.000000000 +0100
-@@ -19,6 +19,9 @@
++++ kid_a_setup/src/mphys_interface.f90	2014-11-18 10:48:33.000000000 +0100
+@@ -19,6 +19,7 @@
  #if SHIPWAY_MICRO == 1
    Use mphys_4A, only: mphys_4A_interface
  #endif
-+  Use mphys_libcloud_b1m, only: mphys_libcloud_b1m_interface
-+  Use mphys_libcloud_b2m, only: mphys_libcloud_b2m_interface
 +  Use mphys_libcloud_lgr, only: mphys_libcloud_lgr_interface
    Use switches
  
  contains
-@@ -44,6 +47,13 @@
+@@ -44,6 +45,9 @@
      case(imphys_4A)         ! Shipway 4A scheme
         call mphys_4A_interface
  #endif
-+    case(imphys_libcloud_b1m) ! libcloudph++: single-moment bulk scheme  
-+       call mphys_libcloud_b1m_interface
-+    case(imphys_libcloud_b2m) ! libcloudph++: double-moment bulk scheme
-+       call mphys_libcloud_b2m_interface
 +    case(imphys_libcloud_lgr) ! libcloudph++: lagrangian scheme (super-droplet)
 +       call mphys_libcloud_lgr_interface
 +
      end select
  
    end subroutine mphys_column
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_libcloud_b1m.f90 kid_a_setup/src/mphys_libcloud_b1m.f90
---- kid_a_setup.orig/src/mphys_libcloud_b1m.f90	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/mphys_libcloud_b1m.f90	2014-11-17 17:54:34.000000000 +0100
-@@ -0,0 +1,56 @@
-+
-+!Interface to libcloudph++: single-moment bulk scheme
-+
-+module mphys_libcloud_b1m
-+
-+  Use parameters, only : num_h_moments, num_h_bins, nspecies, nz, dt &
-+       , h_names, mom_units, max_char_len, mom_names, nx
-+  Use column_variables
-+  Use physconst, only : p0, r_on_cp, pi
-+
-+  Use diagnostics, only: save_dg, i_dgtime ! do we need it?
-+  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double
-+
-+  Implicit None
-+
-+  logical :: micro_unset=.True.
-+
-+
-+  interface
-+    subroutine hello_py(th_ar, size_z, size_x) bind(c)
-+      use iso_c_binding, only: c_double, c_int
-+      Use parameters, only : nx, nz
-+      integer(c_int), intent(in), value :: size_x, size_z
-+      real(c_double),  intent(inout):: th_ar(nz, 0:nx+1)       
-+    end
-+
-+    subroutine load_ptr(fname, ptr) bind(c)
-+      use iso_c_binding, only: c_funptr, c_char
-+      character(kind=c_char), dimension(*), intent(in) :: fname
-+      type(c_funptr), intent(out) :: ptr
-+    end
-+  end interface
-+
-+  type(c_funptr) :: cptr
-+  procedure(hello_py), pointer :: fptr
-+
-+
-+contains
-+
-+
-+  Subroutine mphys_libcloud_b1m_interface
-+ ! Initialise microphysics                                                             
-+       if (micro_unset)then
-+          ! assert for numerical precision  
-+          if (wp.ne.c_double) stop("KiD does not use double precision!")          
-+
-+          !
-+          print*, "in mphys_libcloud_b1m_interface wp="
-+            call load_ptr("hello.ptr" // c_null_char,cptr)
-+            call c_f_procpointer(cptr, fptr)
-+            call fptr(theta, size(theta,1), size(theta,2))
-+          micro_unset=.False.
-+       end if
-+  end Subroutine mphys_libcloud_b1m_interface
-+
-+end module mphys_libcloud_b1m
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_libcloud_b2m.f90 kid_a_setup/src/mphys_libcloud_b2m.f90
---- kid_a_setup.orig/src/mphys_libcloud_b2m.f90	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/mphys_libcloud_b2m.f90	2014-11-03 17:49:00.000000000 +0100
-@@ -0,0 +1,21 @@
-+
-+!Interface to libcloudph++: double-moment bulk scheme
-+
-+module mphys_libcloud_b2m
-+
-+  Use parameters, only : num_h_moments, num_h_bins, nspecies, nz, dt &
-+       , h_names, mom_units, max_char_len, mom_names, nx
-+  Use column_variables
-+  Use physconst, only : p0, r_on_cp, pi
-+
-+  Use diagnostics, only: save_dg, i_dgtime ! do we need it?
-+
-+  Implicit None
-+
-+contains
-+
-+  Subroutine mphys_libcloud_b2m_interface
-+    print*, "in mphys_libcloud_b2m_interface"
-+  end Subroutine mphys_libcloud_b2m_interface
-+
-+end module mphys_libcloud_b2m
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90
---- kid_a_setup.orig/src/mphys_libcloud_lgr.f90	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/mphys_libcloud_lgr.f90	2014-11-03 17:50:23.000000000 +0100
-@@ -0,0 +1,21 @@
-+
-+!Interface to libcloudph++: lagrangian scheme (super-droplet) 
-+
-+module mphys_libcloud_lgr
-+
-+  Use parameters, only : num_h_moments, num_h_bins, nspecies, nz, dt &
-+       , h_names, mom_units, max_char_len, mom_names, nx
-+  Use column_variables
-+  Use physconst, only : p0, r_on_cp, pi
-+
-+  Use diagnostics, only: save_dg, i_dgtime ! do we need it?
-+
-+  Implicit None
-+
-+contains
-+
-+  Subroutine mphys_libcloud_lgr_interface
-+    print*, "in mphys_libcloud_lgr_interface"
-+  end Subroutine mphys_libcloud_lgr_interface
-+
-+end module mphys_libcloud_lgr
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/namelists.f90 kid_a_setup/src/namelists.f90
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/namelists.f90 kid_a_setup/src/namelists.f90
 --- kid_a_setup.orig/src/namelists.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/namelists.f90	2014-11-03 17:59:58.000000000 +0100
-@@ -173,6 +173,17 @@
++++ kid_a_setup/src/namelists.f90	2014-11-18 10:48:42.000000000 +0100
+@@ -173,6 +173,11 @@
      case('4A')
         imphys=imphys_4A
         mphys_id='4A'
-+    case('libcloud_b1m')
-+       imphys=imphys_libcloud_b1m
-+       mphys_id='libcloud_b1m'
-+    case('libcloud_b2m')
-+       imphys=imphys_libcloud_b2m
-+       mphys_id='libcloud_b2m'
 +    case('libcloud_lgr')
 +       imphys=imphys_libcloud_lgr
 +       mphys_id='libcloud_lgr'
@@ -284,52 +99,16 @@ diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclu
       case default
         print*, 'Mphys scheme not recognized: ', mphys_scheme
         print*, 'Did you mean:' 
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/ptrutil.c kid_a_setup/src/ptrutil.c
---- kid_a_setup.orig/src/ptrutil.c	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/src/ptrutil.c	2014-11-04 14:20:34.000000000 +0100
-@@ -0,0 +1,30 @@
-+#include <stdio.h>
-+#include <assert.h>
-+
-+typedef void* funptr_t;
-+
-+void save_ptr(const char* fname, const funptr_t ptr)
-+{
-+  FILE *fp;
-+  int stat;
-+
-+  fp = fopen(fname, "w");
-+  assert(fp != NULL);
-+  stat = fprintf(fp, "%p", ptr);
-+  assert(stat > 0);
-+  stat = fclose(fp);
-+  assert(stat == 0);
-+}
-+
-+void load_ptr(const char* fname, funptr_t *ptr)
-+{
-+  FILE *fp;
-+  int stat;
-+
-+  fp = fopen(fname, "r");
-+  assert(fp != NULL);
-+  stat = fscanf(fp, "%p", ptr);
-+  assert(stat == 1);
-+  stat = fclose(fp);
-+  assert(stat == 0);
-+}
-diff -ruN --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/switches.f90 kid_a_setup/src/switches.f90
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/switches.f90 kid_a_setup/src/switches.f90
 --- kid_a_setup.orig/src/switches.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/switches.f90	2014-11-03 17:15:52.000000000 +0100
-@@ -96,7 +96,10 @@
++++ kid_a_setup/src/switches.f90	2014-11-18 10:47:48.000000000 +0100
+@@ -96,7 +96,8 @@
         ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
         ,imphys_wsm6             =10 & ! WSM6 scheme
         ,imphys_wdm6             =11 & ! WDM6 scheme
 -       ,imphys_4A               =12   ! Shipway scheme
 +       ,imphys_4A               =12 & ! Shipway scheme
-+       ,imphys_libcloud_b1m     =44 & ! libcloudph++: single-moment bulk scheme
-+       ,imphys_libcloud_b2m     =45 & ! libcloudph++: double-moment bulk scheme
-+       ,imphys_libcloud_lgr     =46   ! libcloudph++: lagrangian scheme (super-droplet)
++       ,imphys_libcloud_lgr     =44   ! libcloudph++: lagrangian scheme (super-droplet)
        
    ! Integer switches to choose input data type and/or test case
    integer, parameter ::    & 
