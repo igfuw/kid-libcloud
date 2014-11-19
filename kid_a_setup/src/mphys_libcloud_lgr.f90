@@ -15,7 +15,7 @@ module mphys_libcloud_lgr
 
   
   interface
-    subroutine hello_py(i_dgtime, size_z, size_x,  & 
+    subroutine micro_step_py(i_dgtime, size_z, size_x,  & 
                         th_ar, qv_ar, rho_ar, vh_ar, wh_ar) bind(c)
       use iso_c_binding, only: c_double, c_int
       Use parameters, only : nx, nz
@@ -35,7 +35,7 @@ module mphys_libcloud_lgr
   end interface
 
   type(c_funptr) :: cptr
-  procedure(hello_py), pointer :: fptr
+  procedure(micro_step_py), pointer :: fptr
 
 contains
 
@@ -47,7 +47,7 @@ contains
 
     
     print*, "in mphys_libcloud_lgr_interface wp="
-       call load_ptr("/tmp/hello.ptr" // c_null_char,cptr)
+       call load_ptr("/tmp/micro_step.ptr" // c_null_char,cptr)
        call c_f_procpointer(cptr, fptr)
        call fptr(i_dgtime, nz, nx+2 , &
                  theta, qv, rho, v_half, w_half)
