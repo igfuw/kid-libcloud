@@ -8,7 +8,7 @@ real_t = np.float64
 
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*)")
 def hello(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, uh_ar, wh_ar):
-  print "hello from Python", th_ar, size_z, size_x
+  #print "hello from Python", th_ar, size_z, size_x
   print "i_dgtime z fortrana", it_diag
   array = np.frombuffer(ffi.buffer(th_ar, size_x*size_z*np.dtype(real_t).itemsize), dtype=real_t)
   print array.reshape((size_x,size_z))[1:-1,:]
