@@ -21,6 +21,8 @@ params = {
   "n_tot" : 100e6
 }
 
+arrays = {}
+
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
   print lnr
@@ -36,7 +38,11 @@ def ptr2np(ptr, size_x, size_z):
   ).reshape(size_x, size_z)
   return numpy_ar
 
+def th_kid2dry(arr):
+  return arr #TODO!
 
+def rho_kid2dry(arr):
+  return arr #TODO!
 
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, 
@@ -45,22 +51,52 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar,
 
   
   print "in python::micro_step() from Python"#, prtcls #, th_ar, size_z, size_x
-
+  
   # superdroplets: initialisation (done only once)
   if not prtcls:
     print "initialisation!"
     opts_init = libcl.lgrngn.opts_init_t()
-
+    
     opts_init.sd_conc = params["sd_conc"]
     opts_init.dry_distros = { params["kappa"] : lognormal }
 
     prtcls = libcl.lgrngn.factory(params["backend"], opts_init)
-    #prtcls.init()
+  
+  #TODO should be in IF??
+  # allocating arrays for those variables that are not ready to use
+  # (i.e. either different size or value conversion needed)
+  arrays["rhod"] = np.empty((1, size_z))
+  arrays["theta_d"] = np.empty((size_x-2, size_z))
+  arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
+  arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
+
+  #TODO should be in IF
+  dt = 1 #TODO
+  dx = 1 #TODO
+  dz = 1 #TODO
 
   # mapping local NumPy arrays to the Fortran data locations   
+  arrays["qv"] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
+  arrays["theta_d"] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
+  arrays["rhod"] = rho_kid2dry(ptr2np(rho_ar, 1, size_z)[:])
+
+  arrays["rhod_Cx"] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
+  assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
+  arrays["rhod_Cx"] *= arrays["rhod"] * dt / dx
+
+  arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
+  arrays["rhod_Cz"][:, 0 ] = 0
+#  arrays["rhod_Cz"] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
+
+  #TODO: again only in first timestep ... if
+  #prtcls.init() 
+
+
   #print " x, x_hlf", ptr2np(xf_ar, size_x, 1), ptr2np(xh_ar, size_x, 1)
   #print "z, z_half", ptr2np(zf_ar, 1, size_z), ptr2np(zh_ar, 1, size_z)
   #print "w, w_half", ptr2np(wf_ar, size_x, size_z), ptr2np(wh_ar, size_x, size_z)
+  #pdb.set_trace()
+  
 
 
   # superdroplets: all what have to be done within a timestep
