@@ -3,6 +3,7 @@
 import numpy as np
 import cffi
 import libcloudphxx as libcl
+import pdb
 
 ffi = cffi.FFI()
 
@@ -27,10 +28,22 @@ def lognormal(lnr):
     -pow((lnr - log(params["meanr"])), 2) / 2 / pow(log(params["gstdv"]),2)
   ) / log(params["gstdv"]) / sqrt(2*pi);
 
-@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*)")
-def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, uh_ar, wh_ar):
+def ptr2np(ptr, size_x, size_z):
+  # TODO: halo!, strides                                                                
+  numpy_ar = np.frombuffer(
+    ffi.buffer(ptr, size_x*size_z*np.dtype(params["real_t"]).itemsize),
+    dtype=params["real_t"]
+  ).reshape(size_x, size_z)
+  return numpy_ar
+
+
+
+@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, 
+               uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar):
   global prtcls
 
+  
   print "in python::micro_step() from Python"#, prtcls #, th_ar, size_z, size_x
 
   # superdroplets: initialisation (done only once)
@@ -44,12 +57,11 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, uh_ar, wh_ar):
     prtcls = libcl.lgrngn.factory(params["backend"], opts_init)
     #prtcls.init()
 
-  # mapping local NumPy arrays to the Fortran data locations
-  # TODO: halo!, strides
-  th = np.frombuffer(
-    ffi.buffer(th_ar, size_x*size_z*np.dtype(params["real_t"]).itemsize), 
-    dtype=params["real_t"]
-  )
+  # mapping local NumPy arrays to the Fortran data locations   
+  #print " x, x_hlf", ptr2np(xf_ar, size_x, 1), ptr2np(xh_ar, size_x, 1)
+  #print "z, z_half", ptr2np(zf_ar, 1, size_z), ptr2np(zh_ar, 1, size_z)
+  #print "w, w_half", ptr2np(wf_ar, size_x, size_z), ptr2np(wh_ar, size_x, size_z)
+
 
   # superdroplets: all what have to be done within a timestep
   #prtcls.step_sync()

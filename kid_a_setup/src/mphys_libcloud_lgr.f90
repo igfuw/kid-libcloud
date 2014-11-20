@@ -16,15 +16,19 @@ module mphys_libcloud_lgr
   
   interface
     subroutine micro_step_py(i_dgtime, size_z, size_x,  & 
-                        th_ar, qv_ar, rho_ar, vh_ar, wh_ar) bind(c)
+                        th_ar, qv_ar, rho_ar, vf_ar, vh_ar, wf_ar, wh_ar, &
+                        xf_ar, zf_ar, xh_ar, zh_ar) bind(c)
       use iso_c_binding, only: c_double, c_int
       Use parameters, only : nx, nz
       integer(c_int), intent(in), value :: i_dgtime, size_x, size_z
                                            
                                            
-      real(c_double),  intent(inout):: th_ar(nz, 0:nx+1), qv_ar(nz, 0:nx+1),   &
+      real(c_double),  intent(inout):: th_ar(nz, 0:nx+1), qv_ar(nz, 0:nx+1),  &
                                        rho_ar(nz),                     &
-                                       vh_ar(nz, 0:nx+1), wh_ar(nz, 0:nx+1)
+                                       vh_ar(nz, 0:nx+1), vf_ar(nz, 0:nx+1),  &
+                                       wf_ar(nz, 0:nx+1), wh_ar(nz, 0:nx+1),  &
+                                       xf_ar(0:nx+1), zf_ar(nz), xh_ar(0:nx+1), zh_ar(nz)
+
     end
 
     subroutine load_ptr(fname, ptr) bind(c)
@@ -50,7 +54,7 @@ contains
        call load_ptr("/tmp/micro_step.ptr" // c_null_char,cptr)
        call c_f_procpointer(cptr, fptr)
        call fptr(i_dgtime, nz, nx+2 , &
-                 theta, qv, rho, v_half, w_half)
+                 theta, qv, rho, v, v_half, w, w_half, x, z, x_half, z_half)
         
   
   end Subroutine mphys_libcloud_lgr_interface
