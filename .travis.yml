@@ -9,6 +9,8 @@ before_install:
   - sudo apt-get update
 
 install:
+  - if [[ $CXX == 'clang++' ]]; then sudo apt-get install --no-install-recommends clang; fi
+  - if [[ $CXX == 'g++'     ]]; then sudo apt-get install --no-install-recommends g++ ; fi
   - sudo apt-get install --no-install-recommends libnetcdfc7
   - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi libblitz0-dev cmake libboost-python-dev libthrust-dev
 
