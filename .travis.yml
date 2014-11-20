@@ -12,7 +12,19 @@ install:
   - sudo apt-get install --no-install-recommends libnetcdfc7
   - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi
 
+    # libcloudphxx
+    - cd ..
+    - git clone --depth=1 git://github.com/igfuw/libcloudphxx.git
+    - cd libcloudphxx
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+    - make
+    - sudo make install
+    - cd ../..
+
 script:
+  - cd kid-libcloud
   - tar xvzf kid_a_setup.tar.gz
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
