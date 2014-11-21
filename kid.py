@@ -91,6 +91,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   arrays["rhod_Cz"][:, 0 ] = 0
   arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
 
+
   #TODO: again only in first timestep ... if
   #prtcls.init() 
 
@@ -98,7 +99,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   #print " x, x_hlf", ptr2np(xf_ar, size_x, 1), ptr2np(xh_ar, size_x, 1)
   #print "z, z_half", ptr2np(zf_ar, 1, size_z), ptr2np(zh_ar, 1, size_z)
   #print "w, w_half", ptr2np(wf_ar, size_x, size_z), ptr2np(wh_ar, size_x, size_z)
-  #pdb.set_trace()
+  pdb.set_trace()
   
 
 
