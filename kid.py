@@ -5,7 +5,16 @@ import cffi
 import libcloudphxx as libcl
 import pdb
 
+# CFFI stuff
 ffi = cffi.FFI()
+lib = ffi.dlopen('KiD_SC_2D.so')
+
+# C functions
+ffi.cdef("void save_ptr(char*,void*);")
+
+# Fortran functions
+ffi.cdef("void __main_MOD_main_loop();")
+ffi.cdef("void __diagnostics_MOD_save_dg_2d_sp_c(float*, int, int, char*, int, char*, int, int);")
 
 # object storing super-droplet model state (to be initialised)
 prtcls = False
@@ -57,9 +66,18 @@ def th_dry2kid(arr):
 def rho_kid2dry(arr):
   return arr #TODO!
 
-def diagnostics(particles, it):
-  print "  diagnostics", it
-  pass
+def diagnostics(particles, it, size_x, size_z):
+  tmp = np.empty((size_x-2, size_z), dtype="float32")
+  tmp[:,:] = arrays["qv"]
+  tmp_ptr = ffi.cast("float*", tmp.__array_interface__['data'][0])
+  name = "aqq"
+  units = "J"
+  lib.__diagnostics_MOD_save_dg_2d_sp_c(
+    tmp_ptr, tmp.shape[0], tmp.shape[1], 
+    name, len(name), 
+    units, len(units),
+    it
+  )
 
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
@@ -110,7 +128,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   
   if first_timestep:
     prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"]) 
-    #TODO: call diagnostics for t=0
+    diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
 
   # superdroplets: all what have to be done within a timestep
   print "stepping"
@@ -132,19 +150,11 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
   # diagnostics
   if last_diag < it_diag:
-    diagnostics(prtcls, it_diag)
+    diagnostics(prtcls, it_diag, size_x, size_z)
     last_diag = it_diag
 
   first_timestep = False
   
-# C functions
-ffi.cdef("void save_ptr(char*,void*);")
-
-# Fortran functions
-ffi.cdef("void __main_MOD_main_loop();")
-
-lib = ffi.dlopen('KiD_SC_2D.so')
-
 # storing pointers to Python functions
 lib.save_ptr("/tmp/micro_step.ptr", micro_step)
 
