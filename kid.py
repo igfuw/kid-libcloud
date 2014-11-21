@@ -33,6 +33,7 @@ opts.coal = True
 opts.adve = True
 opts.sedi = True
 opts.chem = False
+opts.kernel = libcl.lgrngn.kernel_t.geometric
 
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
