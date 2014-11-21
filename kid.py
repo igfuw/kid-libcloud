@@ -60,9 +60,9 @@ def diagnostics(particles, it):
   print "  diagnostics", it
   pass
 
-@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
-               uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar):
+               uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
   global prtcls, dt, dx, dz, first_timestep, last_diag
 
 # superdroplets: initialisation (done only once)
@@ -87,17 +87,18 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   
     # allocating arrays for those variables that are not ready to use
     # (i.e. either different size or value conversion needed)
+    for name in ("thetad", "qv"):
+      arrays[name] = np.empty((size_x-2, size_z))
     arrays["rhod"] = np.empty((1, size_z))
-    arrays["theta_d"] = np.empty((size_x-2, size_z))
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
     
   # mapping local NumPy arrays to the Fortran data locations   
-  arrays["qv"] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-  arrays["thetad"] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
-  arrays["rhod"] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
+  arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
+  arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
+  arrays["rhod"][:,:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
 
-  arrays["rhod_Cx"] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
+  arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
   assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
   arrays["rhod_Cx"] *= arrays["rhod"] * dt / dx
 
@@ -115,8 +116,18 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) #TODO: courants...
   prtcls.step_async(opts)
 
-  # updating Fortran theta array (not needed for qv)
-  #ptr2np(th_ar, size_x, size_z)[1:-1, :] = th_dry2kid(arrays["thetad"])
+  # calculating tendency for theta (first converting back to non-dry theta
+  arrays["thetad"] = th_dry2kid(arrays["thetad"]) 
+  ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = (
+    ptr2np(th_ar, size_x, size_z)[1:-1, :] - # old
+    arrays["thetad"]                         # new
+  ) / dt #TODO: check if dt needed
+
+  # calculating tendency for qv
+  ptr2np(tend_qv_ar, size_x, size_z)[1:-1, :] = (
+    ptr2np(qv_ar, size_x, size_z)[1:-1, :] - # old                
+    arrays["qv"]                             # new 
+  ) / dt #TODO: check if dt needed    
 
   # diagnostics
   if last_diag < it_diag:
