@@ -23,6 +23,8 @@ params = {
 
 arrays = {}
 dt, dx, dz = 0, 0, 0
+first_timestep = True
+opts = libcl.lgrngn.opts_t()
 
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
@@ -32,7 +34,6 @@ def lognormal(lnr):
   ) / log(params["gstdv"]) / sqrt(2*pi);
 
 def ptr2np(ptr, size_x, size_z):
-  # TODO: halo!, strides                                                                
   numpy_ar = np.frombuffer(
     ffi.buffer(ptr, size_x*size_z*np.dtype(params["real_t"]).itemsize),
     dtype=params["real_t"]
@@ -42,22 +43,35 @@ def ptr2np(ptr, size_x, size_z):
 def th_kid2dry(arr):
   return arr #TODO!
 
+def th_dry2kid(arr):
+  return arr #TODO!
+
 def rho_kid2dry(arr):
   return arr #TODO!
 
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar):
-  global prtcls, dt, dx, dz
+  global prtcls, dt, dx, dz, first_timestep
 
   
   print "in python::micro_step() from Python"#, prtcls #, th_ar, size_z, size_x
   
   # superdroplets: initialisation (done only once)
-  if not prtcls:
+  if first_timestep:
     print "initialisation!"
+
+    arrx = ptr2np(xf_ar, size_x, 1)
+    arrz = ptr2np(zf_ar, 1, size_z)
+
+    dt = 1 #TODO                                                                     
+    dx = arrx[1,0] - arrx[0,0] #TODO, assert?                            
+    dz = arrz[0,1] - arrz[0,0] #TODO, assert?                            
+    print "dx, dz", dx, dz
+
     opts_init = libcl.lgrngn.opts_init_t()
-    
+    opts_init.dt = dt
+    #opts_init.dx, opts_init.dz = dx, dz #TODO wait for 3D interface
     opts_init.sd_conc = params["sd_conc"]
     opts_init.dry_distros = { params["kappa"] : lognormal }
 
@@ -69,18 +83,10 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     arrays["theta_d"] = np.empty((size_x-2, size_z))
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
-    arrays["x"] = ptr2np(xf_ar, size_x, 1)
-    arrays["z"] = ptr2np(zf_ar, 1, size_z)
-
-    #TODO should be in IF
-    dt = 1 #TODO
-    dx = arrays["x"][1,0] - arrays["x"][0,0] #TODO
-    dz = arrays["z"][0,1] - arrays["z"][0,0]#TODO
-    print "dx, dz", dx, dz
-
+    
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-  arrays["theta_d"] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
+  arrays["thetad"] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
   arrays["rhod"] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
 
   arrays["rhod_Cx"] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
@@ -91,27 +97,19 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   arrays["rhod_Cz"][:, 0 ] = 0
   arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
 
-
-  #TODO: again only in first timestep ... if
-  #prtcls.init() 
-
-
-  #print " x, x_hlf", ptr2np(xf_ar, size_x, 1), ptr2np(xh_ar, size_x, 1)
-  #print "z, z_half", ptr2np(zf_ar, 1, size_z), ptr2np(zh_ar, 1, size_z)
-  #print "w, w_half", ptr2np(wf_ar, size_x, size_z), ptr2np(wh_ar, size_x, size_z)
-  pdb.set_trace()
   
-
+  if first_timestep:
+    prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"]) 
 
   # superdroplets: all what have to be done within a timestep
-  #prtcls.step_sync()
-  #prtcls.step_async()
+  prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) #TODO: courants...
+  prtcls.step_async(opts)
 
-  #print "i_dgtime z fortrana", it_diag
-  #print array.reshape((size_x,size_z))[1:-1,:]
+  # updating Fortran theta array (not needed for qv)
+  #ptr2np(th_ar, size_x, size_z)[1:-1, :] = th_dry2kid(arrays["thetad"])
 
-
-
+  first_timestep = False
+  
 # C functions
 ffi.cdef("void save_ptr(char*,void*);")
 
