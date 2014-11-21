@@ -44,8 +44,8 @@ def th_kid2dry(arr):
 def rho_kid2dry(arr):
   return arr #TODO!
 
-@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
-def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar, 
+@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar):
   global prtcls
 
@@ -78,7 +78,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar,
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
   arrays["theta_d"] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
-  arrays["rhod"] = rho_kid2dry(ptr2np(rho_ar, 1, size_z)[:])
+  arrays["rhod"] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
 
   arrays["rhod_Cx"] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
   assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
@@ -86,7 +86,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rho_ar,
 
   arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
   arrays["rhod_Cz"][:, 0 ] = 0
-#  arrays["rhod_Cz"] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
+  arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
 
   #TODO: again only in first timestep ... if
   #prtcls.init() 
