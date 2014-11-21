@@ -69,11 +69,14 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   arrays["theta_d"] = np.empty((size_x-2, size_z))
   arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
   arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
+  arrays["x"] = ptr2np(xf_ar, size_x, 1)
+  arrays["z"] = ptr2np(zf_ar, 1, size_z)
 
   #TODO should be in IF
   dt = 1 #TODO
-  dx = 1 #TODO
-  dz = 1 #TODO
+  dx = arrays["x"][1,0] - arrays["x"][0,0] #TODO
+  dz = arrays["z"][0,1] - arrays["z"][0,0]#TODO
+  print "dx, dz", dx, dz
 
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
