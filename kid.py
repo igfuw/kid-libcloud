@@ -14,7 +14,7 @@ prtcls = False
 params = {
   "real_t" : np.float64,
   "backend" : libcl.lgrngn.backend_t.serial,
-  "sd_conc" : 128,
+  "sd_conc" : 128.,
   "kappa" : .61,
   "meanr" : .04e-6,
   "gstdv" : 1.4,
@@ -24,11 +24,18 @@ params = {
 arrays = {}
 dt, dx, dz = 0, 0, 0
 first_timestep = True
+last_diag = -1
 opts = libcl.lgrngn.opts_t()
+opts.sstp_cond = 1
+opts.sstp_coal = 1
+opts.cond = True
+opts.coal = True
+opts.adve = True
+opts.sedi = True
+opts.chem = False
 
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
-  print lnr
   return params["n_tot"] * exp(
     -pow((lnr - log(params["meanr"])), 2) / 2 / pow(log(params["gstdv"]),2)
   ) / log(params["gstdv"]) / sqrt(2*pi);
@@ -49,15 +56,16 @@ def th_dry2kid(arr):
 def rho_kid2dry(arr):
   return arr #TODO!
 
+def diagnostics(particles, it):
+  print "  diagnostics", it
+  pass
+
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar):
-  global prtcls, dt, dx, dz, first_timestep
+  global prtcls, dt, dx, dz, first_timestep, last_diag
 
-  
-  print "in python::micro_step() from Python"#, prtcls #, th_ar, size_z, size_x
-  
-  # superdroplets: initialisation (done only once)
+# superdroplets: initialisation (done only once)
   if first_timestep:
     print "initialisation!"
 
@@ -100,13 +108,20 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   
   if first_timestep:
     prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"]) 
+    #TODO: call diagnostics for t=0
 
   # superdroplets: all what have to be done within a timestep
+  print "stepping"
   prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) #TODO: courants...
   prtcls.step_async(opts)
 
   # updating Fortran theta array (not needed for qv)
   #ptr2np(th_ar, size_x, size_z)[1:-1, :] = th_dry2kid(arrays["thetad"])
+
+  # diagnostics
+  if last_diag < it_diag:
+    diagnostics(prtcls, it_diag)
+    last_diag = it_diag
 
   first_timestep = False
   
