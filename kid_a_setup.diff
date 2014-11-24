@@ -25,6 +25,54 @@ diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml
  
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/defines.inc kid_a_setup/src/defines.inc
+--- kid_a_setup.orig/src/defines.inc	2014-07-25 10:17:28.000000000 +0200
++++ kid_a_setup/src/defines.inc	2014-11-20 12:27:13.000000000 +0100
+@@ -19,8 +19,8 @@
+ endif
+ 
+ ifeq ($(CASE), SC_2D)
+-D1=DEF_NX=100
+-D2=DEF_NZ=52
++D1=DEF_NX=3
++D2=DEF_NZ=6
+ endif
+ 
+ ifeq ($(CASE), CU_2D)
+diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
+--- kid_a_setup.orig/src/diagnostics.f90	2014-07-25 10:17:28.000000000 +0200
++++ kid_a_setup/src/diagnostics.f90	2014-11-21 18:57:51.000000000 +0100
+@@ -21,6 +21,8 @@
+ 
+   Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
+ 
++  use iso_c_binding, only: c_int, c_float, c_char
++
+   Implicit none
+ 
+   type, public :: dgID
+@@ -1132,6 +1134,21 @@
+ 
+   end subroutine save_dg_1d_point_sp
+ 
++
++  subroutine save_dg_2d_sp_c( &
++    field, nx, nz,            & 
++    name, namelen,            &
++    units, unitslen,          &
++    itime                     &
++  )
++    integer(c_int), intent(in), value :: nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_2d_sp(field, name, itime, units, "z,x")
++  end subroutine
++
+   subroutine save_dg_2d_sp(field, name, itime, units, &
+        dim, longname)
+ 
 diff -ruN --exclude=mphys_libcloud_lgr.f90 --exclude=kida_SC_2D_libcloud_lgr.nml --exclude=ptrutil.c --exclude='*~' --exclude='*.mod' --exclude='*.o' --exclude=bin --exclude=4A_code --exclude=UM_source --exclude=.includes --exclude=case.used --exclude=output --exclude=gmon.out kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/makefile.inc	2014-11-03 17:15:52.000000000 +0100

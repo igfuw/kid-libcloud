@@ -21,9 +21,9 @@ icase=602
 &control
 mphys_scheme='libcloud_lgr'
 dt=1.0
-dgstart=0.0
-dg_dt=60.0
-tctrl(1)=10800.
+dgstart=-1.0
+dg_dt=1.0
+tctrl(1)=2.
 wctrl(1)=1.0
 lhf_ctrl(1)=3.
 shf_ctrl(1)=-3.
