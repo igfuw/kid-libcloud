@@ -86,7 +86,6 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
 # superdroplets: initialisation (done only once)
   if first_timestep:
-    print "initialisation!"
 
     arrx = ptr2np(xf_ar, size_x, 1)
     arrz = ptr2np(zf_ar, 1, size_z)
@@ -94,7 +93,6 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     dt = 1 #TODO                                                                     
     dx = arrx[1,0] - arrx[0,0] #TODO, assert?                            
     dz = arrz[0,1] - arrz[0,0] #TODO, assert?                            
-    print "dx, dz", dx, dz
 
     opts_init = libcl.lgrngn.opts_init_t()
     opts_init.dt = dt
@@ -131,7 +129,6 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
 
   # superdroplets: all what have to be done within a timestep
-  print "stepping"
   prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) #TODO: courants...
   prtcls.step_async(opts)
 
