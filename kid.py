@@ -55,7 +55,7 @@ def ptr2np(ptr, size_x, size_z):
     ffi.buffer(ptr, size_x*size_z*np.dtype(params["real_t"]).itemsize),
     dtype=params["real_t"]
   ).reshape(size_x, size_z)
-  return numpy_ar
+  return numpy_ar.squeeze()
 
 def th_kid2dry(arr):
   return arr #TODO!
@@ -91,12 +91,14 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     arrz = ptr2np(zf_ar, 1, size_z)
 
     dt = 1 #TODO                                                                     
-    dx = arrx[1,0] - arrx[0,0] #TODO, assert?                            
-    dz = arrz[0,1] - arrz[0,0] #TODO, assert?                            
+    dx = arrx[1] - arrx[0] #TODO, assert?                            
+    dz = arrz[1] - arrz[0] #TODO, assert?                            
 
     opts_init = libcl.lgrngn.opts_init_t()
     opts_init.dt = dt
-    #opts_init.dx, opts_init.dz = dx, dz #TODO wait for 3D interface
+    opts_init.nx, opts_init.nz = size_x - 2, size_z
+    opts_init.dx, opts_init.dz = dx, dz 
+    opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
     opts_init.sd_conc = params["sd_conc"]
     opts_init.dry_distros = { params["kappa"] : lognormal }
 
@@ -106,14 +108,14 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # (i.e. either different size or value conversion needed)
     for name in ("thetad", "qv"):
       arrays[name] = np.empty((size_x-2, size_z))
-    arrays["rhod"] = np.empty((1, size_z))
+    arrays["rhod"] = np.empty((size_z,))
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
     
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
   arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
-  arrays["rhod"][:,:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
+  arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
 
   arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
   assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
