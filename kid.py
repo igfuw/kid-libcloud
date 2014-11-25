@@ -66,18 +66,25 @@ def th_dry2kid(arr):
 def rho_kid2dry(arr):
   return arr #TODO!
 
-def diagnostics(particles, it, size_x, size_z):
-  tmp = np.empty((size_x-2, size_z), dtype="float32")
-  tmp[:,:] = arrays["qv"]
-  tmp_ptr = ffi.cast("float*", tmp.__array_interface__['data'][0])
-  name = "aqq"
-  units = "J"
+def save_dg(arr, it, name, units):
+  arr = arr.astype(np.float32, copy=False)
+  arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   lib.__diagnostics_MOD_save_dg_2d_sp_c(
-    tmp_ptr, tmp.shape[0], tmp.shape[1], 
+    arr_ptr, arr.shape[0], arr.shape[1], 
     name, len(name), 
     units, len(units),
     it
   )
+
+def diagnostics(particles, it, size_x, size_z):
+  tmp = np.empty((size_x-2, size_z))
+  tmp[:,:] = arrays["qv"]
+  save_dg(tmp, it, "aqq", "J")
+
+  # TODO: select all particles
+  particles.diag_sd_conc()
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
+  
 
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
