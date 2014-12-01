@@ -55,7 +55,7 @@ def ptr2np(ptr, size_x, size_z):
     ffi.buffer(ptr, size_x*size_z*np.dtype(params["real_t"]).itemsize),
     dtype=params["real_t"]
   ).reshape(size_x, size_z)
-  return numpy_ar
+  return numpy_ar.squeeze()
 
 def th_kid2dry(arr):
   return arr #TODO!
@@ -66,18 +66,25 @@ def th_dry2kid(arr):
 def rho_kid2dry(arr):
   return arr #TODO!
 
-def diagnostics(particles, it, size_x, size_z):
-  tmp = np.empty((size_x-2, size_z), dtype="float32")
-  tmp[:,:] = arrays["qv"]
-  tmp_ptr = ffi.cast("float*", tmp.__array_interface__['data'][0])
-  name = "aqq"
-  units = "J"
+def save_dg(arr, it, name, units):
+  arr = arr.astype(np.float32, copy=False)
+  arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   lib.__diagnostics_MOD_save_dg_2d_sp_c(
-    tmp_ptr, tmp.shape[0], tmp.shape[1], 
+    arr_ptr, arr.shape[0], arr.shape[1], 
     name, len(name), 
     units, len(units),
     it
   )
+
+def diagnostics(particles, it, size_x, size_z):
+  tmp = np.empty((size_x-2, size_z))
+  tmp[:,:] = arrays["qv"]
+  save_dg(tmp, it, "aqq", "J")
+
+  # TODO: select all particles
+  particles.diag_sd_conc()
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
+  
 
 @ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
@@ -91,13 +98,15 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     arrz = ptr2np(zf_ar, 1, size_z)
 
     dt = 1 #TODO                                                                     
-    dx = arrx[1,0] - arrx[0,0] #TODO, assert?                            
-    dz = arrz[0,1] - arrz[0,0] #TODO, assert?                            
+    dx = arrx[1] - arrx[0] #TODO, assert?                            
+    dz = arrz[1] - arrz[0] #TODO, assert?                            
 
     opts_init = libcl.lgrngn.opts_init_t()
     opts_init.dt = dt
-    #opts_init.dx, opts_init.dz = dx, dz #TODO wait for 3D interface
-    opts_init.sd_conc = params["sd_conc"]
+    opts_init.nx, opts_init.nz = size_x - 2, size_z
+    opts_init.dx, opts_init.dz = dx, dz 
+    opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
+    opts_init.sd_conc_mean = params["sd_conc"]
     opts_init.dry_distros = { params["kappa"] : lognormal }
 
     prtcls = libcl.lgrngn.factory(params["backend"], opts_init)
@@ -106,14 +115,14 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # (i.e. either different size or value conversion needed)
     for name in ("thetad", "qv"):
       arrays[name] = np.empty((size_x-2, size_z))
-    arrays["rhod"] = np.empty((1, size_z))
+    arrays["rhod"] = np.empty((size_z,))
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
     
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
   arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
-  arrays["rhod"][:,:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
+  arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
 
   arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
   assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
@@ -125,7 +134,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
   
   if first_timestep:
-    prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"]) 
+    prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
     diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
 
   # superdroplets: all what have to be done within a timestep
