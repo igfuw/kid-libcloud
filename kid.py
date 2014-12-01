@@ -106,7 +106,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     opts_init.nx, opts_init.nz = size_x - 2, size_z
     opts_init.dx, opts_init.dz = dx, dz 
     opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
-    opts_init.sd_conc = params["sd_conc"]
+    opts_init.sd_conc_mean = params["sd_conc"]
     opts_init.dry_distros = { params["kappa"] : lognormal }
 
     prtcls = libcl.lgrngn.factory(params["backend"], opts_init)
@@ -134,7 +134,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
   
   if first_timestep:
-    prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"]) 
+    prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
     diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
 
   # superdroplets: all what have to be done within a timestep
