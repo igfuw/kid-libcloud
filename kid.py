@@ -7,7 +7,8 @@ import pdb
 
 # CFFI stuff
 ffi = cffi.FFI()
-lib = ffi.dlopen('KiD_SC_2D.so')
+flib = ffi.dlopen('KiD_SC_2D.so')
+clib = ffi.dlopen('ptrutil.so')
 
 # C functions
 ffi.cdef("void save_ptr(char*,void*);")
@@ -69,7 +70,7 @@ def rho_kid2dry(arr):
 def save_dg(arr, it, name, units):
   arr = arr.astype(np.float32, copy=False)
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
-  lib.__diagnostics_MOD_save_dg_2d_sp_c(
+  flib.__diagnostics_MOD_save_dg_2d_sp_c(
     arr_ptr, arr.shape[0], arr.shape[1], 
     name, len(name), 
     units, len(units),
@@ -138,7 +139,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
 
   # superdroplets: all what have to be done within a timestep
-  prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) #TODO: courants...
+  prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) 
   prtcls.step_async(opts)
 
   # calculating tendency for theta (first converting back to non-dry theta
@@ -162,9 +163,9 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   first_timestep = False
   
 # storing pointers to Python functions
-lib.save_ptr("/tmp/micro_step.ptr", micro_step)
+clib.save_ptr("/tmp/micro_step.ptr", micro_step)
 
 # running Fortran stuff
 # note: not using command line arguments, namelist name hardcoded in
 #       kid_a_setup/namelists/SC_2D_input.nml 
-lib.__main_MOD_main_loop()
+flib.__main_MOD_main_loop()
