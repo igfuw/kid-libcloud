@@ -5,6 +5,11 @@ import cffi
 import libcloudphxx as libcl
 import pdb
 
+# constants - TODO
+R_v = 461.4 #J/kg/K (libcloud)
+R_d = 287.1 #J/kg/K (libcloud)
+c_pd = 1005. #J/kg/K (libcloud)
+
 # CFFI stuff
 ffi = cffi.FFI()
 lib = ffi.dlopen('KiD_SC_2D.so')
@@ -57,14 +62,14 @@ def ptr2np(ptr, size_x, size_z):
   ).reshape(size_x, size_z)
   return numpy_ar.squeeze()
 
-def th_kid2dry(arr):
-  return arr #TODO!
+def th_kid2dry(th, rv):
+  return th * (1 + rv * R_v / R_d)**(R_d/c_pd)
 
-def th_dry2kid(arr):
-  return arr #TODO!
+def th_dry2kid(th_d, rv):
+  return th_d * (1 + rv * R_v / R_d)**(-R_d/c_pd)
 
-def rho_kid2dry(arr):
-  return arr #TODO!
+def rho_kid2dry(rho, rv):
+  return rho / (1 + rv) #TODO: I'm assuming that KiD uses rho
 
 def save_dg(arr, it, name, units):
   arr = arr.astype(np.float32, copy=False)
