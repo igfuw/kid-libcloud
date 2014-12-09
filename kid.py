@@ -3,12 +3,8 @@
 import numpy as np
 import cffi
 import libcloudphxx as libcl
+from libcloudphxx.common import R_v, R_d, c_pd
 import pdb
-
-# constants - TODO
-R_v = 461.4 #J/kg/K (libcloud)
-R_d = 287.1 #J/kg/K (libcloud)
-c_pd = 1005. #J/kg/K (libcloud)
 
 # CFFI stuff
 ffi = cffi.FFI()
