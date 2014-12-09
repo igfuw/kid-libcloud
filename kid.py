@@ -72,7 +72,7 @@ def rho_kid2dry(rho, rv):
   return rho / (1 + rv) #TODO: I'm assuming that KiD uses rho
 
 def save_dg(arr, it, name, units):
-  arr.dtype = "float32" #TODO, ask SA if that's ok
+  arr = arr.astype(np.float32) #TODO, is it ok with copying? keywords doesn't work for older numpy
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   lib.__diagnostics_MOD_save_dg_2d_sp_c(
     arr_ptr, arr.shape[0], arr.shape[1], 
