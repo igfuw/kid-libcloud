@@ -94,6 +94,7 @@ def diagnostics(particles, it, size_x, size_z):
 @ffi.callback("void(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
+  # global should be used for all variables defined in "if first_timestep"  
   global prtcls, dx, dz, first_timestep, last_diag
 
 # superdroplets: initialisation (done only once)
