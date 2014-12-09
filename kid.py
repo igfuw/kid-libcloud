@@ -91,18 +91,16 @@ def diagnostics(particles, it, size_x, size_z):
   save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
   
 
-@ffi.callback("void(int, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
-def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
+@ffi.callback("void(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
-  global prtcls, dt, dx, dz, first_timestep, last_diag
+  global prtcls, dx, dz, first_timestep, last_diag
 
 # superdroplets: initialisation (done only once)
   if first_timestep:
 
     arrx = ptr2np(xf_ar, size_x, 1)
     arrz = ptr2np(zf_ar, 1, size_z)
-
-    dt = 1 #TODO                                     
 
     # checking if grids are equal
     np.testing.assert_almost_equal((arrx[1:]-arrx[:-1]).max(), (arrx[1:]-arrx[:-1]).min(), decimal=7)
@@ -124,7 +122,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # (i.e. either different size or value conversion needed)
     for name in ("thetad", "qv"):
       arrays[name] = np.empty((size_x-2, size_z))
-    arrays["rhod"] = np.empty((size_x-2, size_z))
+    arrays["rhod"] = np.empty((size_x-2, size_z)) #TODO: add to loop or change back to one dim
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
     
