@@ -67,7 +67,7 @@ def rho_kid2dry(arr):
   return arr #TODO!
 
 def save_dg(arr, it, name, units):
-  arr = arr.astype(np.float32, copy=False)
+  arr.dtype ="float32"
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   lib.__diagnostics_MOD_save_dg_2d_sp_c(
     arr_ptr, arr.shape[0], arr.shape[1], 
