@@ -13,9 +13,14 @@ clib = ffi.dlopen('ptrutil.so')
 # C functions
 ffi.cdef("void save_ptr(char*,void*);")
 
-# Fortran functions
+# Fortran functions (_sp_ means single precision)
 ffi.cdef("void __main_MOD_main_loop();")
-ffi.cdef("void __diagnostics_MOD_save_dg_2d_sp_c(float*, int, int, char*, int, char*, int, int);")
+ffi.cdef("void __diagnostics_MOD_save_dg_2d_sp_c(float*, int, int, char*, int,     char*, int,      int   );")
+#                                                field,  nx,  nz,  name,  namelen, units, unitslen, itime
+ffi.cdef("void __diagnostics_MOD_save_bindata_sp(float*, int, char*, int,     char*, int      )")
+#                                                field,  nb,  name,  namelen, units, unitslen
+ffi.cdef("void __diagnostics_MOD_save_dg_2d_bin_sp(float*, int, int, int, char*, int,     char*, int,      int   )")
+#                                                  field,  nb,  nx,  nz,  name,  namelen, units, unitslen, itime
 
 # object storing super-droplet model state (to be initialised)
 prtcls = False

@@ -41,7 +41,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  ifeq ($(CASE), CU_2D)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_setup.orig/src/diagnostics.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/diagnostics.f90	2014-11-24 12:52:23.972646937 +0100
++++ kid_a_setup/src/diagnostics.f90	2014-12-09 17:52:56.979349155 +0100
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -73,6 +73,48 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    subroutine save_dg_2d_sp(field, name, itime, units, &
         dim, longname)
  
+@@ -1718,6 +1735,20 @@
+     
+   end subroutine save_dg_bin_dp
+ 
++  subroutine save_dg_2d_bin_sp_c( &
++    field, nb, nx, nz,            & 
++    name, namelen,                &
++    units, unitslen,              &
++    itime                         &
++  )
++    integer(c_int), intent(in), value :: nb, nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx, nb)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_2d_bin_sp(field, name, itime, units, "z,x,b")
++  end subroutine
++
+ subroutine save_dg_2d_bin_sp(field, name, itime, units, &
+      dim, longname)
+     
+@@ -1826,6 +1857,19 @@
+     
+   end subroutine save_dg_2d_bin_dp
+ 
++  subroutine save_binData_sp_c(&
++    field, nb,                 & 
++    name, namelen,             &
++    units, unitslen            &
++  )
++    integer(c_int), intent(in), value :: nb, namelen, unitslen
++    real(c_float), intent(in) :: field(nb)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_binData_sp(field, name, units)
++  end subroutine
++
+   subroutine save_binData_sp(field, name, units, &
+        longname)
+     ! Save the bin data (e.g. sizes or masses)
+Binary files kid_a_setup.orig/src/.diagnostics.f90.swp and kid_a_setup/src/.diagnostics.f90.swp differ
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/makefile.inc	2014-12-09 16:44:09.923562471 +0100
