@@ -72,7 +72,7 @@ def rho_kid2dry(rho, rv):
   return rho / (1 + rv) #TODO: I'm assuming that KiD uses rho
 
 def save_dg(arr, it, name, units):
-  arr = arr.astype(np.float32, copy=False)
+  arr.dtype = "float32" #TODO, ask SA if that's ok
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   lib.__diagnostics_MOD_save_dg_2d_sp_c(
     arr_ptr, arr.shape[0], arr.shape[1], 
@@ -120,22 +120,22 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # (i.e. either different size or value conversion needed)
     for name in ("thetad", "qv"):
       arrays[name] = np.empty((size_x-2, size_z))
-    arrays["rhod"] = np.empty((size_z,))
+    arrays["rhod"] = np.empty((size_x-2, size_z))
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
     
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-  arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :])
-  arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:])
+  arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
+  arrays["rhod"][:,:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][:,:])
 
   arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
   assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-  arrays["rhod_Cx"] *= arrays["rhod"] * dt / dx
+  arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx #TODO - rhod should be in uh_ar places??
 
   arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
   arrays["rhod_Cz"][:, 0 ] = 0
-  arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
+  arrays["rhod_Cz"][:, 1:] *= rho_kid2dry(ptr2np(rhoh_ar, 1, size_z), arrays["qv"][:,:]) * dt / dz
 
   
   if first_timestep:
@@ -147,7 +147,7 @@ def micro_step(it_diag, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   prtcls.step_async(opts)
 
   # calculating tendency for theta (first converting back to non-dry theta
-  arrays["thetad"] = th_dry2kid(arrays["thetad"]) 
+  arrays["thetad"] = th_dry2kid(arrays["thetad"], arrays["qv"][:,:]) 
   ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = (
     ptr2np(th_ar, size_x, size_z)[1:-1, :] - # old
     arrays["thetad"]                         # new
