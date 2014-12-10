@@ -7,7 +7,7 @@ module mphys_libcloud_lgr
   Use physconst, only : p0, r_on_cp, pi
 
   Use diagnostics, only: save_dg, i_dgtime
-  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double
+  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double, c_int
 
   Implicit None
   
@@ -15,10 +15,12 @@ module mphys_libcloud_lgr
     subroutine micro_step_py(i_dgtime, dt, size_z, size_x,  & 
                         th_ar, qv_ar, rhof_ar, rhoh_ar, &
                         vf_ar, vh_ar, wf_ar, wh_ar,     &
-                        xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar) bind(c)
+                        xf_ar, zf_ar, xh_ar, zh_ar,     &
+                        tend_th_ar, tend_qv_ar, err) bind(c)
       use iso_c_binding, only: c_double, c_int, c_float
       Use parameters, only : nx, nz
       integer(c_int), intent(in), value :: i_dgtime, size_x, size_z
+      integer(c_int) :: err
       real(c_float), intent(in), value :: dt
                                            
       real(c_double),  intent(inout):: th_ar(nz, 0:nx+1), qv_ar(nz, 0:nx+1),  &
@@ -37,13 +39,15 @@ module mphys_libcloud_lgr
     end
   end interface
 
+  integer(c_int) :: err
   type(c_funptr) :: cptr
   procedure(micro_step_py), pointer :: fptr => NULL()
 
 contains
 
   Subroutine mphys_libcloud_lgr_interface
-
+    integer :: err
+    err = -1
     ! do the below only once
     if (associated(fptr) .eqv. .false.) then 
       ! assert for numerical precision  
@@ -57,10 +61,13 @@ contains
     end if
 
     ! do the below every timestep
+    print*, "ERR w F, przed", err
     call fptr(i_dgtime, dt, nz, nx+2 , &
               theta, qv, rho, rho_half, & 
-              v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys)
-  
+              v, v_half, w, w_half, x, z, x_half, z_half, &
+              dTheta_mphys, dqv_mphys, err)
+    print*, "ERR w F, po", err
+
   end Subroutine mphys_libcloud_lgr_interface
 
 end module mphys_libcloud_lgr
