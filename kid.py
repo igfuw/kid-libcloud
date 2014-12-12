@@ -107,29 +107,30 @@ def diagnostics(particles, it, size_x, size_z):
   particles.diag_sd_conc()
   save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
 
-
-  # TODO: allocate only once
-  mom_0 = np.empty((params["n_bins"], size_x-2, size_z))
-  mom_3 = np.empty((params["n_bins"], size_x-2, size_z))
-  bins_D_upper = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"] # (mass-doubling scheme)
+  
+  # temporary arrays (allocating only once)
+  if first_timestep:
+    arrays["mom_0"] = np.empty((params["n_bins"], size_x-2, size_z))
+    arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z))
+    arrays["bins_D_upper"] = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"] # (mass-doubling scheme)
 
   # binned wet spectrum
   r_min = 0.
   for i in range(params["n_bins"]):
     # selecting range
-    r_max = bins_D_upper[i] / 2
+    r_max = arrays["bins_D_upper"][i] / 2
     particles.diag_wet_rng(r_min, r_max)
     r_min = r_max
     # computing 1-st moment
     particles.diag_wet_mom(0)
-    mom_0[i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
+    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
     # computing 3-rd moment
     particles.diag_wet_mom(3)
-    mom_3[i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
+    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
 
-  save_dg(mom_0, it, "cloud_bin_number", "/kg") 
-  mom_3 *= libcl.common.rho_w * (4./3) * math.pi
-  save_dg(mom_3, it, "cloud_bin_mass", "kg/kg")
+  save_dg(arrays["mom_0"], it, "cloud_bin_number", "/kg") 
+  arrays["mom_3"] *= libcl.common.rho_w * (4./3) * math.pi
+  save_dg(arrays["mom_3"], it, "cloud_bin_mass", "kg/kg")
 
   # binned dry spectrum? - TODO
   # ...

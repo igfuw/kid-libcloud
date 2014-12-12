@@ -114,7 +114,6 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    subroutine save_binData_sp(field, name, units, &
         longname)
      ! Save the bin data (e.g. sizes or masses)
-Binary files kid_a_setup.orig/src/.diagnostics.f90.swp and kid_a_setup/src/.diagnostics.f90.swp differ
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/makefile.inc	2014-12-09 16:44:09.923562471 +0100
