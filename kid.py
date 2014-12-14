@@ -157,7 +157,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # calculating tendency for theta (first converting back to non-dry theta
     ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = (
       ptr2np(th_ar, size_x, size_z)[1:-1, :] -   # old
-      th_dry2kid(arrays["thetad"]) # new
+      th_dry2kid(arrays["thetad"], arrays["qv"]) # new
       ) / dt #TODO: check if dt needed
     
     # calculating tendency for qv
