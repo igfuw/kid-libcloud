@@ -39,7 +39,7 @@ module mphys_libcloud_lgr
     end
   end interface
 
-  integer(c_int) :: err
+!  integer(c_int) :: err
   type(c_funptr) :: cptr
   procedure(micro_step_py), pointer :: fptr => NULL()
 
@@ -67,6 +67,9 @@ contains
               v, v_half, w, w_half, x, z, x_half, z_half, &
               dTheta_mphys, dqv_mphys, err)
     print*, "ERR w F, po", err
+    if (err.eq.1 ) then
+   stop 1
+   end if
 
   end Subroutine mphys_libcloud_lgr_interface
 

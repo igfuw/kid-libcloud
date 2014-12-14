@@ -91,13 +91,15 @@ def diagnostics(particles, it, size_x, size_z):
   save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
   
 
-@ffi.callback("void(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, int)")
+@ffi.callback("void(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, int*)")
 def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, 
                tend_th_ar, tend_qv_ar, err):
   # global should be used for all variables defined in "if first_timestep"  
   global prtcls, dx, dz, first_timestep, last_diag
 
+  print " w pythonie na poczatku err", err
+  err_py = ffi.cast("int *",err) 
   try:
     # superdroplets: initialisation (done only once)
     if first_timestep:
@@ -155,7 +157,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # calculating tendency for theta (first converting back to non-dry theta
     ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = (
       ptr2np(th_ar, size_x, size_z)[1:-1, :] -   # old
-      th_dry2kid(arrays["thetad"], arrays["qv"]) # new
+      th_dry2kid(arrays["thetad"]) # new
       ) / dt #TODO: check if dt needed
     
     # calculating tendency for qv
@@ -170,10 +172,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       last_diag = it_diag
 
     first_timestep = False
-    err = 0
+    err_py[0] = 0
   except:
     print " w except"
-    err = 1
+    err_py[0] = 1
   
   
 # storing pointers to Python functions
