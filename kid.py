@@ -35,8 +35,8 @@ params = {
   "meanr" : .04e-6,
   "gstdv" : 1.4,
   "n_tot" : 100e6,
-  "n_bins": 34,          # \__ from the TAU example file @ KiD-A website
-  "bin0_D_upper" : 3.125 # /
+  "n_bins": 34,             # \__ from the TAU example file @ KiD-A website
+  "bin0_D_upper" : 3.125e-6 # /
 }
 
 arrays = {}
@@ -75,13 +75,17 @@ def th_dry2kid(th_d, rv):
 def rho_kid2dry(rho, rv):
   return rho / (1 + rv) #TODO: I'm assuming that KiD uses rho
 
-def save_dg(arr, it, name, units):
+def save_helper(arr):
   # astype() takes keywords arguments for newer numpy versions (1.7?)
   try: 
     arr = arr.astype(np.float32, copy=False) 
   except TypeError:
     arr = arr.astype(np.float32)
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
+  return arr, arr_ptr
+
+def save_dg(arr, it, name, units):
+  arr, arr_ptr = save_helper(arr)
   if (arr.ndim == 2):
     flib.__diagnostics_MOD_save_dg_2d_sp_c(
       arr_ptr, arr.shape[0], arr.shape[1], 
@@ -99,6 +103,14 @@ def save_dg(arr, it, name, units):
   else:
     assert(False)
 
+def save_bindata(arr, name, unit):
+  assert(arr.ndim == 1)
+  arr, arr_ptr = save_helper(arr)
+  flib.__diagnostics_MOD_save_bindata_sp_c(
+    arr_ptr, arr.shape[0], 
+    name, len(name), 
+    unit, len(unit)
+  )
 
 def diagnostics(particles, it, size_x, size_z):
   import math
@@ -119,6 +131,10 @@ def diagnostics(particles, it, size_x, size_z):
     arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z))
     # upper diameter of a bin with values set using mass-doubling scheme
     arrays["bins_D_upper"] = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"] 
+
+    save_bindata(arrays["bins_D_upper"] * 1e6, "bins_D_upper", "microns")
+    save_bindata((arrays["bins_D_upper"]/2)**3 * libcl.common.rho_w * (4./3) * math.pi, "bins_mass_upper", "kg")
+    save_bindata(np.diff(np.concatenate([np.zeros(1), arrays["bins_D_upper"]])) * 1e6, "dD", "microns")
 
   # binned wet spectrum
   r_min = 0.
