@@ -123,18 +123,20 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # (i.e. either different size or value conversion needed)
     for name in ("thetad", "qv"):
       arrays[name] = np.empty((size_x-2, size_z))
-    arrays["rhod"] = np.empty((size_x-2, size_z)) #TODO: add to loop or change back to one dim
+    arrays["rhod"] = np.empty((size_z,))
     arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
     arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
-    
+    # moving rhod definition within the IF (qv is calculated twice for the first time step)
+    arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
+    arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+   
   # mapping local NumPy arrays to the Fortran data locations   
   arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
   arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
-  arrays["rhod"][:,:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][:,:])
-
+ 
   arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
   assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-  arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx #TODO - rhod should be in uh_ar places??
+  arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx 
 
   arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
   arrays["rhod_Cz"][:, 0 ] = 0
