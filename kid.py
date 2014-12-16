@@ -98,8 +98,6 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
   # global should be used for all variables defined in "if first_timestep"  
   global prtcls, dx, dz, first_timestep, last_diag
 
-  print " w pythonie na poczatku err", err
-  err_py = ffi.cast("int *",err) 
   try:
     # superdroplets: initialisation (done only once)
     if first_timestep:
@@ -172,10 +170,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       last_diag = it_diag
 
     first_timestep = False
-    err_py[0] = 0
+    err[0] = 0
   except:
     print " w except"
-    err_py[0] = 1
+    err[0] = 1
   
   
 # storing pointers to Python functions

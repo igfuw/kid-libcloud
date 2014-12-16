@@ -39,7 +39,6 @@ module mphys_libcloud_lgr
     end
   end interface
 
-!  integer(c_int) :: err
   type(c_funptr) :: cptr
   procedure(micro_step_py), pointer :: fptr => NULL()
 
@@ -47,7 +46,7 @@ contains
 
   Subroutine mphys_libcloud_lgr_interface
     integer :: err
-    err = -1
+
     ! do the below only once
     if (associated(fptr) .eqv. .false.) then 
       ! assert for numerical precision  
@@ -61,14 +60,12 @@ contains
     end if
 
     ! do the below every timestep
-    print*, "ERR w F, przed", err
     call fptr(i_dgtime, dt, nz, nx+2 , &
               theta, qv, rho, rho_half, & 
               v, v_half, w, w_half, x, z, x_half, z_half, &
               dTheta_mphys, dqv_mphys, err)
-    print*, "ERR w F, po", err
     if (err.eq.1 ) then
-   stop 1
+   stop (" Error in Python!!!")
    end if
 
   end Subroutine mphys_libcloud_lgr_interface
