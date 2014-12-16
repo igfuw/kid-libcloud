@@ -142,85 +142,91 @@ def diagnostics(particles, it, size_x, size_z):
   # ...
   
 
-@ffi.callback("void(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+@ffi.callback("bool(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
-  # global should be used for all variables defined in "if first_timestep"  
-  global prtcls, dx, dz, first_timestep, last_diag
+  try:
+    # global should be used for all variables defined in "if first_timestep"  
+    global prtcls, dx, dz, first_timestep, last_diag
 
-# superdroplets: initialisation (done only once)
-  if first_timestep:
+    # superdroplets: initialisation (done only once)
+    if first_timestep:
 
-    arrx = ptr2np(xf_ar, size_x, 1)
-    arrz = ptr2np(zf_ar, 1, size_z)
+      arrx = ptr2np(xf_ar, size_x, 1)
+      arrz = ptr2np(zf_ar, 1, size_z)
 
-    # checking if grids are equal
-    np.testing.assert_almost_equal((arrx[1:]-arrx[:-1]).max(), (arrx[1:]-arrx[:-1]).min(), decimal=7)
-    np.testing.assert_almost_equal((arrz[1:]-arrz[:-1]).max(), (arrz[1:]-arrz[:-1]).min(), decimal=7)
-    dx = arrx[1] - arrx[0]                            
-    dz = arrz[1] - arrz[0]                            
+      # checking if grids are equal
+      np.testing.assert_almost_equal((arrx[1:]-arrx[:-1]).max(), (arrx[1:]-arrx[:-1]).min(), decimal=7)
+      np.testing.assert_almost_equal((arrz[1:]-arrz[:-1]).max(), (arrz[1:]-arrz[:-1]).min(), decimal=7)
+      dx = arrx[1] - arrx[0]                            
+      dz = arrz[1] - arrz[0]                            
 
-    opts_init = libcl.lgrngn.opts_init_t()
-    opts_init.dt = dt
-    opts_init.nx, opts_init.nz = size_x - 2, size_z
-    opts_init.dx, opts_init.dz = dx, dz 
-    opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
-    opts_init.sd_conc_mean = params["sd_conc"]
-    opts_init.dry_distros = { params["kappa"] : lognormal }
+      opts_init = libcl.lgrngn.opts_init_t()
+      opts_init.dt = dt
+      opts_init.nx, opts_init.nz = size_x - 2, size_z
+      opts_init.dx, opts_init.dz = dx, dz 
+      opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
+      opts_init.sd_conc_mean = params["sd_conc"]
+      opts_init.dry_distros = { params["kappa"] : lognormal }
 
-    prtcls = libcl.lgrngn.factory(params["backend"], opts_init)
-  
-    # allocating arrays for those variables that are not ready to use
-    # (i.e. either different size or value conversion needed)
-    for name in ("thetad", "qv"):
-      arrays[name] = np.empty((size_x-2, size_z))
-    arrays["rhod"] = np.empty((size_z,))
-    arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
-    arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
-    # moving rhod definition within the IF (qv is calculated twice for the first time step)
+      prtcls = libcl.lgrngn.factory(params["backend"], opts_init)
+    
+      # allocating arrays for those variables that are not ready to use
+      # (i.e. either different size or value conversion needed)
+      for name in ("thetad", "qv"):
+	arrays[name] = np.empty((size_x-2, size_z))
+      arrays["rhod"] = np.empty((size_z,))
+      arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
+      arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
+      # moving rhod definition within the IF (qv is calculated twice for the first time step)
+      arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
+      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+     
+    # mapping local NumPy arrays to the Fortran data locations   
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-    arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+    arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
    
-  # mapping local NumPy arrays to the Fortran data locations   
-  arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-  arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
- 
-  arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
-  assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-  arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx 
+    arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
+    assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
+    arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx 
 
-  arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
-  arrays["rhod_Cz"][:, 0 ] = 0
-  arrays["rhod_Cz"][:, 1:] *= rho_kid2dry(ptr2np(rhoh_ar, 1, size_z), arrays["qv"][:,:]) * dt / dz
+    arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
+    arrays["rhod_Cz"][:, 0 ] = 0
+    arrays["rhod_Cz"][:, 1:] *= rho_kid2dry(ptr2np(rhoh_ar, 1, size_z), arrays["qv"][:,:]) * dt / dz
 
-  
-  if first_timestep:
-    prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
-    diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
+    
+    if first_timestep:
+      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
+      diagnostics(prtcls, 1, size_x, size_z) # writing down state at t=0
 
-  # superdroplets: all what have to be done within a timestep
-  prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) 
-  prtcls.step_async(opts)
+    # superdroplets: all what have to be done within a timestep
+    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) 
+    prtcls.step_async(opts)
 
-  # calculating tendency for theta (first converting back to non-dry theta
-  ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = (
-    ptr2np(th_ar, size_x, size_z)[1:-1, :] -   # old
-    th_dry2kid(arrays["thetad"], arrays["qv"]) # new
-  ) / dt #TODO: check if dt needed
+    # calculating tendency for theta (first converting back to non-dry theta
+    ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = (
+      ptr2np(th_ar, size_x, size_z)[1:-1, :] -   # old
+      th_dry2kid(arrays["thetad"], arrays["qv"]) # new
+    ) / dt #TODO: check if dt needed
 
-  # calculating tendency for qv
-  ptr2np(tend_qv_ar, size_x, size_z)[1:-1, :] = (
-    ptr2np(qv_ar, size_x, size_z)[1:-1, :] - # old                
-    arrays["qv"]                             # new 
-  ) / dt #TODO: check if dt needed    
+    # calculating tendency for qv
+    ptr2np(tend_qv_ar, size_x, size_z)[1:-1, :] = (
+      ptr2np(qv_ar, size_x, size_z)[1:-1, :] - # old                
+      arrays["qv"]                             # new 
+    ) / dt #TODO: check if dt needed    
 
-  # diagnostics
-  if last_diag < it_diag:
-    diagnostics(prtcls, it_diag, size_x, size_z)
-    last_diag = it_diag
+    # diagnostics
+    if last_diag < it_diag:
+      diagnostics(prtcls, it_diag, size_x, size_z)
+      last_diag = it_diag
 
-  first_timestep = False
-  
+    first_timestep = False
+  except:
+    print "Error caught in Python:", sys.exc_info()[0]
+    return False
+  else:
+    return True
+    
 # storing pointers to Python functions
 clib.save_ptr("/tmp/micro_step.ptr", micro_step)
 
