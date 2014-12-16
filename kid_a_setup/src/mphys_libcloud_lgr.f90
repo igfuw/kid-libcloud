@@ -7,7 +7,7 @@ module mphys_libcloud_lgr
   Use physconst, only : p0, r_on_cp, pi
 
   Use diagnostics, only: save_dg, i_dgtime
-  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double
+  use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double, c_float
 
   Implicit None
   
@@ -48,6 +48,7 @@ contains
     if (associated(fptr) .eqv. .false.) then 
       ! assert for numerical precision  
       if (wp.ne.c_double) stop("KiD does not use double precision!")          
+      if (sizeof(dt).ne.c_float) stop("dt in KiD is not a float!")
 
       ! load pointer to Python micro_step() routine
       call load_ptr("/tmp/micro_step.ptr" // c_null_char,cptr)
