@@ -12,12 +12,13 @@ module mphys_libcloud_lgr
   Implicit None
   
   interface
-    subroutine micro_step_py(i_dgtime, dt, size_z, size_x,  & 
+    function micro_step_py(i_dgtime, dt, size_z, size_x,  & 
                         th_ar, qv_ar, rhof_ar, rhoh_ar, &
                         vf_ar, vh_ar, wf_ar, wh_ar,     &
                         xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar) bind(c)
-      use iso_c_binding, only: c_double, c_int, c_float
+      use iso_c_binding, only: c_double, c_int, c_float, c_bool
       Use parameters, only : nx, nz
+      logical(c_bool) :: micro_step_py
       integer(c_int), intent(in), value :: i_dgtime, size_x, size_z
       real(c_float), intent(in), value :: dt
                                            
@@ -58,10 +59,11 @@ contains
     end if
 
     ! do the below every timestep
-    call fptr(i_dgtime, dt, nz, nx+2 , &
-              theta, qv, rho, rho_half, & 
-              v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys)
-  
+    if (.not. fptr(i_dgtime, dt, nz, nx+2 , &
+                   theta, qv, rho, rho_half, & 
+                   v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys) &
+    ) stop("Error in Python!!!")
+
   end Subroutine mphys_libcloud_lgr_interface
 
 end module mphys_libcloud_lgr
