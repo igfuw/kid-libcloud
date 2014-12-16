@@ -25,20 +25,6 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
-diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/defines.inc kid_a_setup/src/defines.inc
---- kid_a_setup.orig/src/defines.inc	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/defines.inc	2014-11-24 12:52:23.972646937 +0100
-@@ -19,8 +19,8 @@
- endif
- 
- ifeq ($(CASE), SC_2D)
--D1=DEF_NX=100
--D2=DEF_NZ=52
-+D1=DEF_NX=3
-+D2=DEF_NZ=6
- endif
- 
- ifeq ($(CASE), CU_2D)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_setup.orig/src/diagnostics.f90	2014-07-25 10:17:28.000000000 +0200
 +++ kid_a_setup/src/diagnostics.f90	2014-12-09 17:52:56.979349155 +0100
