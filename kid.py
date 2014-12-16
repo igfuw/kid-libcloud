@@ -34,8 +34,8 @@ params = {
   "meanr" : .04e-6,
   "gstdv" : 1.4,
   "n_tot" : 100e6,
-  "n_bins": 34, # as in the TAU example file from KiD-A website
-  "bin0_D_upper" : 3.125
+  "n_bins": 34,          # \__ from the TAU example file @ KiD-A website
+  "bin0_D_upper" : 3.125 # /
 }
 
 arrays = {}
@@ -77,14 +77,14 @@ def rho_kid2dry(arr):
 def save_dg(arr, it, name, units):
   arr = arr.astype(np.float32, copy=False)
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
-  if (len(arr.shape) == 2):
+  if (arr.ndim == 2):
     flib.__diagnostics_MOD_save_dg_2d_sp_c(
       arr_ptr, arr.shape[0], arr.shape[1], 
       name, len(name), 
       units, len(units),
       it
     )
-  elif (len(arr.shape) == 3):
+  elif (arr.ndim == 3):
     flib.__diagnostics_MOD_save_dg_2d_bin_sp_c(
       arr_ptr, arr.shape[0], arr.shape[1], arr.shape[2],
       name, len(name),
@@ -112,7 +112,8 @@ def diagnostics(particles, it, size_x, size_z):
   if first_timestep:
     arrays["mom_0"] = np.empty((params["n_bins"], size_x-2, size_z))
     arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z))
-    arrays["bins_D_upper"] = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"] # (mass-doubling scheme)
+    # upper diameter of a bin with values set using mass-doubling scheme
+    arrays["bins_D_upper"] = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"] 
 
   # binned wet spectrum
   r_min = 0.
