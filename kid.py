@@ -2,7 +2,7 @@
 
 import numpy as np
 import cffi
-import sys
+import traceback
 import libcloudphxx as libcl
 from libcloudphxx.common import R_v, R_d, c_pd
 from setup import params, opts
@@ -129,7 +129,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
     first_timestep = False
   except:
-    print "Error caught in Python:", sys.exc_info()[0]
+    traceback.print_exc()
     return False
   else:
     return True
