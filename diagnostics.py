@@ -69,6 +69,7 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
 
   # temporary arrays (allocating only once)                 
   if first_timestep:
+    arrays["tmp_xz"] = np.empty((size_x-2, size_z))
     arrays["mom_0"] = np.empty((params["n_bins"], size_x-2, size_z))
     arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z))
     # upper diameter of a bin with values set using mass-doubling scheme    
@@ -77,6 +78,18 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     save_bindata((arrays["bins_D_upper"]/2)**3 * libcl.common.rho_w * (4./3) * math.pi, "bins_mass_upper", "kg")
     save_bindata(np.diff(np.concatenate([np.zeros(1), arrays["bins_D_upper"]])) * 1e6, "dD", "microns")
     
+  # T according to the formula used within the library
+  for i in range(0, size_x-2):
+    for j in range(0, size_z):
+      arrays["tmp_xz"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
+  save_dg(arrays["tmp_xz"], it, "T_lib_post_cond", "K")
+
+  # RH according to the formula used within the library
+  for i in range(0, size_x-2):
+    for j in range(0, size_z):
+      arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
+  save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
+
   # binned wet spectrum                                      
   r_min = 0.
   for i in range(params["n_bins"]):
