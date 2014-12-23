@@ -11,8 +11,11 @@ params = {
   "meanr" : .04e-6,
   "gstdv" : 1.4,
   "n_tot" : 100e6,
-  "n_bins": 34,             # \__ from the TAU example file @ KiD-A website                   
-  "bin0_D_upper" : 3.125e-6 # /                                                               
+  "n_bins": 34,              # \__ from the TAU example file @ KiD-A website                   
+  "bin0_D_upper" : 3.125e-6, # /                                                               
+  # bins considered as cloud water (all below is aerosol, all above is rain) 
+  "bins_qc_r20um" : np.arange(1, 12), # r=20 um threshold setting (actually D=39.7 um)
+  "bins_qc_r32um" : np.arange(1, 14)  # r=32 um threshold setting (actually D=63.0 um)
 }
 
 opts = libcl.lgrngn.opts_t()

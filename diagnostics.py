@@ -58,25 +58,27 @@ def save_bindata(arr, name, unit):
 
 def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
 
-  tmp = np.empty((size_x-2, size_z))
-  tmp[:,:] = arrays["qv"]
-  save_dg(tmp, it, "aqq", "J")
-
   # super-droplet concentration per grid cell                               
   # TODO: select all particles?                                 
   particles.diag_sd_conc()
   save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
 
-  # temporary arrays (allocating only once)                 
   if first_timestep:
+    # temporary arrays (allocating only once)                 
     arrays["tmp_xz"] = np.empty((size_x-2, size_z))
     arrays["mom_0"] = np.empty((params["n_bins"], size_x-2, size_z))
     arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z))
+
     # upper diameter of a bin with values set using mass-doubling scheme    
     arrays["bins_D_upper"] = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"]
     save_bindata(arrays["bins_D_upper"] * 1e6, "bins_D_upper", "microns")
     save_bindata((arrays["bins_D_upper"]/2)**3 * libcl.common.rho_w * (4./3) * math.pi, "bins_mass_upper", "kg")
     save_bindata(np.diff(np.concatenate([np.zeros(1), arrays["bins_D_upper"]])) * 1e6, "dD", "microns")
+
+    # inferring rain water range as all bigger than cloud water
+    params["bins_qr_r20um"] = np.arange(params["bins_qc_r20um"][-1]+1, params["n_bins"])
+    params["bins_qr_r32um"] = np.arange(params["bins_qc_r32um"][-1]+1, params["n_bins"])
+    
     
   # T according to the formula used within the library
   for i in range(0, size_x-2):
@@ -104,9 +106,24 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     particles.diag_wet_mom(3)
     arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
 
+  # saving binned concentrations
   save_dg(arrays["mom_0"], it, "cloud_bin_number", "/kg")
+
+  # saving summed concentrations
+  save_dg(np.sum(arrays["mom_0"][params["bins_qc_r20um"],:,:], axis=0), it, "cloud_number_r20um", "/kg")
+  save_dg(np.sum(arrays["mom_0"][params["bins_qc_r32um"],:,:], axis=0), it, "cloud_number_r32um", "/kg")
+  save_dg(np.sum(arrays["mom_0"][params["bins_qr_r20um"],:,:], axis=0), it, "rain_number_r20um", "/kg")
+  save_dg(np.sum(arrays["mom_0"][params["bins_qr_r32um"],:,:], axis=0), it, "rain_number_r32um", "/kg")
+
+  # saving binned masses
   arrays["mom_3"] *= libcl.common.rho_w * (4./3) * math.pi
   save_dg(arrays["mom_3"], it, "cloud_bin_mass", "kg/kg")
+  
+  # saving summed masses
+  save_dg(np.sum(arrays["mom_3"][params["bins_qc_r20um"],:,:], axis=0), it, "cloud_mass_r20um", "kg/kg")
+  save_dg(np.sum(arrays["mom_3"][params["bins_qc_r32um"],:,:], axis=0), it, "cloud_mass_r32um", "kg/kg")
+  save_dg(np.sum(arrays["mom_3"][params["bins_qr_r20um"],:,:], axis=0), it, "rain_mass_r20um", "kg/kg")
+  save_dg(np.sum(arrays["mom_3"][params["bins_qr_r32um"],:,:], axis=0), it, "rain_mass_r32um", "kg/kg")
 
   # binned dry spectrum? - TODO                       
   # ...                                                               
