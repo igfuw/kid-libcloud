@@ -34,9 +34,10 @@ def contour_plot(var_name_l, var_d, it):
         var_domain = var_d[var][:-1,:-1,it]
         CS = plt.contourf(X, Y, var_domain,  cmap=plt.cm.Blues, alpha=0.7)
         nr_pl += 1
-        plt.xlabel(var, fontsize=10)
+        plt.xlabel(var + "; min = " +  '%s' % float('%.3g' % var_domain.min()) + 
+                   ", max = " + '%s' % float('%.3g' % var_domain.max()), fontsize=10)
         plt.ylabel(r'height $[m]$', fontsize=10)
-        #plt.legend(legend, prop = FontProperties(size=8))
+#plt.legend(legend, prop = FontProperties(size=8))
 
     plt.savefig("contour_" + str(var_d["time"][it]) + "-".join(var_name_l) + ".pdf")
     plt.show()
