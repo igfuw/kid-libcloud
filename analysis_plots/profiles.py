@@ -1,12 +1,15 @@
 from scipy.io import netcdf
 import numpy as np
+# for skua - TODO
+#import matplotlib
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import matplotlib.ticker as ticker
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["theta", "vapor", "RH", "w", "dtheta_mphys", "dqv_mphys"]
+Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys"]
 
 # reading variables from the netcdf file
 def reading_netcdf(file_r, var_l):
