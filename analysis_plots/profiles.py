@@ -12,11 +12,10 @@ import pdb
 Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys"]
 
 # reading variables from the netcdf file
-def reading_netcdf(file_r, var_l):
+def reading_netcdf(netcdf_file, var_l):
     var_d = {}
-    nf = netcdf.netcdf_file(file_r, 'r')
     for var in var_l + ["z", "x", "time"]:
-        var_d[var] = nf.variables[var][:]
+        var_d[var] = netcdf_file.variables[var][:]
     return var_d
 
 
@@ -42,7 +41,8 @@ def plotting_profiles(var_name_l, var_d):
 
 
 def main(filename, variable_name_l=Variable_name_l):
-    var_d = reading_netcdf(filename, variable_name_l)
+    nf = netcdf.netcdf_file(filename, 'r')
+    var_d = reading_netcdf(nf, variable_name_l)
     variable_name_lpl = [variable_name_l[i:i+4] for i in xrange(0, len(variable_name_l), 4)]
     for var_name in variable_name_lpl:
         plotting_profiles(var_name, var_d)
