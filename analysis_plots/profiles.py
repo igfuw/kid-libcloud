@@ -9,7 +9,7 @@ import matplotlib.ticker as ticker
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys"]
+Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys",  "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
 
 # reading variables from the netcdf file
 def reading_netcdf(netcdf_file, var_l):
