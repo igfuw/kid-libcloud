@@ -27,7 +27,7 @@ def time_evolution(var_name_l, var_d, nr_subpl, nr_fig):
         print var
         #pdb.set_trace()
         ax = plt.subplot(nr_subpl,1,nr_pl)
-        var_sum = var_d[var][:-1].sum(axis=0).sum(axis=0)
+        var_sum = var_d[var][:,:-1,:].sum(axis=1).sum(axis=1)
         ax.plot(var_d["time"][1:], var_sum[1:]) #TODO: -999 in the last place
         nr_pl += 1
         plt.ylabel(var, fontsize=10)
