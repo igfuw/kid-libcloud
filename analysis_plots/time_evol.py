@@ -20,15 +20,15 @@ def reading_netcdf(netcdf_file, var_l):
     return var_d
 
 
-def time_evolution(var_name_l, var_d, nr_subpl):
-    plt.figure(1, figsize = (8,8))
+def time_evolution(var_name_l, var_d, nr_subpl, nr_fig):
+    plt.figure(nr_fig, figsize = (8,8))
     nr_pl = 1
     for var in var_name_l:
         print var
         #pdb.set_trace()
         ax = plt.subplot(nr_subpl,1,nr_pl)
         var_sum = var_d[var][:-1].sum(axis=0).sum(axis=0)
-        ax.plot(var_d["time"][:], var_sum[:]) #TODO: -999 in the last place
+        ax.plot(var_d["time"][1:], var_sum[1:]) #TODO: -999 in the last place
         nr_pl += 1
         plt.ylabel(var, fontsize=10)
         plt.xlabel(r'time [s]', fontsize=10)
@@ -44,8 +44,9 @@ def main(filename, variable_name_l=Variable_name_l, variable_plot_l=Variable_plo
     var_d["total_water_mass"] = var_d["vapor"] + var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
     var_d["cloud+rain_mass"] = var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
     variable_plot_lpl = [variable_plot_l[i:i+nr_subpl] for i in xrange(0, len(variable_plot_l), nr_subpl)]
+    nr_fig = 1
     for var_name in variable_plot_lpl:
-        time_evolution(var_name, var_d, nr_subpl)
-
+        time_evolution(var_name, var_d, nr_subpl, nr_fig)
+        nr_fig += 1
 
 main("../kid_a_setup/output/SC_2D_out.nc")
