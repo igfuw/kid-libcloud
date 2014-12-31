@@ -4,7 +4,7 @@ import numpy as np
 import cffi
 import traceback
 import libcloudphxx as libcl
-from libcloudphxx.common import R_v, R_d, c_pd
+from libcloudphxx.common import R_v, R_d, c_pd, eps
 from setup import params, opts
 import diagnostics as dg
 import pdb
@@ -47,7 +47,8 @@ def th_dry2kid(th_d, rv):
   return th_d * (1 + rv * R_v / R_d)**(-R_d/c_pd)
 
 def rho_kid2dry(rho, rv):
-  return rho / (1 + rv) #TODO: I'm assuming that KiD uses rho
+  # KiD seems to define rho as (p_v + p_d) / (R_d T)
+  return rho / (1 + rv / eps) 
 
 @ffi.callback("bool(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
