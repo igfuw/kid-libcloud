@@ -7,7 +7,10 @@ import libcloudphxx as libcl
 from libcloudphxx.common import R_v, R_d, c_pd, eps
 from setup import params, opts
 import diagnostics as dg
+import os
 import pdb
+
+ptrfname = "/tmp/micro_step-" + str(os.getuid()) + "-" + str(os.getpid()) + ".ptr"
 
 # CFFI stuff
 ffi = cffi.FFI()
@@ -59,6 +62,9 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
     # superdroplets: initialisation (done only once)
     if first_timestep:
+
+      # first, removing the no-longer-needed pointer file
+      os.unlink(ptrfname)
 
       arrx = ptr2np(xf_ar, size_x, 1)
       arrz = ptr2np(zf_ar, 1, size_z)
@@ -136,7 +142,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     return True
     
 # storing pointers to Python functions
-clib.save_ptr("/tmp/micro_step.ptr", micro_step)
+clib.save_ptr(ptrfname, micro_step)
 
 # running Fortran stuff
 # note: not using command line arguments, namelist name hardcoded in
