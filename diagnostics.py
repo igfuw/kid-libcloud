@@ -92,6 +92,12 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
       arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
   save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
 
+  # aerosol concentration
+  assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
+  particles.diag_wet_rng(0, arrays["bins_D_upper"][params["bins_qc_r20um"][0]] / 2)
+  particles.diag_wet_mom(0)
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "aerosol_number", "/kg")
+
   # binned wet spectrum                                      
   r_min = 0.
   for i in range(params["n_bins"]):
