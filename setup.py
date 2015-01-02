@@ -7,6 +7,7 @@ params = {
   "real_t" : np.float64,
   "backend" : libcl.lgrngn.backend_t.serial,
   "sd_conc" : 128.,
+  "spinup" : 1, # number of timesteps during which sedimentation and coalescence are off
   "kappa" : .61,
   "meanr" : .04e-6,
   "gstdv" : 1.4,
