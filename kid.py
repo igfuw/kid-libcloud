@@ -89,7 +89,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
           print (" OK!")
         except:
           print (" KO!")
-          print("Trying with OpenMP backend..."),
+          print("Trying with serial backend..."),
 	  prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
           print (" OK!")
     
