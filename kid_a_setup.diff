@@ -27,7 +27,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_setup.orig/src/diagnostics.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/diagnostics.f90	2014-12-30 20:38:46.607344626 +0100
++++ kid_a_setup/src/diagnostics.f90	2015-01-02 17:45:24.951787310 +0100
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -766,9 +766,9 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 -
 -
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-+endif                                                     !!!!
 +i_dgtime = 2                                              !!!!
 +init = .false.                                            !!!!
++endif                                                     !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    end subroutine write_diagnostics
  
