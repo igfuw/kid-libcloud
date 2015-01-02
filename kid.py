@@ -24,7 +24,7 @@ ffi.cdef("void __main_MOD_main_loop();")
 prtcls = False
 
 arrays = {}
-first_timestep = True
+timestep = 0
 last_diag = -1
 
 def lognormal(lnr):
@@ -55,10 +55,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
   try:
     # global should be used for all variables defined in "if first_timestep"  
-    global prtcls, dx, dz, first_timestep, last_diag
+    global prtcls, dx, dz, timestep, last_diag
 
     # superdroplets: initialisation (done only once)
-    if first_timestep:
+    if timestep == 0:
 
       arrx = ptr2np(xf_ar, size_x, 1)
       arrz = ptr2np(zf_ar, 1, size_z)
@@ -103,9 +103,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     arrays["rhod_Cz"][:, 1:] *= rho_kid2dry(ptr2np(rhoh_ar, 1, size_z), arrays["qv"][:,:]) * dt / dz
 
     
-    if first_timestep:
+    if timestep == 0:
       prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
-      dg.diagnostics(prtcls, arrays, 1, size_x, size_z, first_timestep) # writing down state at t=0
+      dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
+
+    # spinup period logic
+    opts.sedi = opts.coal = timestep >= params["spinup"]
+    print opts.sedi, opts.coal
 
     # superdroplets: all what have to be done within a timestep
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) 
@@ -125,10 +129,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
     # diagnostics
     if last_diag < it_diag:
-      dg.diagnostics(prtcls, arrays, it_diag, size_x, size_z, first_timestep)
+      dg.diagnostics(prtcls, arrays, it_diag, size_x, size_z, timestep == 0)
       last_diag = it_diag
 
-    first_timestep = False
+    timestep += 1
   except:
     traceback.print_exc()
     return False
