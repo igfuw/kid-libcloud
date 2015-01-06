@@ -45,14 +45,18 @@ contains
 
   Subroutine mphys_libcloud_lgr_interface
 
+    character(10) :: uid, pid
+
     ! do the below only once
     if (associated(fptr) .eqv. .false.) then 
       ! assert for numerical precision  
       if (wp.ne.c_double) stop("KiD does not use double precision!")          
       if (sizeof(dt).ne.c_float) stop("dt in KiD is not a float!")
 
-      ! load pointer to Python micro_step() routine
-      call load_ptr("/tmp/micro_step.ptr" // c_null_char,cptr)
+      ! load pointer to Python micro_step() routine (getuid() and getpid() are GNU extensions)
+      write (uid, "(I10.0)") getuid()
+      write (pid, "(I10.0)") getpid()
+      call load_ptr("/tmp/micro_step-" // trim(adjustl(uid)) // "-" // trim(adjustl(pid)) // ".ptr" // c_null_char,cptr)
 
       ! associate the C pointer with the F pointer
       call c_f_procpointer(cptr, fptr)
