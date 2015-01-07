@@ -30,7 +30,7 @@ def contour_plot(var_name_l, var_d, it, nr_fig):
         ax = plt.subplot(2,2,nr_pl)
         #legend = []
         #legend.append("time = " + str(var_d["time"][it]))
-        var_domain = var_d[var][:-1,:-1,it]
+        var_domain = var_d[var][it,:-1,:-1]
         var_min, var_max = var_domain.min(), var_domain.max()
         if var_min == 0.:
             levels_var = np.linspace(var_max * 0.1, var_max, 6)

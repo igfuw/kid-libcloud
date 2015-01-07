@@ -26,12 +26,13 @@ def plotting_profiles(var_name_l, var_d):
         print var
         ax = plt.subplot(2,2,nr_pl)
         legend = []
-        for it in range(0, var_d[var].shape[2], 4):
+        for it in range(0, var_d[var].shape[0], 4):
             legend.append("time = " + str(var_d["time"][it]))
-            var_hor_av = np.mean(var_d[var][:,:,it], axis=1)
+            var_hor_av = np.mean(var_d[var][it,:,:], axis=1)
+            print var_hor_av
             ax.plot(var_hor_av[:-1], var_d["z"][:-1]) #TODO: -999 in the last place, using missing arrays
         nr_pl += 1
-        ax.set_xlim(var_d[var][:-1,:,1:].min(), var_d[var][:-1:,:,1:].max())
+        ax.set_xlim(var_d[var][1:,:-1,:].min(), var_d[var][1:,:-1:,:].max())
         print len(ax.xaxis.get_major_ticks())
         for i, tick in enumerate(ax.xaxis.get_major_ticks()):
             if i % 2 != 0:
