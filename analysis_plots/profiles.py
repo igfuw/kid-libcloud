@@ -9,14 +9,13 @@ import matplotlib.ticker as ticker
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys"]
+Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys",  "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
 
 # reading variables from the netcdf file
-def reading_netcdf(file_r, var_l):
+def reading_netcdf(netcdf_file, var_l):
     var_d = {}
-    nf = netcdf.netcdf_file(file_r, 'r')
     for var in var_l + ["z", "x", "time"]:
-        var_d[var] = nf.variables[var][:]
+        var_d[var] = netcdf_file.variables[var][:]
     return var_d
 
 
@@ -27,11 +26,19 @@ def plotting_profiles(var_name_l, var_d):
         print var
         ax = plt.subplot(2,2,nr_pl)
         legend = []
-        for it in range(var_d[var].shape[2]):
+        for it in range(0, var_d[var].shape[0], 4):
             legend.append("time = " + str(var_d["time"][it]))
-            var_hor_av = np.mean(var_d[var][:,:,it], axis=1)
-            ax.plot(var_hor_av[:-1], var_d["z"][:-1]) #TODO: -999 in the last place
+            var_hor_av = np.mean(var_d[var][it,:,:], axis=1)
+            print var_hor_av
+            ax.plot(var_hor_av[:-1], var_d["z"][:-1]) #TODO: -999 in the last place, using missing arrays
         nr_pl += 1
+        ax.set_xlim(var_d[var][1:,:-1,:].min(), var_d[var][1:,:-1:,:].max())
+        print len(ax.xaxis.get_major_ticks())
+        for i, tick in enumerate(ax.xaxis.get_major_ticks()):
+            if i % 2 != 0:
+                tick.label1On = False
+        for item in plt.xticks()[1] + plt.yticks()[1]:
+            item.set_fontsize(7)
         plt.xlabel(var, fontsize=10)
         plt.ylabel(r'height $[m]$', fontsize=10)
         plt.legend(legend, prop = FontProperties(size=8))
@@ -42,7 +49,8 @@ def plotting_profiles(var_name_l, var_d):
 
 
 def main(filename, variable_name_l=Variable_name_l):
-    var_d = reading_netcdf(filename, variable_name_l)
+    nf = netcdf.netcdf_file(filename, 'r')
+    var_d = reading_netcdf(nf, variable_name_l)
     variable_name_lpl = [variable_name_l[i:i+4] for i in xrange(0, len(variable_name_l), 4)]
     for var_name in variable_name_lpl:
         plotting_profiles(var_name, var_d)
