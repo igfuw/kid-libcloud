@@ -34,12 +34,12 @@ def plotting_profiles(outdir_path, var_name_l, var_d, it_plot_l):
         ax = plt.subplot(2,2,nr_pl)
         legend = []
         for it in it_plot_l:
-            legend.append("time = " + str(var_d["time"][it]))
+            legend.append("time = " + str(var_d["time"][it]/60) + " min")
             var_hor_av = np.mean(var_d[var][it,:,:], axis=1)
             print "min, max", var_hor_av.min(), var_hor_av.max()
             ax.plot(var_hor_av[:-1], var_d["z"][:-1]) #TODO: -999 in the last place, using missing arrays
         nr_pl += 1
-        ax.set_xlim(var_d[var][1:,:-1,:].min(), var_d[var][1:,:-1:,:].max())
+        #ax.set_xlim(var_d[var][1:,:-1,:].min(), var_d[var][1:,:-1:,:].max())
         print len(ax.xaxis.get_major_ticks())
         for i, tick in enumerate(ax.xaxis.get_major_ticks()):
             if i % 2 != 0:
@@ -48,7 +48,8 @@ def plotting_profiles(outdir_path, var_name_l, var_d, it_plot_l):
             item.set_fontsize(7)
         plt.xlabel(var, fontsize=10)
         plt.ylabel(r'height $[m]$', fontsize=10)
-        plt.legend(legend, prop = FontProperties(size=8))
+        if nr_pl == 3:
+            plt.legend(legend, prop = FontProperties(size=6))
 
     plt.savefig(os.path.join(outdir_path, "profiles_" + "-".join(var_name_l) + ".pdf"))
     plt.show()

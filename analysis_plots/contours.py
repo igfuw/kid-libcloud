@@ -28,7 +28,8 @@ def reading_netcdf(netcdf_file, var_l):
 
 
 def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
-    plt.figure(nr_fig, figsize = (8,8))
+    fig = plt.figure(nr_fig, figsize = (8,8))
+    fig.suptitle("time = " + str(var_d["time"][it]/60) + " min") 
     x_range = var_d["x"][:-1]
     z_range = var_d["z"][:-1]
     X, Y = np.meshgrid(x_range, z_range)
@@ -36,8 +37,6 @@ def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
     for var in var_name_l:
         print var
         ax = plt.subplot(2,2,nr_pl)
-        #legend = []
-        #legend.append("time = " + str(var_d["time"][it]))
         var_domain = var_d[var][it,:-1,:-1]
         var_min, var_max = var_domain.min(), var_domain.max()
         if var_min == 0.:
@@ -45,11 +44,11 @@ def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
         else:
             levels_var = np.linspace(var_min, var_max, 6)
         CS = plt.contourf(X, Y, var_domain,  cmap=plt.cm.Blues, alpha=0.7, levels=levels_var)
-        nr_pl += 1
         plt.xlabel(var + "; min = " +  '%s' % float('%.3g' % var_domain.min()) + 
                    ", max = " + '%s' % float('%.3g' % var_domain.max()), fontsize=10)
-        plt.ylabel(r'height $[m]$', fontsize=10)
-#plt.legend(legend, prop = FontProperties(size=8))
+        if nr_pl in [1, 3]:
+            plt.ylabel(r'height $[m]$', fontsize=10)
+        nr_pl += 1
 
     plt.savefig(os.path.join(outdir_path, "contour_" + str(var_d["time"][it]) + "-".join(var_name_l) + ".pdf"))
     plt.show()
