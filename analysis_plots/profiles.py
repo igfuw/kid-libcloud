@@ -11,7 +11,7 @@ import os
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "T_lib_post_cond", "w", "dtheta_mphys", "dqv_mphys",  "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
+Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "aerosol_number", "w", "dtheta_mphys", "dqv_mphys",  "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
 
 prsr = ArgumentParser(add_help=True, description='TODO')
 prsr.add_argument('--outdir', default="", help='output directory from kid_a_setup/output')
