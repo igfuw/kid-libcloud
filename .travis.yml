@@ -20,6 +20,7 @@ install:
   - cd libcloudphxx
   - mkdir build
   - cd build
+  - if [[ $CXX == 'clang++' ]]; then cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ../; fi # Travis default is not the packaged one
   - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
   - make
   - sudo make install
