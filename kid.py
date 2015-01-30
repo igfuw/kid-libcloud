@@ -82,6 +82,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
       opts_init.sd_conc_mean = params["sd_conc"]
       opts_init.dry_distros = { params["kappa"] : lognormal }
+      opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
 
       try:
         print("Trying with CUDA backend..."),
