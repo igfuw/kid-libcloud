@@ -15,12 +15,12 @@ params = {
   "bin0_D_upper" : 3.125e-6, # /                                                               
   # bins considered as cloud water (all below is aerosol, all above is rain) 
   "bins_qc_r20um" : np.arange(1, 12), # r=20 um threshold setting (actually D=39.7 um)
-  "bins_qc_r32um" : np.arange(1, 14)  # r=32 um threshold setting (actually D=63.0 um)
+  "bins_qc_r32um" : np.arange(1, 14), # r=32 um threshold setting (actually D=63.0 um)
+  "sstp_cond" : 10,
+  "sstp_coal" : 10
 }
 
 opts = libcl.lgrngn.opts_t()
-opts.sstp_cond = 1
-opts.sstp_coal = 1
 opts.cond = True
 opts.coal = True
 opts.adve = True
