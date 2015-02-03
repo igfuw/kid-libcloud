@@ -8,6 +8,7 @@ from libcloudphxx.common import R_v, R_d, c_pd, eps
 from setup import params, opts
 import diagnostics as dg
 import os
+import json
 import pdb
 
 ptrfname = "/tmp/micro_step-" + str(os.getuid()) + "-" + str(os.getpid()) + ".ptr"
@@ -29,6 +30,19 @@ prtcls = False
 arrays = {}
 timestep = 0
 last_diag = -1
+
+#savings some parameters from setup.py file and libcl revision number
+params_write = params.copy()
+# converting numpy objects to lists or strings, so json can save them
+for key_ar in ["bins_qc_r20um", "bins_qc_r32um"]:
+  params_write[key_ar] = params[key_ar].tolist()
+for key_str in ["real_t"]:
+  params_write[key_str] = str(params[key_str])
+params_write["libcloudph_git_rev"] = libcl.git_revision
+
+file_out = open("output/python_setup.txt", "w")
+json.dump(params_write, file_out)
+file_out.close()
 
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
