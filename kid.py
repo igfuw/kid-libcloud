@@ -104,11 +104,11 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
      
       arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
       assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-      arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx 
+      arrays["rhod_Cx"] *= ptr2np(rhof_ar, 1, size_z)[:] * dt / dx 
 
       arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
       arrays["rhod_Cz"][:, 0 ] = 0
-      arrays["rhod_Cz"][:, 1:] *= rho_kid2dry(ptr2np(rhoh_ar, 1, size_z), arrays["qv"][:,:]) * dt / dz
+      arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
 
       prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
