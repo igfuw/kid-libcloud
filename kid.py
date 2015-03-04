@@ -69,6 +69,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       arrx = ptr2np(xf_ar, size_x, 1)
       arrz = ptr2np(zf_ar, 1, size_z)
 
+      print "Python", arrz
+
       # checking if grids are equal
       np.testing.assert_almost_equal((arrx[1:]-arrx[:-1]).max(), (arrx[1:]-arrx[:-1]).min(), decimal=7)
       np.testing.assert_almost_equal((arrz[1:]-arrz[:-1]).max(), (arrz[1:]-arrz[:-1]).min(), decimal=7)
