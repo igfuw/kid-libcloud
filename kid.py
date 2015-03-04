@@ -8,6 +8,7 @@ from libcloudphxx.common import R_v, R_d, c_pd, eps
 from setup import params, opts
 import diagnostics as dg
 import os
+import json
 import pdb
 
 ptrfname = "/tmp/micro_step-" + str(os.getuid()) + "-" + str(os.getpid()) + ".ptr"
@@ -29,6 +30,19 @@ prtcls = False
 arrays = {}
 timestep = 0
 last_diag = -1
+
+#savings some parameters from setup.py file and libcl revision number
+params_write = params.copy()
+# converting numpy objects to lists or strings, so json can save them
+for key_ar in ["bins_qc_r20um", "bins_qc_r32um"]:
+  params_write[key_ar] = params[key_ar].tolist()
+for key_str in ["real_t"]:
+  params_write[key_str] = str(params[key_str])
+params_write["libcloudph_git_rev"] = libcl.git_revision
+
+file_out = open("output/python_setup.txt", "w")
+json.dump(params_write, file_out)
+file_out.close()
 
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
@@ -84,6 +98,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
       opts_init.sd_conc_mean = params["sd_conc"]
       opts_init.dry_distros = { params["kappa"] : lognormal }
+      opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
 
       try:
         print("Trying with CUDA backend..."),
@@ -108,34 +123,37 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       arrays["rhod"] = np.empty((size_z,))
       arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
       arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
-      # moving rhod definition within the IF (qv is calculated twice for the first time step)
-      arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
-     
-    # mapping local NumPy arrays to the Fortran data locations   
+
+    # defining qv and thetad (in every timestep) 
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
     arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
-   
-    arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
-    assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-    arrays["rhod_Cx"] *= arrays["rhod"][0] * dt / dx 
 
-    arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
-    arrays["rhod_Cz"][:, 0 ] = 0
-    arrays["rhod_Cz"][:, 1:] *= rho_kid2dry(ptr2np(rhoh_ar, 1, size_z), arrays["qv"][:,:]) * dt / dz
 
-    
+    # finalising initialisation
     if timestep == 0:
+      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+     
+      arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
+      assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
+      arrays["rhod_Cx"] *= ptr2np(rhof_ar, 1, size_z)[:] * dt / dx 
+
+      arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
+      arrays["rhod_Cz"][:, 0 ] = 0
+      arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
+
       prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
     opts.sedi = opts.coal = timestep >= params["spinup"]
-    print opts.sedi, opts.coal
 
     # superdroplets: all what have to be done within a timestep
+
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"],  arrays["rhod"]) 
+
+
     prtcls.step_async(opts)
+
 
     # calculating tendency for theta (first converting back to non-dry theta
     ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = - (
@@ -143,11 +161,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       th_dry2kid(arrays["thetad"], arrays["qv"]) # new
     ) / dt #TODO: check if dt needed
 
+
     # calculating tendency for qv
     ptr2np(tend_qv_ar, size_x, size_z)[1:-1, :] = - (
       ptr2np(qv_ar, size_x, size_z)[1:-1, :] - # old                
       arrays["qv"]                             # new 
     ) / dt #TODO: check if dt needed    
+
 
     # diagnostics
     if last_diag < it_diag:
