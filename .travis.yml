@@ -32,7 +32,7 @@ script:
   - tar xvzf kid_a_setup.tar.gz
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
-  - patch -p1 < ../kid_a_setup_adrian_20150311_test_cases_2d.f90.diff
+  - patch -p1 < ../kid_a_setup_adrian_20150311_test_cases_2d.f90_ZSCALE=1000.diff
   - patch -p1 < ../kid_a_setup_adrian_20150304_defines.inc.diff
   - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
   #- bin/KiD_1D.exe
