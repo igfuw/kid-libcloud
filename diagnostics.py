@@ -61,13 +61,13 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   # super-droplet concentration per grid cell                               
   # TODO: select all particles?                                 
   particles.diag_sd_conc()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z-1), it, "sd_conc", "1")
 
   if first_timestep:
     # temporary arrays (allocating only once)                 
-    arrays["tmp_xz"] = np.empty((size_x-2, size_z))
-    arrays["mom_0"] = np.empty((params["n_bins"], size_x-2, size_z))
-    arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z))
+    arrays["tmp_xz"] = np.empty((size_x-2, size_z-1))
+    arrays["mom_0"] = np.empty((params["n_bins"], size_x-2, size_z-1))
+    arrays["mom_3"] = np.empty((params["n_bins"], size_x-2, size_z-1))
 
     # upper diameter of a bin with values set using mass-doubling scheme    
     arrays["bins_D_upper"] = (2**np.arange(params["n_bins"]))**(1./3) * params["bin0_D_upper"]
@@ -82,13 +82,13 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     
   # T according to the formula used within the library
   for i in range(0, size_x-2):
-    for j in range(0, size_z):
+    for j in range(0, size_z-1):
       arrays["tmp_xz"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
   save_dg(arrays["tmp_xz"], it, "T_lib_post_cond", "K")
 
   # RH according to the formula used within the library
   for i in range(0, size_x-2):
-    for j in range(0, size_z):
+    for j in range(0, size_z-1):
       arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
   save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
 
@@ -96,7 +96,7 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
   particles.diag_wet_rng(0, arrays["bins_D_upper"][params["bins_qc_r20um"][0]] / 2)
   particles.diag_wet_mom(0)
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "aerosol_number", "/kg")
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z-1), it, "aerosol_number", "/kg")
 
   # binned wet spectrum                                      
   r_min = 0.
@@ -107,10 +107,10 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     r_min = r_max
     # computing 1-st moment                                  
     particles.diag_wet_mom(0)
-    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
+    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z-1)
     # computing 3-rd moment                          
     particles.diag_wet_mom(3)
-    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
+    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z-1)
 
   # saving binned concentrations
   save_dg(arrays["mom_0"], it, "cloud_bin_number", "/kg")

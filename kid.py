@@ -91,7 +91,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
       opts_init = libcl.lgrngn.opts_init_t()
       opts_init.dt = dt
-      opts_init.nx, opts_init.nz = size_x - 2, size_z
+      opts_init.nx, opts_init.nz = size_x - 2, size_z - 1
       opts_init.dx, opts_init.dz = dx, dz 
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
       opts_init.sd_conc_mean = params["sd_conc"]
@@ -117,27 +117,26 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       # allocating arrays for those variables that are not ready to use
       # (i.e. either different size or value conversion needed)
       for name in ("thetad", "qv"):
-	arrays[name] = np.empty((size_x-2, size_z))
-      arrays["rhod"] = np.empty((size_z,))
-      arrays["rhod_Cx"] = np.empty((size_x-1, size_z))
-      arrays["rhod_Cz"] = np.empty((size_x-2, size_z+1))
+	arrays[name] = np.empty((opts_init.nx, opts_init.nz))
+      arrays["rhod"] = np.empty((opts_init.nz,))
+      arrays["rhod_Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
+      arrays["rhod_Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
 
     # defining qv and thetad (in every timestep) 
-    arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-    arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
+    arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, 1:]
+    arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, 1:], arrays["qv"][:,:])
 
 
     # finalising initialisation
     if timestep == 0:
-      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[1:], arrays["qv"][0,:])
      
-      arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
+      arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, 1:]
       assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-      arrays["rhod_Cx"] *= ptr2np(rhof_ar, 1, size_z)[:] * dt / dx 
+      arrays["rhod_Cx"] *= ptr2np(rhof_ar, 1, size_z)[1:] * dt / dx 
 
-      arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
-      arrays["rhod_Cz"][:, 0 ] = 0
-      arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
+      arrays["rhod_Cz"][:, :] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
+      arrays["rhod_Cz"][:, :] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
 
       prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
@@ -154,15 +153,15 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
 
     # calculating tendency for theta (first converting back to non-dry theta
-    ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = - (
-      ptr2np(th_ar, size_x, size_z)[1:-1, :] -   # old
+    ptr2np(tend_th_ar, size_x, size_z)[1:-1, 1:] = - (
+      ptr2np(th_ar, size_x, size_z)[1:-1, 1:] -   # old
       th_dry2kid(arrays["thetad"], arrays["qv"]) # new
     ) / dt #TODO: check if dt needed
 
 
     # calculating tendency for qv
-    ptr2np(tend_qv_ar, size_x, size_z)[1:-1, :] = - (
-      ptr2np(qv_ar, size_x, size_z)[1:-1, :] - # old                
+    ptr2np(tend_qv_ar, size_x, size_z)[1:-1, 1:] = - (
+      ptr2np(qv_ar, size_x, size_z)[1:-1, 1:] - # old                
       arrays["qv"]                             # new 
     ) / dt #TODO: check if dt needed    
 
