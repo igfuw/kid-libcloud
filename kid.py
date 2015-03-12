@@ -120,8 +120,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       for name in ("thetad", "qv"):
 	arrays[name] = np.empty((opts_init.nx, opts_init.nz))
       arrays["rhod"] = np.empty((opts_init.nz,))
-      arrays["rhod_Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
-      arrays["rhod_Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
+      arrays["Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
+      arrays["Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
 
     # defining qv and thetad (in every timestep) 
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
@@ -132,15 +132,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     if timestep == 0:
       arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
      
-      arrays["rhod_Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :]
-      assert (arrays["rhod_Cx"][0,:] == arrays["rhod_Cx"][-1,:]).all()
-      arrays["rhod_Cx"] *= ptr2np(rhof_ar, 1, size_z)[:] * dt / dx 
+      arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
+      assert (arrays["Cx"][0,:] == arrays["Cx"][-1,:]).all()
 
-      arrays["rhod_Cz"][:, 0] = 0 # no particles there anyhow
-      arrays["rhod_Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] 
-      arrays["rhod_Cz"][:, 1:] *= ptr2np(rhoh_ar, 1, size_z) * dt / dz
+      arrays["Cz"][:, 0] = 0 # no particles there anyhow
+      arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
 
-      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["rhod_Cx"], arrays["rhod_Cz"]) 
+      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["Cx"], arrays["Cz"]) 
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
