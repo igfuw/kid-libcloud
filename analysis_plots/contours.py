@@ -11,7 +11,7 @@ import os
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["theta", "vapor", "RH", "RH_lib_post_cond", "aerosol_number", "w", "dtheta_mphys", "dqv_mphys", "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
+Variable_name_l = ["theta", "vapor", "RH", "sd_conc", "aerosol_number", "w", "dtheta_mphys", "dqv_mphys", "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
 
 prsr = ArgumentParser(add_help=True, description='TODO')
 prsr.add_argument('--outdir', default="", help='output directory from kid_a_setup/output')
@@ -31,21 +31,24 @@ def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
     fig = plt.figure(nr_fig, figsize = (8,8))
     fig.suptitle("time = " + str(var_d["time"][it]/60) + " min") 
     x_range = var_d["x"][:-1]
-    z_range = var_d["z"][:-1]
+    z_range = var_d["z"][1:]
+    #pdb.set_trace()
     X, Y = np.meshgrid(x_range, z_range)
     nr_pl = 1
     for var in var_name_l:
         print var
         ax = plt.subplot(2,2,nr_pl)
-        var_domain = var_d[var][it,:-1,:-1]
+        var_domain = var_d[var][it,1:,:-1]
         var_min, var_max = var_domain.min(), var_domain.max()
         if var_min == 0.:
             levels_var = np.linspace(var_max * 0.1, var_max, 6)
         else:
             levels_var = np.linspace(var_min, var_max, 6)
         CS = plt.contourf(X, Y, var_domain,  cmap=plt.cm.Blues, alpha=0.7, levels=levels_var)
-        plt.xlabel(var + "; min = " +  '%s' % float('%.3g' % var_domain.min()) + 
-                   ", max = " + '%s' % float('%.3g' % var_domain.max()), fontsize=10)
+        plt.xlabel(var + "; min = " +  '%s' % float('%.3g' % var_domain.min()) +
+                   ", max = " + '%s' % float('%.3g' % var_domain.max()) + "\n" +
+                   "min_level = " +  '%s' % float('%.3g' % levels_var[0]),
+                   fontsize=10)
         if nr_pl in [1, 3]:
             plt.ylabel(r'height $[m]$', fontsize=10)
         nr_pl += 1
