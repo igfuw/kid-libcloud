@@ -1,0 +1,262 @@
+--- kid_a_setup.orig/src/test_cases_2d.f90	2014-07-25 10:18:21.000000000 +0200
++++ /home/slayoo/temp/test_cases_2d.f90	2015-03-11 19:00:19.292193657 +0100
+@@ -76,7 +76,6 @@
+     real(wp) :: fscale(nz)
+ 
+     print *, '2d cases called', icase
+-    
+ 
+     select case (icase)
+ 
+@@ -166,13 +165,16 @@
+        ! on morrison & grabowski (2007)
+        !================================
+        ! Set default control values
+-       if (all(zctrl==0.))zctrl(1)=1040.
+-       if (all(tctrl==0.))tctrl(1)=10.
++       if (all(zctrl==0.))zctrl(1)=1020.
++       if (all(tctrl==0.))tctrl(1:2)=(/12600.,1800./)
++       ! if (all(tctrl==0.))tctrl(1)=10800.
+        if (all(xctrl==0.))xctrl(1)=2000.
+        if (all(wctrl==0.))wctrl(1)=1.0
+-       if (all(lhf_ctrl==0.))lhf_ctrl(1)=0.
+-       if (all(lhf_ctrl==0.))shf_ctrl(1)=0.
+-
++       if (all(lhf_ctrl==0.))lhf_ctrl(1:2)=(/0., 3./)
++       if (all(lhf_ctrl==0.))shf_ctrl(1:2)=(/0., -3./)
++       !if (all(lhf_ctrl==0.))lhf_ctrl(1)=3.
++       !if (all(lhf_ctrl==0.))shf_ctrl(1)=-3.
++       
+        if (ipctrl==0)ipctrl=2
+ 
+        maxZ=zctrl(1)
+@@ -181,7 +183,8 @@
+        maxW=wctrl(1)
+        n_times= int(maxT/dt)
+ 
+-       n_force_times = 2
++       !n_force_times = 2
++       n_force_times = n_times
+ 
+        call set_2D_Sc_thermo_field(maxZ, maxX)
+ 
+@@ -190,11 +193,26 @@
+        call set_2D_Sc_wind_field(maxW, maxZ, maxX, n_force_times)
+        
+        ! set the thermodynamic forcing
+-       do k=1,nz
+-          qforce_in(k,:,:)=lhf_ctrl(1)/(RLVAP*rho(k)*maxZ)
+-          Tforce_in(k,:,:)=shf_ctrl(1)/(CP*rho(k)*maxZ)
++       do itime=1,n_times
++          t=itime*dt
++          if (t<tctrl(2))then
++             do k=1,nz
++                qforce_in(k,:,itime)=lhf_ctrl(1)/(RLVAP*rho(k)*maxZ)
++                Tforce_in(k,:,itime)=shf_ctrl(1)/(CP*rho(k)*maxZ)
++             enddo
++          else
++            do k=1,nz
++                qforce_in(k,:,itime)=lhf_ctrl(2)/(RLVAP*rho(k)*maxZ)
++                Tforce_in(k,:,itime)=shf_ctrl(2)/(CP*rho(k)*maxZ)
++             enddo
++          endif
+        enddo
+ 
++        !do k=1,nz
++        !   qforce_in(k,:,:)=lhf_ctrl(1)/(RLVAP*rho(k)*maxZ)
++        !   Tforce_in(k,:,:)=shf_ctrl(1)/(CP*rho(k)*maxZ)
++        !enddo
++
+        field_mask(nz,:)=0.0
+ 
+        do ih=1,naerosol
+@@ -513,16 +531,18 @@
+        
+        delz=-Ru/(tavi*g)*log(press_Sc(k)/press_Sc(km1))
+        pheight(k) = pheight(km1) + delz
+-    enddo
+- 
++    enddo     
++    
++    !z(1) = -20.
+     do k=1,nz
+-       z(k)=maxZ*k/float(nz)
++       z(k)=(maxZ*(k-1)/float(nz))-(10.)
+     end do
+-    
++  
+     do j=0, nx+1
+        x(j)=maxX*j/float(nx)
+     enddo
+     
++
+     call interpolate(pHeight, ptheta, z, theta_1d)
+     call interpolate(pHeight, pqv, z, qv_1d)   
+     
+@@ -926,16 +946,32 @@
+     real(wp) :: t     ! temporary local time variable
+     real(wp) :: zp(nz+1), dzp(nz+1)
+     real(wp) :: xp(nx+1), dxp(nx+1)
+-    real(wp) :: phi(0:nx+1,nz+1)
++    real(wp) :: phi(1:nx+1,nz+1)
+                       ! streamfunction for cumulus 
+                       ! convection
+-    real(wp) :: ux(nx+1,nz+1), uz(nx+1,nz+1)
++    !real(wp) :: ux(nx+1,nz+1), uz(nx+1,nz+1)
++    real(wp) :: ux(nx+1,nz), uz(nx,nz+1)
++
+     real(wp) :: zscale, xscale
+                       ! depth of the inflow and 
+                       ! outflow (respectively)
+     real(wp) :: ampl, ztop, x0, xcen
++    real(wp) :: field_2d(nz,1:nx)
+     
+     ! CALCULATE X AND Z DISTANCES (IN METERS)
++!!$    dzp(1:nz) = dz_half(1:nz)
++!!$    dzp(nz+1) = dz_half(nz)
++!!$    
++!!$    dxp(1:nx) = dx_half(1:nx)
++!!$    dxp(nx+1) = dx_half(nx)
++!!$
++!!$    zp(1)=z_half(1)-dzp(1)
++!!$    zp(2:nz+1) = z_half(1:nz)
++!!$    !zp(1:nz) = z_half(1:nz)
++!!$
++!!$    xp(1)=x_half(0)-dxp(1)
++!!$    xp(2:nx+1) = x_half(1:nx)
++
+     dzp(1:nz) = dz(1:nz)
+     dzp(nz+1) = dz(nz)
+     
+@@ -943,15 +979,15 @@
+     dxp(nx+1) = dx(nx)
+ 
+     do k=1,nz+1
+-       zp(k)=(k-1)*dzp(k)
++       zp(k)=((k-1)*dzp(k))-(dz_half(1))
+     enddo
+     do i=1,nx+1
+        xp(i)=(i-1)*dxp(i)
+     enddo
+ 
+     XSCALE=xp(nx+1)
+-    ZSCALE=zp(nz)
+-    
++    ZSCALE=zp(nz) ! set ZSCALE = 1020 m, while Z(NZ) = 1020 m
++
+ !
+ !! INITIAL DATA FOR THE STREAMFUNCTION. AMPL IS WMAX IN M/S,
+ !
+@@ -964,15 +1000,15 @@
+ ! ALSO, CENTRALIZE THE UPDRAFT TO OCCUPY ONLY THE INNER XSCALE
+ ! OF THE DOMAIN
+ !
+-    ZTOP=zp(nz-1)/ZSCALE
++    ZTOP=zp(nz+1)/ZSCALE
+     XCEN=.5*xp(nx)
+     X0=(xp(nx+1)-XSCALE)/2.
+     phi = 0.0
+     DO I=1,NX+1
+-       DO K=1,NZ
++       DO K=1,NZ+1
+           PHI(i,k)=-cos(2.*pi*(xp(i)-X0)/XSCALE)* &
+                sin(pi*zp(k)/ZSCALE)
+-          PHI(i,k)=PHI(i,k)*AMPL*rho(k)
++          PHI(i,k)=PHI(i,k)*AMPL!*rho(k)
+        ENDDO
+     ENDDO
+ 
+@@ -988,31 +1024,33 @@
+           enddo
+        enddo
+        !  rho*uz velocity
+-       do k=1,nz
++       do k=1,nz+1
+           do i=1,nx
+              uz(i,k)=(phi(i+1,k)-phi(i,k))/dxp(i)*dt/dzp(k)
+           enddo
+        enddo
+        ! ****CHECK RHO CALC****
+        ! velocity fields
++       
+        do i=1,nx
++          !w_t(1,i,itime) = 0.0 ! ensure 0.0 velocity at the surface
+           do k=1,nz
+              v_t(k,i,itime)=0.5*(ux(i,k)+ux(i+1,k))/dt*dxp(i) /rho(k)
+              w_t(k,i,itime)=0.5*(uz(i,k)+uz(i,k+1))/dt*dzp(k) /rho(k)
+           end do
+        end do
+-       
+ 
+-        v_t(:,0,itime) = v_t(:,nx,itime)
+-        v_t(:,nx+1,itime) = v_t(:,1,itime)
+-
+-        w_t(:,0,itime) = w_t(:,nx,itime)
+-        w_t(:,nx+1,itime) = w_t(:,1,itime)
++       v_t(:,0,itime) = v_t(:,nx,itime)
++       v_t(:,nx+1,itime) = v_t(:,1,itime)
++       
++       w_t_half(:,0,itime) = w_t_half(:,nx,itime)
++       w_t_half(:,nx+1,itime) = w_t_half(:,1,itime)
+         
+ 
+         do j = 0, nx+1 
+           call interpolate(z,w_t(:,j,itime),z_half,w_t_half(:,j,itime),scheme_id=1) 
+-        enddo
++       enddo
++
+         do k = 1, nz 
+           call interpolate_x(x,v_t(k,:,itime),x_half,v_t_half(k,:,itime),scheme_id=1) 
+         enddo
+@@ -1022,11 +1060,48 @@
+ 
+         w_t_half(:,0,itime) = w_t_half(:,1,itime)
+         w_t_half(:,nx+1,itime) = w_t_half(:,nx,itime) 
++        
++
++!!$        if (itime < 2) then 
++!!$           field_2d(:,1:nx)= w_t(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'w before wind_chk', itime, units='m/s', dim='z,x')
++!!$           field_2d(:,1:nx)= w_t_half(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'w_half before wind_chk', itime, units='m/s', dim='z,x')
++!!$           field_2d(:,1:nx)= v_t(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'v before wind_chk', itime, units='m/s', dim='z,x')
++!!$           field_2d(:,1:nx)= v_t_half(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'v_half before wind_chk', itime, units='m/s', dim='z,x')
++!!$         
++!!$           do k = 1,nz
++!!$              do i = 1,nx
++!!$                 field_2d(k,i)= uz(i,k)
++!!$              enddo
++!!$           enddo
++!!$           call save_dg( field_2d, 'uz', itime, units='m/s', dim='z,x')
++!!$           do k = 1,nz
++!!$              do i = 1,nx
++!!$                 field_2d(k,i)= phi(i,k)
++!!$              enddo
++!!$           enddo
++!!$           call save_dg( field_2d, 'phi', itime, units='m/s', dim='z,x')
++!!$           
++!!$        endif
+ 
+-        call wind_chk(w_t_half(:,:,itime), v_t_half(:,:,itime))     
++        call wind_chk(w_t_half(:,:,itime), v_t_half(:,:,itime))
+         
+-    end do
+-       
++!!$        if (itime < 2) then 
++!!$           field_2d(:,1:nx)= w_t(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'w after wind_chk', itime, units='m/s', dim='z,x')
++!!$           field_2d(:,1:nx)= w_t_half(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'w_half after wind_chk', itime, units='m/s', dim='z_half,x')
++!!$           field_2d(:,1:nx)= v_t(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'v after wind_chk', itime, units='m/s', dim='z,x')
++!!$           field_2d(:,1:nx)= v_t_half(:,1:nx,itime)
++!!$           call save_dg( field_2d, 'v_half after wind_chk', itime, units='m/s', dim='z,x')
++!!$        endif
++     end do
++!!$     print *, w_t_half(nz, :, 1), z_half(nz)
++
+   end subroutine set_2D_Sc_wind_field
+ 
+   subroutine set_WMO_Case1_wind_field(w_peak, maxZ, maxX, n_times)

@@ -1,0 +1,11 @@
+--- kid_a_setup.orig/src/defines.inc	2014-07-25 10:17:28.000000000 +0200
++++ kid_a_setup.adrian/src/defines.inc	2015-03-04 18:46:03.976030819 +0100
+@@ -20,7 +20,7 @@
+ 
+ ifeq ($(CASE), SC_2D)
+ D1=DEF_NX=100
+-D2=DEF_NZ=52
++D2=DEF_NZ=51
+ endif
+ 
+ ifeq ($(CASE), CU_2D)
