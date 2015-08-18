@@ -32,5 +32,5 @@ script:
   - tar xvzf kid_a_setup-201506.tar.gz
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
-  - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
+  - make SHELL=/bin/bash CASE=WMO_CASE1 COMPILER=gfortran NCPATH=/usr all
   - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py

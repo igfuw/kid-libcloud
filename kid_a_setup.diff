@@ -9,6 +9,17 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
  fileOut='output/SC_2D_out.nc'
  /
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/namelists/WMO_CASE1_input.nml kid_a_setup/namelists/WMO_CASE1_input.nml
+--- kid_a_setup.orig/namelists/WMO_CASE1_input.nml	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/namelists/WMO_CASE1_input.nml	2015-08-18 13:06:38.503423920 +0200
+@@ -3,6 +3,6 @@
+ ! comment out this call (in namelists.nml) and use this file to input
+ ! the value.
+ &namelistToUse
+-fileIn='namelists/WMO_CASE1.nml'
++fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
+ fileOut='output/WMO_CASE1_out.nc'
+ /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_setup.orig/src/compiler_options.inc	2015-06-02 09:23:07.000000000 +0200
 +++ kid_a_setup/src/compiler_options.inc	2015-08-18 12:19:50.307569068 +0200

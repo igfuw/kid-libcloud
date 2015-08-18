@@ -15,7 +15,7 @@ ptrfname = "/tmp/micro_step-" + str(os.getuid()) + "-" + str(os.getpid()) + ".pt
 
 # CFFI stuff
 ffi = cffi.FFI()
-flib = ffi.dlopen('KiD_SC_2D.so')
+flib = ffi.dlopen('KiD_WMO_CASE1.so')
 clib = ffi.dlopen('ptrutil.so')
 
 # C functions

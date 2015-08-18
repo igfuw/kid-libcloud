@@ -22,6 +22,5 @@ the libcloudph++ library) you need to follow these steps:
   - tar xvzf kid_a_setup.tar.gz
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
-  - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
-  #- bin/KiD_1D.exe
+  - make SHELL=/bin/bash CASE=WMO_CASE1 COMPILER=gfortran NCPATH=/usr all
   - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py 
