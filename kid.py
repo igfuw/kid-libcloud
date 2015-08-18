@@ -99,6 +99,9 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
 
+      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard
+      opts_init.kernel = libcl.lgrngn.kernel_t.hall
+
       try:
         print("Trying with CUDA backend..."),
 	prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)

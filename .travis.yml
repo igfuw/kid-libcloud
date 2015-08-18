@@ -29,7 +29,7 @@ install:
 script:
   - cd kid-libcloud
   - gcc -fPIC -shared ptrutil.c -o ptrutil.so
-  - tar xvzf kid_a_setup-201507.tar.gz
+  - tar xvzf kid_a_setup-201506.tar.gz
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
   - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
