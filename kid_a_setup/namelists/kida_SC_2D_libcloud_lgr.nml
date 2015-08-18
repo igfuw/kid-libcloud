@@ -15,7 +15,7 @@ num_aero_bins=1
 /
 
 &case
-icase=602
+icase=650
 /
 
 &control
@@ -25,11 +25,7 @@ dgstart=-1.0
 dg_dt=1.0
 tctrl(1)=2.
 tctrl(2)=1.
-wctrl(1)=1.0
-lhf_ctrl(1)=0.
-lhf_ctrl(2)=3.
-shf_ctrl(1)=0.
-shf_ctrl(2)=-3.
+wctrl(1)=0.25
 /
 
 &switch
