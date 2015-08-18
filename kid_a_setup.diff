@@ -38,7 +38,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_setup.orig/src/diagnostics.f90	2015-06-02 09:23:07.000000000 +0200
-+++ kid_a_setup/src/diagnostics.f90	2015-08-18 12:19:50.311569067 +0200
++++ kid_a_setup/src/diagnostics.f90	2015-08-18 15:19:25.619012121 +0200
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
