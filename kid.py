@@ -82,7 +82,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
 
       arrx = ptr2np(xf_ar, size_x, 1)
       arrz = ptr2np(zf_ar, 1, size_z)
-
+ 
       # checking if grids are equal
       np.testing.assert_almost_equal((arrx[1:]-arrx[:-1]).max(), (arrx[1:]-arrx[:-1]).min(), decimal=7)
       np.testing.assert_almost_equal((arrz[1:]-arrz[:-1]).max(), (arrz[1:]-arrz[:-1]).min(), decimal=7)
@@ -138,7 +138,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
     assert (arrays["Cx"][0,:] == arrays["Cx"][-1,:]).all()
 
-    arrays["Cz"][:, 0] = 0 # no particles there anyhow
+
+    arrays["Cz"][:, 0] = -999. # no particles there anyhow
     arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
 
     if timestep == 0:
@@ -146,7 +147,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
-    opts.sedi = opts.coal = timestep >= params["spinup"]
+    opts.sedi = opts.coal = timestep >= params["spinup_rain"]
+    if timestep >= params["spinup_smax"]: opts.RH_max = 44
 
     # superdroplets: all what have to be done within a timestep
 
