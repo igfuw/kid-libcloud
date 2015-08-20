@@ -23,7 +23,7 @@ mphys_scheme='libcloud_lgr'
 dt=1.0
 dgstart=-1.0
 dg_dt=60.0
-tctrl(1)=2.
+tctrl(1)=1200.
 tctrl(2)=1.
 wctrl(1)=0.25
 /
