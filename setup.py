@@ -5,8 +5,9 @@ import libcloudphxx as libcl
 # dictionary of simulation parameters
 params = {
   "real_t" : np.float64,
-  "sd_conc" : .16,
-  "spinup" : 1, # number of timesteps during which sedimentation and coalescence are off
+  "sd_conc" : 64,
+  "spinup_rain" : 60*30, # number of timesteps during which sedimentation and coalescence are off
+  "spinup_smax" : 60*10,
   "kappa" : .61,
   "meanr" : .04e-6,
   "gstdv" : 1.4,
@@ -26,4 +27,5 @@ opts.coal = True
 opts.adve = True
 opts.sedi = True
 opts.chem = False
+opts.RH_max = 1.005
 opts.kernel = libcl.lgrngn.kernel_t.geometric

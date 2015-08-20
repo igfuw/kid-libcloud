@@ -30,7 +30,7 @@ def reading_netcdf(netcdf_file, var_l):
 def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
     fig = plt.figure(nr_fig, figsize = (8,8))
     fig.suptitle("time = " + str(var_d["time"][it]/60) + " min") 
-    x_range = var_d["x"][:-1]
+    x_range = var_d["x"][:]
     z_range = var_d["z"][1:]
     #pdb.set_trace()
     X, Y = np.meshgrid(x_range, z_range)
@@ -38,7 +38,7 @@ def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
     for var in var_name_l:
         print var
         ax = plt.subplot(2,2,nr_pl)
-        var_domain = var_d[var][it,1:,:-1]
+        var_domain = var_d[var][it,1:,:]
         var_min, var_max = var_domain.min(), var_domain.max()
         if var_min == 0.:
             levels_var = np.linspace(var_max * 0.1, var_max, 6)
@@ -58,7 +58,7 @@ def contour_plot(outdir_path, var_name_l, var_d, it, nr_fig):
 
 
 
-def main(outdir_path, filename="SC_2D_out.nc", variable_name_l=Variable_name_l):
+def main(outdir_path, filename="WMO_CASE1_out.nc", variable_name_l=Variable_name_l):
     nf = netcdf.netcdf_file(os.path.join(outdir_path, filename), 'r')
     var_d = reading_netcdf(nf, variable_name_l)
     variable_name_lpl = [variable_name_l[i:i+4] for i in xrange(0, len(variable_name_l), 4)]

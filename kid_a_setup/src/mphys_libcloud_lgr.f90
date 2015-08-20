@@ -62,6 +62,7 @@ contains
       call c_f_procpointer(cptr, fptr)
     end if
 
+
     ! do the below every timestep
     if (.not. fptr(i_dgtime, dt, nz, nx+2 , &
                    theta, qv, rho, rho_half, & 
