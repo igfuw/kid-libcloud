@@ -95,28 +95,27 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       opts_init.dx, opts_init.dz = dx, dz 
       opts_init.z0 = dz # skipping the first sub-terrain level
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
-      opts_init.sd_conc_mean = params["sd_conc"]
+      opts_init.sd_conc = params["sd_conc"]
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
+      opts_init.terminal_velocity = libcl.lgrngn.vt_t.khvorostyanov_spherical
+      opts_init.kernel = libcl.lgrngn.kernel_t.geometric
 
-      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard
-      opts_init.kernel = libcl.lgrngn.kernel_t.hall
-
+#      try:
+#        print("Trying with CUDA backend..."),
+#	prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
+#        print (" OK!")
+#      except:
+#        print (" KO!")
       try:
-        print("Trying with CUDA backend..."),
-	prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
+        print("Trying with OpenMP backend..."),
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
         print (" OK!")
       except:
         print (" KO!")
-        try:
-          print("Trying with OpenMP backend..."),
-	  prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
-          print (" OK!")
-        except:
-          print (" KO!")
-          print("Trying with serial backend..."),
-	  prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
-          print (" OK!")
+        print("Trying with serial backend..."),
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
+        print (" OK!")
     
       # allocating arrays for those variables that are not ready to use
       # (i.e. either different size or value conversion needed)
@@ -125,6 +124,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       arrays["rhod"] = np.empty((opts_init.nz,))
       arrays["Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
       arrays["Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
+      arrays["RH_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
+      arrays["T_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
 
     # defining qv and thetad (in every timestep) 
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
@@ -138,8 +139,12 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
     assert (arrays["Cx"][0,:] == arrays["Cx"][-1,:]).all()
 
+    # putting meaningful values to the sub-terain level (to avoid segfault from library)
+    arrays["Cz"][:, 0] = 0.
+    arrays["qv"][:, 0] = 0.
+    arrays["thetad"][:,0] = 300.
+    arrays["rhod"][0] = 1.
 
-    arrays["Cz"][:, 0] = -999. # no particles there anyhow
     arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
 
     if timestep == 0:
@@ -150,8 +155,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     opts.sedi = opts.coal = timestep >= params["spinup_rain"]
     if timestep >= params["spinup_smax"]: opts.RH_max = 44
 
-    # superdroplets: all what have to be done within a timestep
+    # saving RH for the output file
+    for i in range(0, prtcls.opts_init.nx):
+      for j in range(0, prtcls.opts_init.nz):
+        arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
+        arrays["RH_lib_ante_cond"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["T_lib_ante_cond"][i,j] / libcl.common.p_vs(arrays["T_lib_ante_cond"][i,j])
 
+    # superdroplets: all what have to be done within a timestep
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], arrays["Cx"], arrays["Cz"]) 
 
 
