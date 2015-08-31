@@ -4,7 +4,7 @@ import numpy as np
 import cffi
 import traceback
 import libcloudphxx as libcl
-from libcloudphxx.common import R_v, R_d, c_pd, eps
+from libcloudphxx.common import R_v, R_d, c_pd, eps, p_1000
 from setup import params, opts
 import diagnostics as dg
 import os
@@ -67,16 +67,15 @@ def rho_kid2dry(rho, rv):
   # KiD seems to define rho as (p_v + p_d) / (R_d T)
   return rho / (1 + rv / eps) 
 
-@ffi.callback("bool(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
-def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, 
+@ffi.callback("bool(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exner_ar, 
                uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
   try:
     # global should be used for all variables defined in "if first_timestep"  
     global prtcls, dx, dz, timestep, last_diag
-
+    pdb.set_trace()
     # superdroplets: initialisation (done only once)
     if timestep == 0:
-
       # first, removing the no-longer-needed pointer file
       os.unlink(ptrfname)
 
@@ -88,7 +87,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       np.testing.assert_almost_equal((arrz[1:]-arrz[:-1]).max(), (arrz[1:]-arrz[:-1]).min(), decimal=7)
       dx = arrx[1] - arrx[0]                            
       dz = arrz[1] - arrz[0]                            
-
+      
       opts_init = libcl.lgrngn.opts_init_t()
       opts_init.dt = dt
       opts_init.nx, opts_init.nz = size_x - 2, size_z
@@ -100,7 +99,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
       opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard
       opts_init.kernel = libcl.lgrngn.kernel_t.hall
-
+      
 #      try:
 #        print("Trying with CUDA backend..."),
 #	prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
@@ -119,7 +118,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     
       # allocating arrays for those variables that are not ready to use
       # (i.e. either different size or value conversion needed)
-      for name in ("thetad", "qv"):
+      for name in ("thetad", "qv", "p_d", "T_kid", "rhod_kid"):
 	arrays[name] = np.empty((opts_init.nx, opts_init.nz))
       arrays["rhod"] = np.empty((opts_init.nz,))
       arrays["Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
@@ -130,7 +129,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar,
     # defining qv and thetad (in every timestep) 
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
     arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
-
+    arrays["p_d"][:,:] = (ptr2np(exner_ar, size_x, size_z)[1:-1, :])**(c_pd/R_d) * p_1000 * eps / (eps + arrays["qv"])
+    arrays["T_kid"][:,:] = ptr2np(exner_ar, size_x, size_z)[1:-1, :] * ptr2np(th_ar, size_x, size_z)[1:-1, :]
+    arrays["rhod_kid"] = arrays["p_d"] / arrays["T_kid"] / R_d
+    pdb.set_trace()
 
     # finalising initialisation
     if timestep == 0:

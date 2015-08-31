@@ -13,7 +13,7 @@ module mphys_libcloud_lgr
   
   interface
     function micro_step_py(i_dgtime, dt, size_z, size_x,  & 
-                        th_ar, qv_ar, rhof_ar, rhoh_ar, &
+                        th_ar, qv_ar, rhof_ar, rhoh_ar, exner, &
                         vf_ar, vh_ar, wf_ar, wh_ar,     &
                         xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar) bind(c)
       use iso_c_binding, only: c_double, c_int, c_float, c_bool
@@ -24,6 +24,7 @@ module mphys_libcloud_lgr
                                            
       real(c_double),  intent(inout):: th_ar(nz, 0:nx+1), qv_ar(nz, 0:nx+1),  &
                                        rhof_ar(nz), rhoh_ar(nz),              &
+                                       exner(nz, 0:nx+1),                     &
                                        vh_ar(nz, 0:nx+1), vf_ar(nz, 0:nx+1),  &
                                        wf_ar(nz, 0:nx+1), wh_ar(nz, 0:nx+1),  &
                                        xf_ar(0:nx+1), zf_ar(nz), xh_ar(0:nx+1), zh_ar(nz), &
@@ -65,7 +66,7 @@ contains
 
     ! do the below every timestep
     if (.not. fptr(i_dgtime, dt, nz, nx+2 , &
-                   theta, qv, rho, rho_half, & 
+                   theta, qv, rho, rho_half, exner, & 
                    v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys) &
     ) stop("Error in Python!!!")
 
