@@ -73,7 +73,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
   try:
     # global should be used for all variables defined in "if first_timestep"  
     global prtcls, dx, dz, timestep, last_diag
-    pdb.set_trace()
+    #pdb.set_trace()
     # superdroplets: initialisation (done only once)
     if timestep == 0:
       # first, removing the no-longer-needed pointer file
@@ -94,11 +94,12 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.dx, opts_init.dz = dx, dz 
       opts_init.z0 = dz # skipping the first sub-terrain level
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
-      opts_init.sd_conc = params["sd_conc"]
+      opts_init.sd_conc = int(params["sd_conc"])
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
-      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard
-      opts_init.kernel = libcl.lgrngn.kernel_t.hall
+      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard77fast
+      opts_init.kernel = libcl.lgrngn.kernel_t.hall_davis_no_waals
+      opts_init.n_sd_max = opts_init.nx*opts_init.nz*opts_init.sd_conc
       
 #      try:
 #        print("Trying with CUDA backend..."),
@@ -132,7 +133,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     arrays["p_d"][:,:] = (ptr2np(exner_ar, size_x, size_z)[1:-1, :])**(c_pd/R_d) * p_1000 * eps / (eps + arrays["qv"])
     arrays["T_kid"][:,:] = ptr2np(exner_ar, size_x, size_z)[1:-1, :] * ptr2np(th_ar, size_x, size_z)[1:-1, :]
     arrays["rhod_kid"] = arrays["p_d"] / arrays["T_kid"] / R_d
-    pdb.set_trace()
+    #pdb.set_trace()
 
     # finalising initialisation
     if timestep == 0:
@@ -150,7 +151,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
 
     if timestep == 0:
-      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["Cx"], arrays["Cz"]) 
+      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
@@ -164,7 +165,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
         arrays["RH_lib_ante_cond"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["T_lib_ante_cond"][i,j] / libcl.common.p_vs(arrays["T_lib_ante_cond"][i,j])
 
     # superdroplets: all what have to be done within a timestep
-    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], arrays["Cx"], arrays["Cz"]) 
+    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
 
 
     prtcls.step_async(opts)
