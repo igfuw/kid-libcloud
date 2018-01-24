@@ -97,8 +97,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.sd_conc = int(params["sd_conc"])
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
-      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard77fast
-      opts_init.kernel = libcl.lgrngn.kernel_t.hall_davis_no_waals
+      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard76
+      opts_init.kernel = libcl.lgrngn.kernel_t.hall
       opts_init.n_sd_max = opts_init.nx*opts_init.nz*opts_init.sd_conc
       
 #      try:
