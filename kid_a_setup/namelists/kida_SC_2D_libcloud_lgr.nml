@@ -25,7 +25,7 @@ dgstart=-1.0
 dg_dt=60.0
 tctrl(1)=7200.
 tctrl(2)=1.
-wctrl(1)=1.
+wctrl(1)=0.25
 /
 
 &switch
