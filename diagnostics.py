@@ -6,7 +6,7 @@ import math
 import pdb
 
 ffi = cffi.FFI()
-flib = ffi.dlopen('KiD_WMO_CASE1.so')
+flib = ffi.dlopen('KiD_SC_2D.so')
 
 # Fortran functions (_sp_ means single precision)
 ffi.cdef("void __diagnostics_MOD_save_dg_2d_sp_c(float*, int, int, char*, int,     char*, int,      int   );")
