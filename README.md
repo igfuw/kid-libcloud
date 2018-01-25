@@ -20,6 +20,8 @@ the libcloudph++ library) you need to follow these steps:
   - cd kid-libcloud
   - gcc -fPIC -shared ptrutil.c -o ptrutil.so
   - tar xvzf kid_a_setup.tar.gz
+  - cp mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90 
+  - cp kida_SC_2D_libcloud_lgr.nml kid_a_setup/namelists/kida_SC_2D_libcloud_lgr.nml 
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup.diff
   - make SHELL=/bin/bash CASE=WMO_CASE1 COMPILER=gfortran NCPATH=/usr all
