@@ -24,6 +24,16 @@ def save_helper(arr):
     arr = arr.astype(np.float32)
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   return arr, arr_ptr
+#  # remove the subterrenean level z=0 from output
+#  print arr.ndim, arr
+#  if (arr.ndim == 2):
+#    arr_wo_subterr = np.delete(arr,0,1)
+#    print arr_wo_subterr
+#    arr_ptr = ffi.cast("float*", arr_wo_subterr.__array_interface__['data'][0])
+#    return arr_wo_subterr, arr_ptr
+#  else:
+#    arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
+#    return arr, arr_ptr
 
 
 def save_dg(arr, it, name, units):
@@ -59,9 +69,9 @@ def save_bindata(arr, name, unit):
 def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
 
   # super-droplet concentration per grid cell                               
-  # TODO: select all particles?                                 
+  particles.diag_all() 
   particles.diag_sd_conc()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "number_od_SDs", "1")
 
   if first_timestep:
     # temporary arrays (allocating only once)                 
@@ -88,11 +98,14 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   save_dg(arrays["T_lib_ante_cond"], it, "T_lib_ante_cond", "K")
 
   # RH according to the formula used within the library
-  for i in range(0, size_x-2):
-    for j in range(0, size_z):
-      arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
-  save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
-  save_dg(arrays["RH_lib_ante_cond"], it, "RH_lib_ante_cond", "K")
+  particles.diag_all()
+  particles.diag_RH()
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "RH_lib_post_cond", "%")
+  #for i in range(0, size_x-2):
+  #  for j in range(0, size_z):
+  #    arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
+  #save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
+  save_dg(arrays["RH_lib_ante_cond"], it, "RH_lib_ante_cond", "%")
 
   # aerosol concentration
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
