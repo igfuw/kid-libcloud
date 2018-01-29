@@ -19,7 +19,8 @@ the libcloudph++ library) you need to follow these steps:
 
   - cd kid-libcloud
   - gcc -fPIC -shared ptrutil.c -o ptrutil.so
-  - tar xvzf kid_a_setup.tar.gz
+for the Jan 2018 SC_2D setup:
+  - tar xvzf kid_a_setup-20180125.tar.gz
   - cp mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90 
   - cp SC_2D_libcloud_lgr.nml kid_a_setup/namelists/SC_2D_libcloud_lgr.nml 
   - cp kida_SC_2D_libcloud_lgr.nml kid_a_setup/namelists/kida_SC_2D_libcloud_lgr.nml 
