@@ -1,6 +1,6 @@
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/namelists/SC_2D_input.nml kid_a_setup-20180125_patched/namelists/SC_2D_input.nml
 --- kid_a_setup/namelists/SC_2D_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/namelists/SC_2D_input.nml	2018-01-25 16:06:23.284600734 +0100
++++ kid_a_setup-20180125_patched/namelists/SC_2D_input.nml	2018-01-29 11:53:40.892089831 +0100
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -11,7 +11,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/namelists/WMO_CASE1_input.nml kid_a_setup-20180125_patched/namelists/WMO_CASE1_input.nml
 --- kid_a_setup/namelists/WMO_CASE1_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/namelists/WMO_CASE1_input.nml	2018-01-25 16:06:23.291600741 +0100
++++ kid_a_setup-20180125_patched/namelists/WMO_CASE1_input.nml	2018-01-29 11:30:44.223047188 +0100
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -22,7 +22,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/compiler_options.inc kid_a_setup-20180125_patched/src/compiler_options.inc
 --- kid_a_setup/src/compiler_options.inc	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/compiler_options.inc	2018-01-25 16:26:18.020666325 +0100
++++ kid_a_setup-20180125_patched/src/compiler_options.inc	2018-01-29 11:30:44.232047195 +0100
 @@ -56,7 +56,7 @@
  LNCDF=-L$(NCPATH)/lib -lnetcdff -lnetcdf
  LDFLAGS=$(INCDF) $(LNCDF)
@@ -32,9 +32,21 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/derived_fields.f90 kid_a_setup-20180125_patched/src/derived_fields.f90
+--- kid_a_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup-20180125_patched/src/derived_fields.f90	2018-01-29 11:49:46.276912277 +0100
+@@ -32,7 +32,7 @@
+ 
+     ! If we need a staggered grid in vertical...
+ 
+-    if (icase /= 650) then 
++    if (icase /= 650) or (icase /= 602) then 
+        call make_wgrid(z,z_half)
+        if ( nx > 1 ) then 
+        ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/diagnostics.f90 kid_a_setup-20180125_patched/src/diagnostics.f90
 --- kid_a_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/diagnostics.f90	2018-01-25 16:06:23.322600768 +0100
++++ kid_a_setup-20180125_patched/src/diagnostics.f90	2018-01-29 11:30:44.246047206 +0100
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -782,7 +794,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    subroutine check_ncstatus(status, name)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/main.f90 kid_a_setup-20180125_patched/src/main.f90
 --- kid_a_setup/src/main.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/main.f90	2018-01-25 16:06:23.331600776 +0100
++++ kid_a_setup-20180125_patched/src/main.f90	2018-01-29 11:30:44.256047214 +0100
 @@ -97,7 +97,8 @@
  
      end do
@@ -795,7 +807,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/makefile.inc kid_a_setup-20180125_patched/src/makefile.inc
 --- kid_a_setup/src/makefile.inc	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/makefile.inc	2018-01-25 16:06:23.338600782 +0100
++++ kid_a_setup-20180125_patched/src/makefile.inc	2018-01-29 11:30:44.264047220 +0100
 @@ -29,7 +29,7 @@
  OBJS=$(OBJSF) $(OBJSF90)
  
@@ -823,7 +835,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/mphys_interface.f90 kid_a_setup-20180125_patched/src/mphys_interface.f90
 --- kid_a_setup/src/mphys_interface.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/mphys_interface.f90	2018-01-25 16:06:23.346600789 +0100
++++ kid_a_setup-20180125_patched/src/mphys_interface.f90	2018-01-29 11:30:44.272047226 +0100
 @@ -19,6 +19,7 @@
  #if SHIPWAY_MICRO == 1
    Use mphys_4A, only: mphys_4A_interface
@@ -844,7 +856,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    end subroutine mphys_column
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/namelists.f90 kid_a_setup-20180125_patched/src/namelists.f90
 --- kid_a_setup/src/namelists.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/namelists.f90	2018-01-25 16:06:23.354600797 +0100
++++ kid_a_setup-20180125_patched/src/namelists.f90	2018-01-29 11:30:44.281047232 +0100
 @@ -180,6 +180,9 @@
      case('4A')
         imphys=imphys_4A
@@ -857,7 +869,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         print*, 'Did you mean:' 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/switches.f90 kid_a_setup-20180125_patched/src/switches.f90
 --- kid_a_setup/src/switches.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/switches.f90	2018-01-25 16:06:23.367600808 +0100
++++ kid_a_setup-20180125_patched/src/switches.f90	2018-01-29 11:30:44.289047239 +0100
 @@ -96,7 +96,8 @@
         ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
         ,imphys_wsm6             =10 & ! WSM6 scheme
