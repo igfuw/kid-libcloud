@@ -30,6 +30,7 @@ old repo:
   - patch -p1 < ../kid_a_setup.diff
 
   - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
+or
   - make SHELL=/bin/bash CASE=WMO_CASE1 COMPILER=gfortran NCPATH=/usr all
 
   - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py 
