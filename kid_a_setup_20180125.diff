@@ -6,7 +6,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  ! the value.
  &namelistToUse
 -fileIn='namelists/SC_2D.nml'
-+fileIn='namelists/SC_2D_libcloud_lgr.nml'
++fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
  fileOut='output/SC_2D_out.nc'
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/namelists/WMO_CASE1_input.nml kid_a_setup-20180125_patched/namelists/WMO_CASE1_input.nml
@@ -32,18 +32,6 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
-diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/derived_fields.f90 kid_a_setup-20180125_patched/src/derived_fields.f90
---- kid_a_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup-20180125_patched/src/derived_fields.f90	2018-01-29 11:57:40.680270925 +0100
-@@ -32,7 +32,7 @@
- 
-     ! If we need a staggered grid in vertical...
- 
--    if (icase /= 650) then 
-+    if ((icase /= 650) .OR. (icase /= 602)) then 
-        call make_wgrid(z,z_half)
-        if ( nx > 1 ) then 
-        ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' kid_a_setup/src/diagnostics.f90 kid_a_setup-20180125_patched/src/diagnostics.f90
 --- kid_a_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
 +++ kid_a_setup-20180125_patched/src/diagnostics.f90	2018-01-29 11:55:52.216189216 +0100

@@ -23,8 +23,7 @@ mphys_scheme='libcloud_lgr'
 dt=1.0
 dgstart=-1.0
 dg_dt=60.0
-tctrl(1)=7200.
-tctrl(2)=1.
+tctrl(1)=10800.
 wctrl(1)=0.25
 /
 
@@ -43,4 +42,6 @@ l_fix_aerosols=.False.
 
 &addcontrol
 iiwarm=.True.
+smax_limit_time = 1800.0
+smax = 0.05
 /
