@@ -45,7 +45,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/derived_fields.f90 kid_a_setup/src/derived_fields.f90
 --- kid_a_original_20180125_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/derived_fields.f90	2018-01-31 16:36:37.161297234 +0100
++++ kid_a_setup/src/derived_fields.f90	2018-01-31 18:49:43.822334178 +0100
 @@ -32,7 +32,7 @@
  
      ! If we need a staggered grid in vertical...
@@ -57,7 +57,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/diagnostics.f90	2018-01-31 17:29:38.595689045 +0100
++++ kid_a_setup/src/diagnostics.f90	2018-01-31 18:49:16.631297467 +0100
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -652,7 +652,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
            status=nf90_def_var(ncid, instant_column(ivar)%name &
                 , nf90_float, dim2d, varid(ivar))
            call check_ncstatus(status)
-@@ -2115,17 +2263,36 @@
+@@ -2115,17 +2263,35 @@
         end do
         
         status=nf90_enddef(ncid)
@@ -669,7 +669,6 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +         status=nf90_inq_varid(ncid, name, vid)             !!!!
 +         call check_ncstatus(status)                        !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-+         print *, name
 +          status=nf90_put_var(ncid, vid, &
 +               instant_column(ivar)%data(1:nz,itime), start=(/1,i_dgtime/))
            call check_ncstatus(status)
@@ -691,7 +690,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim3d=tzldim
-@@ -2143,18 +2310,30 @@
+@@ -2143,18 +2309,29 @@
         end do
  
         status=nf90_enddef(ncid)
@@ -722,12 +721,11 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +               instant_bindgs(ivar)%name, vid)          !!!!
 +          call check_ncstatus(status)                     !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-+         print *, name
 +          status=nf90_put_var(ncid, vid, field3d, start=(/1,1,i_dgtime/))
            
            call check_ncstatus(status)
            
-@@ -2162,12 +2341,187 @@
+@@ -2162,12 +2339,187 @@
         
         deallocate(field3d)
         
@@ -915,7 +913,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim3d=tzxdim
-@@ -2186,18 +2540,26 @@
+@@ -2186,18 +2538,26 @@
         
         status=nf90_enddef(ncid)
  
@@ -947,7 +945,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
            call check_ncstatus(status)
  
-@@ -2205,10 +2567,19 @@
+@@ -2205,10 +2565,19 @@
  
         deallocate(field3d)
  
@@ -967,7 +965,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim4d=tzxbindim
-@@ -2227,20 +2598,30 @@
+@@ -2227,20 +2596,30 @@
         
         status=nf90_enddef(ncid)
  
@@ -1003,7 +1001,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
            call check_ncstatus(status)
  
-@@ -2248,10 +2629,19 @@
+@@ -2248,10 +2627,19 @@
  
         deallocate(field4d)
  
@@ -1023,7 +1021,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim2d=txdim
-@@ -2270,19 +2660,39 @@
+@@ -2270,19 +2658,39 @@
  
         status=nf90_enddef(ncid)
  
@@ -1066,7 +1064,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      ! We now write out the full namelist data to file
      nmlfile=outfile(1:len_trim(outfile)-3)//'.nml'
-@@ -2296,8 +2706,11 @@
+@@ -2296,8 +2704,11 @@
      write(99, switch)
      write(99, addcontrol)
      close(99)
