@@ -31,24 +31,6 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
  fileOut='output/WMO_CASE1_out.nc'
  /
-diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/out kid_a_setup/out
---- kid_a_original_20180125_setup/out	1970-01-01 01:00:00.000000000 +0100
-+++ kid_a_setup/out	2018-01-30 15:02:35.485484723 +0100
-@@ -0,0 +1,14 @@
-+Trying with serial backend...  OK!
-+diagnozing!
-+diagnozing!
-+diagnozing!
-+diagnozing!
-+ Querying command line
-+ Unable to determine input file from command line, so querying namelists/1D_input.nml instead...
-+&NAMELISTTOUSE
-+ FILEIN="namelists/1D_libcloud_lgr.nml                                                                                                                                                                           ",
-+ FILEOUT="output/1D_out.nc                                                                                                                                                                                        ",
-+ /
-+ Using namelist: namelists/1D_libcloud_lgr.nml
-+ Writing data to: output/1D_out.nc
-+ Writing data @ i_dgtime=           1
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_original_20180125_setup/src/compiler_options.inc	2017-11-10 14:43:55.000000000 +0100
 +++ kid_a_setup/src/compiler_options.inc	2018-01-30 14:09:42.370387918 +0100
@@ -61,9 +43,21 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/derived_fields.f90 kid_a_setup/src/derived_fields.f90
+--- kid_a_original_20180125_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/derived_fields.f90	2018-01-31 16:36:37.161297234 +0100
+@@ -32,7 +32,7 @@
+ 
+     ! If we need a staggered grid in vertical...
+ 
+-    if (icase /= 650) then 
++    if (icase /= 650 .OR. icase /= 101) then 
+        call make_wgrid(z,z_half)
+        if ( nx > 1 ) then 
+        ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/diagnostics.f90	2018-01-30 17:12:08.116002456 +0100
++++ kid_a_setup/src/diagnostics.f90	2018-01-31 17:29:38.595689045 +0100
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -524,7 +518,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      Use netcdf
      Use switches, only : icase
-@@ -1924,15 +2023,33 @@
+@@ -1924,15 +2023,35 @@
      integer :: ivar, itmp=1, offset=3, n_dgs, k, iq, tim, ibin
      character(4) :: char4
      
@@ -544,6 +538,8 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 -    real, allocatable :: field4d(:,:,:,:)
 -    
 -    write(6,*) 'Integration complete.'
++    real, allocatable :: field1d(:)                     !!!!
++    real, allocatable :: field2d(:,:)                     !!!!
 +    real, allocatable :: field3d(:,:)                     !!!!
 +    real, allocatable :: field4d(:,:,:)                   !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -563,7 +559,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      if (fileNameOut=='')then
        write(char4,'(I4.4)')icase
-@@ -1990,7 +2107,7 @@
+@@ -1990,7 +2109,7 @@
      status=nf90_put_att(ncid, nf90_global, 'references', references)
      status=nf90_put_att(ncid, nf90_global, 'comments', comments)
      
@@ -572,7 +568,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      call check_ncstatus(status)
      status=nf90_def_dim(ncid, 'z', int(nz, kind=incdfp), zid)
      call check_ncstatus(status)
-@@ -1999,11 +2116,11 @@
+@@ -1999,11 +2118,11 @@
      status=nf90_def_dim(ncid, 'x', int(nx, kind=incdfp), xid)
      call check_ncstatus(status)
  
@@ -589,7 +585,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      ! Do the dim variables
      n_dgs=2
-@@ -2063,7 +2180,13 @@
+@@ -2063,7 +2182,13 @@
      deallocate(varid)
      
      ! Do scalars (including time)
@@ -603,7 +599,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      allocate(varid(n_dgs))
      status=nf90_redef(ncid)
      dim=timeid
-@@ -2084,25 +2207,47 @@
+@@ -2084,25 +2209,48 @@
      
      status=nf90_enddef(ncid)
  
@@ -637,12 +633,13 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      if (nx == 1) then
 -
-+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-+!!!!                   nx == 1 case not finished!         !!!!
-+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-+       print *, 'diag nx==1'
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!                   nx == 1 case not finished!         !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! Do the instantaneous diags (1D)
         n_dgs=ID_instant_column%nids
++
++
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 +if (init) then                                            !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -655,25 +652,29 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
            status=nf90_def_var(ncid, instant_column(ivar)%name &
                 , nf90_float, dim2d, varid(ivar))
            call check_ncstatus(status)
-@@ -2115,17 +2260,32 @@
+@@ -2115,17 +2263,36 @@
         end do
         
         status=nf90_enddef(ncid)
 +
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 +endif                                                     !!!!
-+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
-+       print *, 'diag nx==2'
         do ivar=1,n_dgs
 -          status=nf90_put_var(ncid, varid(ivar), &
 -               transpose(instant_column(ivar)%data(1:nz,1:n_dgtimes)))
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++         name=instant_column(ivar)%name                     !!!!
++         call sanitize(name)                                !!!!
++         status=nf90_inq_varid(ncid, name, vid)             !!!!
++         call check_ncstatus(status)                        !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++         print *, name
 +          status=nf90_put_var(ncid, vid, &
-+               transpose(instant_column(ivar)%data(1:nz, 1:2)))
++               instant_column(ivar)%data(1:nz,itime), start=(/1,i_dgtime/))
            call check_ncstatus(status)
         end do
  
-+       print *, 'diag nx==3'
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 +if (init) then                                            !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -690,7 +691,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim3d=tzldim
-@@ -2143,18 +2303,22 @@
+@@ -2143,18 +2310,30 @@
         end do
  
         status=nf90_enddef(ncid)
@@ -714,11 +715,19 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 -          enddo
 -          status=nf90_put_var(ncid, varid(ivar), field3d)
 +!!          enddo
-+          status=nf90_put_var(ncid, vid, field3d)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          name=instant_bindgs(ivar)%name                     !!!!
++          call sanitize(name)                                !!!!
++          status=nf90_inq_varid(ncid, &                   !!!!
++               instant_bindgs(ivar)%name, vid)          !!!!
++          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++         print *, name
++          status=nf90_put_var(ncid, vid, field3d, start=(/1,1,i_dgtime/))
            
            call check_ncstatus(status)
            
-@@ -2162,12 +2326,22 @@
+@@ -2162,12 +2341,187 @@
         
         deallocate(field3d)
         
@@ -726,10 +735,175 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +if (init) then                                            !!!!
 +!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         deallocate(varid)      
-+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 +endif                                                     !!!!
-+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++
++!!!!! ------ new try of 1D diag from a copy of the 2d diag ------
         
++       ! Do the instantaneous diags (1D)
++!       n_dgs=ID_instant_column%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(varid(n_dgs))
++!       status=nf90_redef(ncid)
++!       dim3d=tzldim
++!
++!       do ivar=1,n_dgs
++!          status=nf90_def_var(ncid, instant_column(ivar)%name &
++!               , nf90_float, dim2d, varid(ivar))
++!          call check_ncstatus(status)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'units', instant_column(ivar)%units)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'dim', instant_column(ivar)%dim)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'missing_value', unset_real)
++!       end do
++!       
++!       status=nf90_enddef(ncid)
++!       
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(field1d(nz)) !!!!
++!       
++!       do ivar=1,n_dgs
++!!!!!     do tim=1,n_dgtimes                               !!!!
++!                do k = 1,nz
++!                   field1d(k)= instant_column(ivar)%data(k,itime) 
++!                enddo
++!          !!enddo
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_inq_varid(ncid, &                   !!!!
++!               instant_column(ivar)%name, vid)                !!!!
++!          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_put_var(ncid, vid, field1d, start=(/1,i_dgtime/)) !!!!
++!
++!          call check_ncstatus(status)
++!
++!       enddo
++!
++!       deallocate(field1d)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!
++!       ! Do the instantaneous bin micro diags (1D)
++!       n_dgs=ID_instant_bindgs%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(varid(n_dgs))
++!       status=nf90_redef(ncid)
++!       dim4d=tzxbindim
++!
++!       do ivar=1,n_dgs
++!          status=nf90_def_var(ncid, instant_bindgs(ivar)%name &
++!               , nf90_float, dim3d, varid(ivar))
++!          call check_ncstatus(status)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'units', instant_bindgs(ivar)%units)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'dim', instant_bindgs(ivar)%dim)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'missing_value', unset_real)
++!       end do
++!       
++!       status=nf90_enddef(ncid)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(field2d(max_nbins, nz))
++!       
++!       do ivar=1,n_dgs
++!!!!!     do tim=1,n_dgtimes                               !!!!
++!             do ibin= 1,max_nbins 
++!                   do k = 1,nz
++!                      field2d(ibin,k)= instant_bindgs(ivar)%data(k,ibin,itime)  !!!!
++!                   enddo
++!!!!!        enddo                                         !!!!
++!          enddo
++!         
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_inq_varid(ncid, &                   !!!!
++!               instant_bindgs(ivar)%name, vid)          !!!!
++!          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!
++!          status=nf90_put_var(ncid, vid, field2d(:,:), start=(/1,1,i_dgtime/))  !!!!
++!
++!          call check_ncstatus(status)
++!
++!       enddo
++!
++!       deallocate(field2d)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++       ! Do the instantaneous diags (nx vs time)
++!       n_dgs=ID_instant_column%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(varid(n_dgs))
++!       status=nf90_redef(ncid)
++!       dim2d=txdim
++!    
++!       do ivar=1,n_dgs
++!          status=nf90_def_var(ncid, instant_column(ivar)%name &
++!               , nf90_float, dim2d, varid(ivar))
++!          call check_ncstatus(status)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'units', instant_column(ivar)%units)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'dim', instant_column(ivar)%dim)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'missing_value', unset_real)
++!       end do
++!
++!       status=nf90_enddef(ncid)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!
++!       do ivar=1,n_dgs
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_inq_varid(ncid, &                   !!!!
++!               instant_column(ivar)%name, vid)            !!!!
++!          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_put_var(ncid, vid, instant_column(ivar)%data(1:nx,itime), start=(/1, i_dgtime/)) !!!!
++!          call check_ncstatus(status)
++!       end do
++!       
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++
++
++       
 +    ! nx > 1
      else
         
@@ -741,7 +915,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim3d=tzxdim
-@@ -2186,18 +2360,26 @@
+@@ -2186,18 +2540,26 @@
         
         status=nf90_enddef(ncid)
  
@@ -773,7 +947,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
            call check_ncstatus(status)
  
-@@ -2205,10 +2387,19 @@
+@@ -2205,10 +2567,19 @@
  
         deallocate(field3d)
  
@@ -793,7 +967,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim4d=tzxbindim
-@@ -2227,20 +2418,30 @@
+@@ -2227,20 +2598,30 @@
         
         status=nf90_enddef(ncid)
  
@@ -829,7 +1003,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
            call check_ncstatus(status)
  
-@@ -2248,10 +2449,19 @@
+@@ -2248,10 +2629,19 @@
  
         deallocate(field4d)
  
@@ -849,7 +1023,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim2d=txdim
-@@ -2270,19 +2480,39 @@
+@@ -2270,19 +2660,39 @@
  
         status=nf90_enddef(ncid)
  
@@ -892,7 +1066,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      ! We now write out the full namelist data to file
      nmlfile=outfile(1:len_trim(outfile)-3)//'.nml'
-@@ -2296,8 +2526,11 @@
+@@ -2296,8 +2706,11 @@
      write(99, switch)
      write(99, addcontrol)
      close(99)
@@ -906,7 +1080,6 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    end subroutine write_diagnostics
  
    subroutine check_ncstatus(status, name)
-Binary files kid_a_original_20180125_setup/src/.diagnostics.f90.swo and kid_a_setup/src/.diagnostics.f90.swo differ
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/main.f90 kid_a_setup/src/main.f90
 --- kid_a_original_20180125_setup/src/main.f90	2017-11-10 14:43:55.000000000 +0100
 +++ kid_a_setup/src/main.f90	2018-01-30 14:09:42.390387931 +0100
@@ -995,3 +1168,4 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
        
    ! Integer switches to choose input data type and/or test case
    integer, parameter ::    & 
+Binary files kid_a_original_20180125_setup/.swp and kid_a_setup/.swp differ
