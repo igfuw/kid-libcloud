@@ -1,6 +1,6 @@
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/namelists/1D_input.nml kid_a_setup/namelists/1D_input.nml
 --- kid_a_original_20180125_setup/namelists/1D_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/1D_input.nml	2018-01-30 14:14:37.952590705 +0100
++++ kid_a_setup/namelists/1D_input.nml	2018-01-31 20:18:04.302233301 +0100
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -11,7 +11,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
 --- kid_a_original_20180125_setup/namelists/SC_2D_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/SC_2D_input.nml	2018-01-30 14:09:42.354387907 +0100
++++ kid_a_setup/namelists/SC_2D_input.nml	2018-01-31 20:18:04.309233309 +0100
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -22,7 +22,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/namelists/WMO_CASE1_input.nml kid_a_setup/namelists/WMO_CASE1_input.nml
 --- kid_a_original_20180125_setup/namelists/WMO_CASE1_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/WMO_CASE1_input.nml	2018-01-30 14:09:42.361387911 +0100
++++ kid_a_setup/namelists/WMO_CASE1_input.nml	2018-01-31 20:18:04.317233317 +0100
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -33,7 +33,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_original_20180125_setup/src/compiler_options.inc	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/compiler_options.inc	2018-01-30 14:09:42.370387918 +0100
++++ kid_a_setup/src/compiler_options.inc	2018-01-31 20:18:04.327233328 +0100
 @@ -56,7 +56,7 @@
  LNCDF=-L$(NCPATH)/lib -lnetcdff -lnetcdf
  LDFLAGS=$(INCDF) $(LNCDF)
@@ -45,7 +45,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/derived_fields.f90 kid_a_setup/src/derived_fields.f90
 --- kid_a_original_20180125_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/derived_fields.f90	2018-01-31 18:49:43.822334178 +0100
++++ kid_a_setup/src/derived_fields.f90	2018-01-31 20:18:04.336233338 +0100
 @@ -32,7 +32,7 @@
  
      ! If we need a staggered grid in vertical...
@@ -57,7 +57,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/diagnostics.f90	2018-01-31 18:49:16.631297467 +0100
++++ kid_a_setup/src/diagnostics.f90	2018-01-31 21:31:58.384179961 +0100
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -147,7 +147,25 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dgStore%data=unset_real
  
    end subroutine allocate_dgs_ScalarTS
-@@ -972,7 +980,7 @@
+@@ -968,11 +976,25 @@
+           
+   end subroutine getUniqueId
+ 
++  subroutine save_dg_1d_sp_c( &
++    field, nx, nz,            & 
++    name, namelen,            &
++    units, unitslen,          &
++    itime                     &
++  )
++    integer(c_int), intent(in), value :: nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_1d_sp(field(:,1), name, itime, units, "x")
++  end subroutine
++
+   subroutine save_dg_1d_sp(field, name, itime, units, dim, longname)
       
      real(sp), intent(in) :: field(:)
      character(*), intent(in) :: name
@@ -156,7 +174,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables for column diagnostics
-@@ -1019,6 +1027,9 @@
+@@ -1019,6 +1041,9 @@
         dg(ivar)%longname=trim(clongname)
      end if
  
@@ -166,7 +184,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(:,itime)=field(:)
         
    end subroutine save_dg_1d_sp
-@@ -1029,7 +1040,7 @@
+@@ -1029,7 +1054,7 @@
      integer, intent(in) :: ks, ke  ! start and end of range
      real(sp), intent(in) :: field(:)
      character(*), intent(in) :: name
@@ -175,7 +193,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1074,6 +1085,9 @@
+@@ -1074,6 +1099,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -185,7 +203,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(ks:ke,itime)=field(ks:ke)
  
    end subroutine save_dg_1d_range_sp
-@@ -1084,7 +1098,7 @@
+@@ -1084,7 +1112,7 @@
      integer, intent(in) :: k ! index of value to input
      real(sp), intent(in) :: value
      character(*), intent(in) :: name
@@ -194,7 +212,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1128,16 +1142,34 @@
+@@ -1128,16 +1156,34 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -230,7 +248,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1146,6 +1178,7 @@
+@@ -1146,6 +1192,7 @@
      character(max_char_len):: cunits, cdim, clongname
      integer :: ivar
  
@@ -238,7 +256,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      if (.not. l_dgstep) return
  
      ! We're assuming diagnostics are instant for now
-@@ -1182,6 +1215,9 @@
+@@ -1182,6 +1229,9 @@
         dg(ivar)%longname=trim(clongname)
      end if
  
@@ -248,7 +266,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(:,:,itime)=field(:,:)
      
    end subroutine save_dg_2d_sp
-@@ -1192,7 +1228,7 @@
+@@ -1192,7 +1242,7 @@
      integer, intent(in) :: k ,l! indices of value to input
      real(sp), intent(in) :: value
      character(*), intent(in) :: name
@@ -257,7 +275,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1236,6 +1272,9 @@
+@@ -1236,6 +1286,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -267,7 +285,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(k,l,itime)=value
      
    end subroutine save_dg_2d_point_sp
-@@ -1244,7 +1283,7 @@
+@@ -1244,7 +1297,7 @@
  
      real(sp), intent(in) :: value
      character(*), intent(in) :: name
@@ -276,7 +294,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1285,6 +1324,9 @@
+@@ -1285,6 +1338,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -286,7 +304,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(itime)=value
  
    end subroutine save_dg_scalar_sp
-@@ -1293,7 +1335,7 @@
+@@ -1293,7 +1349,7 @@
  
      real(dp), intent(in) :: field(:)
      character(*), intent(in) :: name
@@ -295,7 +313,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1338,6 +1380,9 @@
+@@ -1338,6 +1394,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -305,7 +323,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(:,itime)=field(:)
  
    end subroutine save_dg_1d_dp
-@@ -1348,7 +1393,7 @@
+@@ -1348,7 +1407,7 @@
      integer, intent(in) :: ks, ke  ! start and end of range
      real(dp), intent(in) :: field(:)
      character(*), intent(in) :: name
@@ -314,7 +332,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1393,6 +1438,9 @@
+@@ -1393,6 +1452,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -324,7 +342,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(ks:ke,itime)=field(ks:ke)
  
    end subroutine save_dg_1d_range_dp
-@@ -1403,7 +1451,7 @@
+@@ -1403,7 +1465,7 @@
      integer, intent(in) :: k ! index of value to input
      real(dp), intent(in) :: value
      character(*), intent(in) :: name
@@ -333,7 +351,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1447,6 +1495,9 @@
+@@ -1447,6 +1509,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -343,7 +361,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(k,itime)=value
  
    end subroutine save_dg_1d_point_dp
-@@ -1456,7 +1507,7 @@
+@@ -1456,7 +1521,7 @@
  
      real(dp), intent(in) :: field(:,:)
      character(*), intent(in) :: name
@@ -352,7 +370,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1500,6 +1551,9 @@
+@@ -1500,6 +1565,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -362,7 +380,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(:,:,itime)=field(:,:)
      
    end subroutine save_dg_2d_dp
-@@ -1510,7 +1564,7 @@
+@@ -1510,7 +1578,7 @@
      integer, intent(in) :: k ,l! indices of value to input
      real(dp), intent(in) :: value
      character(*), intent(in) :: name
@@ -371,7 +389,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1554,6 +1608,9 @@
+@@ -1554,6 +1622,9 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -381,7 +399,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(k,l,itime)=value
      
    end subroutine save_dg_2d_point_dp
-@@ -1563,7 +1620,7 @@
+@@ -1563,7 +1634,7 @@
  
      real(dp), intent(in) :: value
      character(*), intent(in) :: name
@@ -390,7 +408,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
      
      !local variables
-@@ -1604,6 +1661,9 @@
+@@ -1604,17 +1675,34 @@
         dg(ivar)%dim=trim(cdim)
         dg(ivar)%longname=trim(clongname)
      end if
@@ -400,7 +418,24 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(itime)=value
  
    end subroutine save_dg_scalar_dp
-@@ -1614,7 +1674,7 @@
+ 
++  subroutine save_dg_1d_bin_sp_c( &
++    field, nb, nx, nz,            & 
++    name, namelen,                &
++    units, unitslen,              &
++    itime                         &
++  )
++    integer(c_int), intent(in), value :: nb, nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx, nb)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_bin_sp(field(:, 1, :), name, itime, units, "x,b")
++  end subroutine
++
+   subroutine save_dg_bin_sp(field, name, itime, units, &
+      dim, longname)
+     
      real(sp), intent(in) :: field(:,:)
      character(*), intent(in) :: name
      !character(*), intent(in) :: bin  
@@ -409,7 +444,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
  
      !local variables
-@@ -1659,6 +1719,9 @@
+@@ -1659,6 +1747,9 @@
         dg(ivar)%longname=trim(clongname)
      end if
      
@@ -419,7 +454,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(:,:,itime)=field(:,:)
      
    end subroutine save_dg_bin_sp
-@@ -1669,7 +1732,7 @@
+@@ -1669,7 +1760,7 @@
      real(dp), intent(in) :: field(:,:)
      character(*), intent(in) :: name
      !character(*), intent(in) :: bin  
@@ -428,7 +463,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
  
      !local variables
-@@ -1714,16 +1777,33 @@
+@@ -1714,16 +1805,33 @@
         dg(ivar)%longname=trim(clongname)
      end if
      
@@ -463,7 +498,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
  
      !local variables
-@@ -1768,6 +1848,9 @@
+@@ -1768,6 +1876,9 @@
         dg(ivar)%longname=trim(clongname)
      end if
      
@@ -473,7 +508,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      dg(ivar)%data(:,:,:,itime)=field(:,:,:)
      
    end subroutine save_dg_2d_bin_sp
-@@ -1777,7 +1860,7 @@
+@@ -1777,7 +1888,7 @@
      
      real(dp), intent(in) :: field(:,:,:)
      character(*), intent(in) :: name
@@ -482,7 +517,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      character(*), intent(in), optional :: units, dim, longname
  
      !local variables
-@@ -1822,10 +1905,26 @@
+@@ -1822,10 +1933,26 @@
         dg(ivar)%longname=trim(clongname)
      end if
      
@@ -509,7 +544,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    subroutine save_binData_sp(field, name, units, &
         longname)
      ! Save the bin data (e.g. sizes or masses)
-@@ -1912,7 +2011,7 @@
+@@ -1912,7 +2039,7 @@
      
    end subroutine save_binData_dp
  
@@ -518,7 +553,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      Use netcdf
      Use switches, only : icase
-@@ -1924,15 +2023,35 @@
+@@ -1924,15 +2051,35 @@
      integer :: ivar, itmp=1, offset=3, n_dgs, k, iq, tim, ibin
      character(4) :: char4
      
@@ -559,7 +594,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      if (fileNameOut=='')then
        write(char4,'(I4.4)')icase
-@@ -1990,7 +2109,7 @@
+@@ -1990,7 +2137,7 @@
      status=nf90_put_att(ncid, nf90_global, 'references', references)
      status=nf90_put_att(ncid, nf90_global, 'comments', comments)
      
@@ -568,7 +603,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      call check_ncstatus(status)
      status=nf90_def_dim(ncid, 'z', int(nz, kind=incdfp), zid)
      call check_ncstatus(status)
-@@ -1999,11 +2118,11 @@
+@@ -1999,11 +2146,11 @@
      status=nf90_def_dim(ncid, 'x', int(nx, kind=incdfp), xid)
      call check_ncstatus(status)
  
@@ -585,7 +620,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      ! Do the dim variables
      n_dgs=2
-@@ -2063,7 +2182,13 @@
+@@ -2063,7 +2210,13 @@
      deallocate(varid)
      
      ! Do scalars (including time)
@@ -599,7 +634,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
      allocate(varid(n_dgs))
      status=nf90_redef(ncid)
      dim=timeid
-@@ -2084,25 +2209,48 @@
+@@ -2084,25 +2237,48 @@
      
      status=nf90_enddef(ncid)
  
@@ -652,7 +687,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
            status=nf90_def_var(ncid, instant_column(ivar)%name &
                 , nf90_float, dim2d, varid(ivar))
            call check_ncstatus(status)
-@@ -2115,17 +2263,35 @@
+@@ -2115,17 +2291,35 @@
         end do
         
         status=nf90_enddef(ncid)
@@ -690,7 +725,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim3d=tzldim
-@@ -2143,18 +2309,29 @@
+@@ -2143,18 +2337,29 @@
         end do
  
         status=nf90_enddef(ncid)
@@ -725,7 +760,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
            
            call check_ncstatus(status)
            
-@@ -2162,12 +2339,187 @@
+@@ -2162,12 +2367,187 @@
         
         deallocate(field3d)
         
@@ -913,7 +948,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim3d=tzxdim
-@@ -2186,18 +2538,26 @@
+@@ -2186,18 +2566,26 @@
         
         status=nf90_enddef(ncid)
  
@@ -945,7 +980,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
            call check_ncstatus(status)
  
-@@ -2205,10 +2565,19 @@
+@@ -2205,10 +2593,19 @@
  
         deallocate(field3d)
  
@@ -965,7 +1000,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim4d=tzxbindim
-@@ -2227,20 +2596,30 @@
+@@ -2227,20 +2624,30 @@
         
         status=nf90_enddef(ncid)
  
@@ -1001,7 +1036,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
            call check_ncstatus(status)
  
-@@ -2248,10 +2627,19 @@
+@@ -2248,10 +2655,19 @@
  
         deallocate(field4d)
  
@@ -1021,7 +1056,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         allocate(varid(n_dgs))
         status=nf90_redef(ncid)
         dim2d=txdim
-@@ -2270,19 +2658,39 @@
+@@ -2270,19 +2686,39 @@
  
         status=nf90_enddef(ncid)
  
@@ -1064,7 +1099,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
      ! We now write out the full namelist data to file
      nmlfile=outfile(1:len_trim(outfile)-3)//'.nml'
-@@ -2296,8 +2704,11 @@
+@@ -2296,8 +2732,11 @@
      write(99, switch)
      write(99, addcontrol)
      close(99)
@@ -1080,7 +1115,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    subroutine check_ncstatus(status, name)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/main.f90 kid_a_setup/src/main.f90
 --- kid_a_original_20180125_setup/src/main.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/main.f90	2018-01-30 14:09:42.390387931 +0100
++++ kid_a_setup/src/main.f90	2018-01-31 20:18:04.358233362 +0100
 @@ -97,7 +97,8 @@
  
      end do
@@ -1093,7 +1128,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_original_20180125_setup/src/makefile.inc	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/makefile.inc	2018-01-30 14:09:42.396387936 +0100
++++ kid_a_setup/src/makefile.inc	2018-01-31 20:18:04.365233369 +0100
 @@ -29,7 +29,7 @@
  OBJS=$(OBJSF) $(OBJSF90)
  
@@ -1121,7 +1156,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/mphys_interface.f90 kid_a_setup/src/mphys_interface.f90
 --- kid_a_original_20180125_setup/src/mphys_interface.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/mphys_interface.f90	2018-01-30 14:09:42.402387940 +0100
++++ kid_a_setup/src/mphys_interface.f90	2018-01-31 20:18:04.373233378 +0100
 @@ -19,6 +19,7 @@
  #if SHIPWAY_MICRO == 1
    Use mphys_4A, only: mphys_4A_interface
@@ -1142,7 +1177,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    end subroutine mphys_column
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/namelists.f90 kid_a_setup/src/namelists.f90
 --- kid_a_original_20180125_setup/src/namelists.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/namelists.f90	2018-01-30 14:09:42.409387944 +0100
++++ kid_a_setup/src/namelists.f90	2018-01-31 20:18:04.381233386 +0100
 @@ -180,6 +180,9 @@
      case('4A')
         imphys=imphys_4A
@@ -1155,7 +1190,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
         print*, 'Did you mean:' 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=1D_libcloud_lgr.nml' kid_a_original_20180125_setup/src/switches.f90 kid_a_setup/src/switches.f90
 --- kid_a_original_20180125_setup/src/switches.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/switches.f90	2018-01-30 14:09:42.416387949 +0100
++++ kid_a_setup/src/switches.f90	2018-01-31 20:18:04.389233395 +0100
 @@ -96,7 +96,8 @@
         ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
         ,imphys_wsm6             =10 & ! WSM6 scheme
@@ -1166,4 +1201,3 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
        
    ! Integer switches to choose input data type and/or test case
    integer, parameter ::    & 
-Binary files kid_a_original_20180125_setup/.swp and kid_a_setup/.swp differ
