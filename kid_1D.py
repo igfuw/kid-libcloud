@@ -11,6 +11,9 @@ import os
 import json
 import pdb
 
+from argparse import ArgumentParser
+
+
 ptrfname = "/tmp/micro_step-" + str(os.getuid()) + "-" + str(os.getpid()) + ".ptr"
 
 # CFFI stuff
@@ -31,8 +34,17 @@ arrays = {}
 timestep = 0
 last_diag = -1
 
+#parser for overriding values from setup.py with command-line arguments
+prsr = ArgumentParser(add_help=True, description='1D kidA case')
+prsr.add_argument('--n_tot', required=False, type=float, default=params["n_tot"], help='initial aerosol concentation at STP [1/kg_dry_air]')
+prsr.add_argument('--spinup_rain', required=False, type=float, default=params["spinup_rain"], help='time, after which coalescence and sedimentation are turned on [s]')
+args = prsr.parse_args()
+
+params["n_tot"] = args.n_tot
+params["spinup_rain"] = args.spinup_rain
 #savings some parameters from setup.py file and libcl revision number
 params_write = params.copy()
+
 # converting numpy objects to lists or strings, so json can save them
 for key_ar in ["bins_qc_r20um", "bins_qc_r32um"]:
   params_write[key_ar] = params[key_ar].tolist()
@@ -102,6 +114,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.adve_scheme = libcl.lgrngn.as_t.pred_corr
       opts_init.exact_sstp_cond = 1
       opts_init.n_sd_max = opts_init.nx*opts_init.nz*opts_init.sd_conc
+      opts_init.periodic_z = 0
       
       try:
         print("Trying with multi_CUDA backend..."),
@@ -163,7 +176,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
- #   opts.sedi = opts.coal = timestep >= params["spinup_rain"]
+    opts.sedi = opts.coal = timestep >= params["spinup_rain"]
  #   if timestep >= params["spinup_smax"]: opts.RH_max = 44
 
     # saving RH for the output file

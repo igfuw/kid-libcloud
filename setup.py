@@ -6,7 +6,7 @@ import libcloudphxx as libcl
 params = {
   "real_t" : np.float64,
   "sd_conc" : 1024,
-  "spinup_rain" : 1000000*30, # number of timesteps during which sedimentation and coalescence are off
+  "spinup_rain" : 2000000*30, # number of timesteps during which sedimentation and coalescence are off
   "spinup_smax" : 60*10,
   "kappa" : .61,
   "meanr" : .04e-6,
