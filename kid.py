@@ -10,6 +10,7 @@ import diagnostics as dg
 import os
 import json
 import pdb
+from argparse import ArgumentParser
 
 ptrfname = "/tmp/micro_step-" + str(os.getuid()) + "-" + str(os.getpid()) + ".ptr"
 
@@ -30,6 +31,15 @@ prtcls = False
 arrays = {}
 timestep = 0
 last_diag = -1
+
+#parser for overriding values from setup.py with command-line arguments
+prsr = ArgumentParser(add_help=True, description='2D_SC kidA case')
+prsr.add_argument('--n_tot', required=False, type=float, default=params["n_tot"], help='initial aerosol concentation at STP [1/kg_dry_air]')
+prsr.add_argument('--spinup_rain', required=False, type=float, default=params["spinup_rain"], help='time, after which coalescence and sedimentation are turned on [s]')
+args = prsr.parse_args()
+
+params["n_tot"] = args.n_tot
+params["spinup_rain"] = args.spinup_rain
 
 #savings some parameters from setup.py file and libcl revision number
 params_write = params.copy()
