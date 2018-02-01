@@ -24,7 +24,7 @@ dt=1.0
 dgstart=-1.0
 dg_dt=60.0
 tctrl(1)=10800.
-wctrl(1)=0.25
+wctrl(1)=1.0
 /
 
 &switch
@@ -38,6 +38,10 @@ l_diverge_advection=.False.
 !! Set to true if these processes are NOT required. The 
 !! default is True. 
 l_fix_aerosols=.False.
+l_mphys = .True.
+l_periodic_bound = .True.
+l_sediment = .True.
+l_pupdate=.True.
 /
 
 &addcontrol
