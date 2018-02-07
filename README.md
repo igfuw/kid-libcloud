@@ -23,6 +23,7 @@ the libcloudph++ library) you need to follow these steps:
   - cp mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90 
   - cp kida_icmwSC_2D_libcloud_lgr.nml kid_a_setup/namelists/
   - cp kida_icmw1D_libcloud_lgr.nml kid_a_setup/namelists/
+  - cp ICMW_SC_input.nml kid_a_setup/namelists/
   - cd kid_a_setup
   - patch -p1 < ../kid_a_setup_20180125.diff
 
