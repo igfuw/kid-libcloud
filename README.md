@@ -27,7 +27,7 @@ the libcloudph++ library) you need to follow these steps:
   - patch -p1 < ../kid_a_setup_20180125.diff
 
 to run 2D Sc:
-  - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
+  - make SHELL=/bin/bash CASE=ICMW_SC COMPILER=gfortran NCPATH=/usr all
   - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py 
 
 to run 1D case:
