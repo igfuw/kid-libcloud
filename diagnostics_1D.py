@@ -16,6 +16,10 @@ ffi.cdef("void __diagnostics_MOD_save_bindata_sp_c(float*, int, char*, int,     
 ffi.cdef("void __diagnostics_MOD_save_dg_1d_bin_sp_c(float*, int, int, int, char*, int, char*, int,      int   );")
 #                                                    field,  nb,  nx,  nz,  name,  namelen,units, unitslen, itime
 
+ffi.cdef("void __diagnostics_MOD_save_dg_scalar_sp_c(float, char*, int,     char*, int,      int );")
+#                                                    scalar, name, namelen, units, unitslen, itime
+#    call save_dg(time, 'time', i_dgtime,  units='s',dim='time')
+
 def save_helper(arr):
   # astype() takes keywords arguments for newer numpy versions (1.7?)                       
   try:
@@ -35,6 +39,15 @@ def save_helper(arr):
 #    arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
 #    return arr, arr_ptr
 
+def save_dg_scalar(scal, it, name, units):
+#  scal = scal.astype(np.float32)
+#  scal_cast = ffi.cast("float", scal)
+  flib.__diagnostics_MOD_save_dg_scalar_sp_c(
+    scal,
+    name, len(name),
+    units, len(units),
+    it
+  )
 
 def save_dg(arr, it, name, units):
   arr, arr_ptr = save_helper(arr)
@@ -72,6 +85,10 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   particles.diag_all() 
   particles.diag_sd_conc()
   save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "number_od_SDs", "1")
+
+  # recording puddle
+  puddle = particles.diag_puddle();
+  save_dg_scalar(puddle[8], it, "accumulated surface precipitation volume", "m^3")
 
   if first_timestep:
     # temporary arrays (allocating only once)                 
