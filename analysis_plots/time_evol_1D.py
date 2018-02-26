@@ -11,7 +11,7 @@ import os
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["vapor", "cloud_mass_r20um", "rain_mass_r20um"]
+Variable_name_l = ["vapour", "cloud_mass_r20um", "rain_mass_r20um"]
 Variable_plot_l = Variable_name_l + ["total_water_mass", "cloud+rain_mass"]
 
 prsr = ArgumentParser(add_help=True, description='TODO')
@@ -33,7 +33,7 @@ def time_evolution(var_name_l, var_d, nr_subpl, nr_fig):
         print var
         #pdb.set_trace()
         ax = plt.subplot(nr_subpl,1,nr_pl)
-        var_sum = var_d[var][:,:-1,:].sum(axis=1).sum(axis=1)
+        var_sum = var_d[var][:,:].sum(axis=1)
         ax.plot(var_d["time"][1:], var_sum[1:]) #TODO: -999 in the last place
         nr_pl += 1
         plt.ylabel(var, fontsize=10)
@@ -47,7 +47,7 @@ def time_evolution(var_name_l, var_d, nr_subpl, nr_fig):
 def main(filename, variable_name_l=Variable_name_l, variable_plot_l=Variable_plot_l, nr_subpl=3):
     nf = netcdf.netcdf_file(filename, 'r')
     var_d = reading_netcdf(nf, variable_name_l)
-    var_d["total_water_mass"] = var_d["vapor"] + var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
+    var_d["total_water_mass"] = var_d["vapour"] + var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
     var_d["cloud+rain_mass"] = var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
     variable_plot_lpl = [variable_plot_l[i:i+nr_subpl] for i in xrange(0, len(variable_plot_l), nr_subpl)]
     nr_fig = 1
@@ -55,4 +55,4 @@ def main(filename, variable_name_l=Variable_name_l, variable_plot_l=Variable_plo
         time_evolution(var_name, var_d, nr_subpl, nr_fig)
         nr_fig += 1
 
-main(os.path.join(args.outdir, "SC_2D_out.nc"))
+main(os.path.join(args.outdir, "1D_out.nc"))
