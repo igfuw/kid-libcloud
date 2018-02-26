@@ -40,7 +40,7 @@ prsr.add_argument('--n_tot', required=False, type=float, default=params["n_tot"]
 prsr.add_argument('--spinup_rain', required=False, type=float, default=params["spinup_rain"], help='time, after which coalescence and sedimentation are turned on [s]')
 args = prsr.parse_args()
 
-params["n_tot"] = args.n_tot
+params["n_tot"] = args.n_tot * 1.225 / 1.12 # 1.225 is air density at stp, 1.12 is the appprox density in the lower part of the domain, where the cloud will be formed...
 params["spinup_rain"] = args.spinup_rain
 #savings some parameters from setup.py file and libcl revision number
 params_write = params.copy()
@@ -222,7 +222,6 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
     # superdroplets: all what have to be done within a timestep
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
-
 
     prtcls.step_async(opts)
 
