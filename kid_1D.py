@@ -115,6 +115,12 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.exact_sstp_cond = 1
       opts_init.n_sd_max = opts_init.nx*opts_init.nz*opts_init.sd_conc
       opts_init.periodic_z = 0
+
+      print "nx = ", opts_init.nx
+      print "nz = ", opts_init.nz
+      print "dx = ", opts_init.dx
+      print "dz = ", opts_init.dz
+      print "dt = ", opts_init.dt
       
       try:
         print("Trying with multi_CUDA backend..."),
@@ -157,17 +163,22 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     #pdb.set_trace()
 
     # finalising initialisation
+    # density in KiD (rhof) is overriden to 1, but it is inconsistent with exner pressure and temperature
+    # and this leads to wrong RH calculations in libcloud
+    # therefore we should use the rhod_kid density and multiply diags by rhod_kid ?!
     if timestep == 0:
-      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      arrays["rhod"][:] = arrays["rhod_kid"][0,:] #rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      #arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+
      
     #arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
     assert (arrays["Cx"][0,:] == arrays["Cx"][-1,:]).all()
 
     # putting meaningful values to the sub-terain level (to avoid segfault from library)
     arrays["Cz"][:, 0] = 0.
-    arrays["qv"][:, 0] = 0.
+    arrays["qv"][:, 0] = 0.015
     arrays["thetad"][:,0] = 300.
-    arrays["rhod"][0] = 1.
+    arrays["rhod"][0] = 1.13
 
     arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
 
@@ -182,10 +193,32 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # saving RH for the output file
     prtcls.diag_all()
     prtcls.diag_RH()
+    
+#    if timestep == 0:
+#      arrays["rhod"][:] = ptr2np(rhof_ar, 1, size_z)[:]
+#      print "rhof_ar: ", arrays["rhod"]
+#      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+#      print "rhod: ", arrays["rhod"]
+#      print "rhod_kid: ", arrays["rhod_kid"]
+
+
+
     arrays["RH_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).reshape(size_x - 2, size_z) * 100
+#    for i in range(0, prtcls.opts_init.nx):
+#      for j in range(0, prtcls.opts_init.nz):
+#        arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod_kid"][i,j])
+#    print "T_lib_ante_cond with rhod_kid: ", arrays["T_lib_ante_cond"]
     for i in range(0, prtcls.opts_init.nx):
       for j in range(0, prtcls.opts_init.nz):
         arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
+
+    if timestep == 0:
+      print "rhod: ", arrays["rhod"]
+      print "thetad: ", arrays["thetad"]
+      print "qv: ", arrays["qv"]
+      print "RH_lib_ante_cond: ", arrays["RH_lib_ante_cond"]
+      print "T_lib_ante_cond: ", arrays["T_lib_ante_cond"]
+      print "T_kid: ", arrays["T_kid"]
 
     # superdroplets: all what have to be done within a timestep
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
