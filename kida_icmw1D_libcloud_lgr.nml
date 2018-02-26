@@ -24,7 +24,7 @@ mphys_scheme='libcloud_lgr'
 dt=1.0
 dgstart=0.0
 dg_dt=10.0
-wctrl(1)=3.0
+wctrl(1)=2.0
 tctrl(1)=3600.
 tctrl(2)=600.
 /
@@ -42,7 +42,7 @@ l_constant_density=.True.
 ! activation scavenging and in-cloud processing. 
 ! Set to true if these processes are NOT required. The 
 ! default is False
-l_fix_aerosols=.true.
+l_fix_aerosols=.False.
 ! Switch for sedimention True = sedimentation is 
 ! on
 l_sediment=.true.
