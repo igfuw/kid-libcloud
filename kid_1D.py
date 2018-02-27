@@ -112,7 +112,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard77fast
       opts_init.kernel = libcl.lgrngn.kernel_t.hall_davis_no_waals
       opts_init.adve_scheme = libcl.lgrngn.as_t.pred_corr
-      opts_init.exact_sstp_cond = 1
+      opts_init.exact_sstp_cond = 0
       opts_init.n_sd_max = opts_init.nx*opts_init.nz*opts_init.sd_conc
       opts_init.periodic_z = 0
 
