@@ -169,8 +169,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # and this leads to wrong RH calculations in libcloud
     # therefore we should use the rhod_kid density and multiply diags by rhod_kid ?!
     if timestep == 0:
-      arrays["rhod"][:] = arrays["rhod_kid"][0,:] #rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
-      #arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      #arrays["rhod"][:] = arrays["rhod_kid"][0,:] #rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
 
      
     #arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
