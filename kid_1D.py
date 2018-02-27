@@ -79,9 +79,9 @@ def rho_kid2dry(rho, rv):
   # KiD seems to define rho as (p_v + p_d) / (R_d T)
   return rho / (1 + rv / eps) 
 
-@ffi.callback("bool(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
+@ffi.callback("bool(int, float, int, int, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*)")
 def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exner_ar, 
-               uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar):
+               uf_ar, uh_ar, wf_ar, wh_ar, xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar, rh_ar):
   try:
     # global should be used for all variables defined in "if first_timestep"  
     global prtcls, dx, dz, timestep, last_diag
@@ -153,6 +153,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       arrays["Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
       arrays["RH_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
       arrays["T_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
+      arrays["RH_kid"] = np.empty((opts_init.nx, opts_init.nz))
 
     # defining qv and thetad (in every timestep) 
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
@@ -160,6 +161,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     arrays["p_d"][:,:] = (ptr2np(exner_ar, size_x, size_z)[1:-1, :])**(c_pd/R_d) * p_1000 * eps / (eps + arrays["qv"])
     arrays["T_kid"][:,:] = ptr2np(exner_ar, size_x, size_z)[1:-1, :] * ptr2np(th_ar, size_x, size_z)[1:-1, :]
     arrays["rhod_kid"] = arrays["p_d"] / arrays["T_kid"] / R_d
+    arrays["RH_kid"][:,:] = ptr2np(rh_ar, size_x, size_z)[1:-1, :]
     #pdb.set_trace()
 
     # finalising initialisation
@@ -221,7 +223,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       print "T_kid: ", arrays["T_kid"]
 
     # superdroplets: all what have to be done within a timestep
-    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
+    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], RH = arrays["RH_kid"]) 
 
     prtcls.step_async(opts)
 

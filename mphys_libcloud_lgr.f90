@@ -5,6 +5,7 @@ module mphys_libcloud_lgr
   Use parameters, only : nz, dt, nx
   Use column_variables
   Use physconst, only : p0, r_on_cp, pi
+  Use common_physics, only : qsaturation
 
   Use diagnostics, only: save_dg, i_dgtime
   use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double, c_float
@@ -15,7 +16,7 @@ module mphys_libcloud_lgr
     function micro_step_py(i_dgtime, dt, size_z, size_x,  & 
                         th_ar, qv_ar, rhof_ar, rhoh_ar, exner, &
                         vf_ar, vh_ar, wf_ar, wh_ar,     &
-                        xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar) bind(c)
+                        xf_ar, zf_ar, xh_ar, zh_ar, tend_th_ar, tend_qv_ar, rh_ar) bind(c)
       use iso_c_binding, only: c_double, c_int, c_float, c_bool
       Use parameters, only : nx, nz
       logical(c_bool) :: micro_step_py
@@ -28,7 +29,8 @@ module mphys_libcloud_lgr
                                        vh_ar(nz, 0:nx+1), vf_ar(nz, 0:nx+1),  &
                                        wf_ar(nz, 0:nx+1), wh_ar(nz, 0:nx+1),  &
                                        xf_ar(0:nx+1), zf_ar(nz), xh_ar(0:nx+1), zh_ar(nz), &
-                                       tend_th_ar(nz, 0:nx+1), tend_qv_ar(nz, 0:nx+1)
+                                       tend_th_ar(nz, 0:nx+1), tend_qv_ar(nz, 0:nx+1), &
+                                       rh_ar(nz, 0:nx+1)
 
     end
 
@@ -47,6 +49,9 @@ contains
   Subroutine mphys_libcloud_lgr_interface
 
     character(10) :: uid, pid
+    integer :: k, j
+    real(wp), allocatable :: RH(:,:)
+    allocate(RH(nz,0:nx+1))
 
     ! do the below only once
     if (associated(fptr) .eqv. .false.) then 
@@ -63,11 +68,23 @@ contains
       call c_f_procpointer(cptr, fptr)
     end if
 
+    ! calc RH to be passed to mphys
+    do k=1,nz
+       do j=0,nx+1
+          if (z(k) < 20000.)then
+             RH(k,j)= qv(k,j)/ &
+                  qsaturation(TdegK(k,j),pmb(k,j))
+    !         RH(k,j)= 0.5
+          else
+             RH(k,j)=0.95 ! some better dummy var?!
+          end if
+       end do
+    enddo
 
     ! do the below every timestep
     if (.not. fptr(i_dgtime, dt, nz, nx+2 , &
                    theta, qv, rho, rho_half, exner, & 
-                   v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys) &
+                   v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys, RH) &
     ) stop("Error in Python!!!")
 
   end Subroutine mphys_libcloud_lgr_interface
