@@ -14,6 +14,13 @@ install:
   - sudo apt-get install --no-install-recommends libnetcdfc7
   - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi libblitz0-dev cmake libboost-python-dev libthrust-dev
 
+# get boost odeint > 1.58
+  - git clone --depth=1 https://github.com/boostorg/odeint.git
+  - sudo rm -f /usr/include/boost/numeric/odeint.hpp
+  - sudo rm -rf /usr/include/boost/numeric/odeint
+  - sudo ln -s `pwd`/odeint/include/boost/numeric/odeint.hpp /usr/include/boost/numeric/odeint.hpp
+  - sudo ln -s `pwd`/odeint/include/boost/numeric/odeint  /usr/include/boost/numeric/
+
   # libcloudphxx
   - cd ..
   - git clone --depth=1 git://github.com/igfuw/libcloudphxx.git
