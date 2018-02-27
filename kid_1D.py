@@ -223,7 +223,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       print "T_kid: ", arrays["T_kid"]
 
     # superdroplets: all what have to be done within a timestep
-    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], RH = arrays["RH_kid"]) 
+    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], RH = arrays["RH_kid"], T = arrays["T_kid"]) 
 
     prtcls.step_async(opts)
 
