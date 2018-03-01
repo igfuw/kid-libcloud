@@ -128,7 +128,7 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
   particles.diag_wet_rng(0, arrays["bins_D_upper"][params["bins_qc_r20um"][0]] / 2)
   particles.diag_wet_mom(0)
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "aerosol_number", "/kg") # multiplied by rhod, because rhod should be =1, but this is inconsistent with exner function, so in fact we use rhod !=1, same done below
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * arrays["rhod_kid"], it, "aerosol_number", "/kg") # multiplied by rhod, because rhod should be =1, but this is inconsistent with exner function, so in fact we use rhod !=1, same done below
 
   # binned wet spectrum                                      
   r_min = 0.
@@ -139,10 +139,10 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     r_min = r_max
     # computing 1-st moment                                  
     particles.diag_wet_mom(0)
-    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z)
+    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * arrays["rhod_kid"] # see aerosol diag
     # computing 3-rd moment                          
     particles.diag_wet_mom(3)
-    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) 
+    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * arrays["rhod_kid"] # see aerosol diag
 
   # saving binned concentrations
   save_dg(arrays["mom_0"], it, "cloud_bin_number", "/kg")

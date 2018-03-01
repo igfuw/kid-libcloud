@@ -40,7 +40,7 @@ prsr.add_argument('--n_tot', required=False, type=float, default=params["n_tot"]
 prsr.add_argument('--spinup_rain', required=False, type=float, default=params["spinup_rain"], help='time, after which coalescence and sedimentation are turned on [s]')
 args = prsr.parse_args()
 
-params["n_tot"] = args.n_tot * 1.225 / 1. # 1.225 is air density at stp, 1 is the actual density
+params["n_tot"] = args.n_tot # * 1.225 / 1. # 1.225 is air density at stp, 1 is the actual density
 params["spinup_rain"] = args.spinup_rain
 #savings some parameters from setup.py file and libcl revision number
 params_write = params.copy()
@@ -115,6 +115,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.exact_sstp_cond = 0
       opts_init.n_sd_max = opts_init.nx*opts_init.nz*opts_init.sd_conc
       opts_init.periodic_z = 0
+      opts_init.aerosol_independent_of_rhod = 1 # set to true, because rhod is supposed to be =1, but we cannot pass rhod=1 as it is not in agreement with the values of p and theta and would lead to wrong T,RH,etc...
 
       print "nx = ", opts_init.nx
       print "nz = ", opts_init.nz
@@ -174,8 +175,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # and this leads to wrong RH calculations in libcloud
     # therefore we should use the rhod_kid density and multiply diags by rhod_kid ?!
     if timestep == 0:
-      arrays["rhod"][:] = arrays["rhod_kid"][0,:] 
-      #arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      arrays["rhod"][:] = arrays["rhod_kid"][0,:] # set rhod to be in agreement with other profiles and exner function
+      #arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])  # pass rhod from KiD, i.e. rhod=1
 
      
     #arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
