@@ -157,8 +157,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
     # defining qv and thetad (in every timestep) 
     arrays["qv"][:,:] = ptr2np(qv_ar, size_x, size_z)[1:-1, :]
-    arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
-    arrays["p_d"][:,:] = (ptr2np(exner_ar, size_x, size_z)[1:-1, :])**(c_pd/R_d) * p_1000 * eps / (eps + arrays["qv"])
+    #arrays["thetad"][:,:] = th_kid2dry(ptr2np(th_ar, size_x, size_z)[1:-1, :], arrays["qv"][:,:])
+
+    # it seems (c.f. src/test_cases.f90:863 which suggest that exner=(p_d / p_0)^(R_d/c_p)) that theta, p and rhod calculated in KiD are actually dry air values
+    # so there's no need to make them dry one more time; BTW: this makes the RH calculated in KiD not correct, because
+    # it should be calculated using total pressure and not dry pressure
+    arrays["thetad"][:,:] = ptr2np(th_ar, size_x, size_z)[1:-1, :]
+    arrays["p_d"][:,:] = (ptr2np(exner_ar, size_x, size_z)[1:-1, :])**(c_pd/R_d) * p_1000# * eps / (eps + arrays["qv"])
     arrays["T_kid"][:,:] = ptr2np(exner_ar, size_x, size_z)[1:-1, :] * ptr2np(th_ar, size_x, size_z)[1:-1, :]
     arrays["rhod_kid"] = arrays["p_d"] / arrays["T_kid"] / R_d
     arrays["RH_kid"][:,:] = ptr2np(rh_ar, size_x, size_z)[1:-1, :]
@@ -169,8 +174,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # and this leads to wrong RH calculations in libcloud
     # therefore we should use the rhod_kid density and multiply diags by rhod_kid ?!
     if timestep == 0:
-      #arrays["rhod"][:] = arrays["rhod_kid"][0,:] #rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
-      arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
+      arrays["rhod"][:] = arrays["rhod_kid"][0,:] 
+      #arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])
 
      
     #arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
@@ -178,9 +183,9 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
     # putting meaningful values to the sub-terain level (to avoid segfault from library)
     arrays["Cz"][:, 0] = 0.
-    arrays["qv"][:, 0] = 0.015
-    arrays["thetad"][:,0] = 300.
-    arrays["rhod"][0] = 1.
+    arrays["qv"][:, 0] = arrays["qv"][:, 1]
+    arrays["thetad"][:,0] = arrays["thetad"][:,1]
+    arrays["rhod"][0] = arrays["rhod"][1]
 
     arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
 
@@ -223,7 +228,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       print "T_kid: ", arrays["T_kid"]
 
     # superdroplets: all what have to be done within a timestep
-    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], RH = arrays["RH_kid"], T = arrays["T_kid"]) 
+    prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
+    #prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], RH = arrays["RH_kid"]) 
+    #prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], T = arrays["T_kid"]) 
+    #prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"], RH = arrays["RH_kid"], T = arrays["T_kid"]) 
 
     prtcls.step_async(opts)
 
@@ -231,7 +239,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # calculating tendency for theta (first converting back to non-dry theta
     ptr2np(tend_th_ar, size_x, size_z)[1:-1, :] = - (
       ptr2np(th_ar, size_x, size_z)[1:-1, :] -   # old
-      th_dry2kid(arrays["thetad"], arrays["qv"]) # new
+      arrays["thetad"] # new
+#      th_dry2kid(arrays["thetad"], arrays["qv"]) # new
     ) / dt #TODO: check if dt needed
 
 
