@@ -32,6 +32,52 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
 +fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
  fileOut='output/WMO_CASE1_out.nc'
  /
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/src/common_physics.f90 kid_a_setup/src/common_physics.f90
+--- kid_a_original_20180125_setup/src/common_physics.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/common_physics.f90	2018-03-02 13:05:44.668144814 +0100
+@@ -22,6 +22,10 @@
+   Interface qisaturation
+      module procedure qisaturation_sp, qisaturation_dp
+   end Interface
++
++  Interface psaturation
++     module procedure psaturation_sp, psaturation_dp
++  end Interface
+   
+ contains
+ 
+@@ -81,6 +85,31 @@
+ 
+   END FUNCTION Qsaturation_dp
+ 
++  REAL(SP) FUNCTION Psaturation_sp (T)  
++    IMPLICIT NONE  
++    ! Tetens formula
++    !
++    real(sp), INTENT (IN) :: T 
++    ! Temperature in Kelvin
++    real(sp), PARAMETER::tk0c = 273.15, mul = 0.61078, num_mul = 17.27, den_add = 237.3
++
++    psaturation_sp = mul * EXP (num_mul * (T - tk0c) / ((T-tk0c) + den_add))
++
++  END FUNCTION Psaturation_sp
++
++  REAL(DP) FUNCTION Psaturation_dp (T)  
++    IMPLICIT NONE  
++    ! Tetens formula
++    !
++    real(dp), INTENT (IN) :: T 
++    ! Temperature in Kelvin
++    ! return pressure in hPa
++    real(dp), PARAMETER::tk0c = 273.15, mul = 6.1078, num_mul = 17.27, den_add = 237.3
++
++    psaturation_dp = mul * EXP (num_mul * (T - tk0c) / ((T-tk0c) + den_add))
++
++  END FUNCTION Psaturation_dp
++
+   REAL(SP) FUNCTION QIsaturation_sp (T, p)  
+     IMPLICIT NONE  
+     !
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_original_20180125_setup/src/compiler_options.inc	2017-11-10 14:43:55.000000000 +0100
 +++ kid_a_setup/src/compiler_options.inc	2018-02-07 14:51:34.958900263 +0100
@@ -46,8 +92,29 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/src/derived_fields.f90 kid_a_setup/src/derived_fields.f90
 --- kid_a_original_20180125_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/derived_fields.f90	2018-02-07 14:51:34.965900269 +0100
-@@ -32,7 +32,7 @@
++++ kid_a_setup/src/derived_fields.f90	2018-03-02 12:50:08.707502460 +0100
+@@ -13,7 +13,7 @@
+   Use column_variables
+   Use interpolation, only: interpolate, make_wgrid, make_vgrid &
+        ,interpolate_x
+-  Use physconst, only : r_on_cp, g, p0, pi
++  Use physconst, only : r_on_cp, g, p0, pi, R, Rw
+   Use switches, only : icase
+ 
+   Implicit none
+@@ -28,11 +28,19 @@
+     integer :: k,j
+ 
+     TdegK(:,:)=exner(:,:)*theta(:,:)
++    ! calc partial pressure of druy air
+     pmb(:,:)=.01*p0*exner(:,:)**(1./r_on_cp)
++    ! add partial pressure of water vapor
++!    do j = 1,nx
++!    pmb(:, :) = pmb(:, :) + p0*exner(:,:)**(1./r_on_cp-1.)/ &
++!                (R*theta(:, :)) * qv(:, :) * Rw
++    ! p = p_d + rho_d * q_v * R_v * T
++    pmb(:, :) = pmb(:, :) + pmb(:,:) / R * qv(:, :) * Rw
++!    end do
  
      ! If we need a staggered grid in vertical...
  
@@ -58,8 +125,17 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
         ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/diagnostics.f90	2018-02-27 12:55:26.073874160 +0100
-@@ -21,6 +21,8 @@
++++ kid_a_setup/src/diagnostics.f90	2018-03-02 13:02:18.763004189 +0100
+@@ -14,13 +14,15 @@
+   Use parameters
+   Use column_variables
+   Use runtime
+-  Use physconst, only: r_on_cp, p0
+-  Use common_physics, only : qsaturation, qisaturation
++  Use physconst, only: r_on_cp, p0, R, Rw
++  Use common_physics, only : qsaturation, qisaturation, psaturation
+   Use header_data
+   Use switches, only: l_diverge
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
  
@@ -68,17 +144,21 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
    Implicit none
  
    type, public :: dgID
-@@ -392,6 +394,13 @@
+@@ -390,8 +392,15 @@
+     !RH liquid
+      do k=1,nz
          if (z(k) < 20000.)then
-            field(k)= 100.*qv(k,nx)/ &
-                 qsaturation(TdegK(k,nx),pmb(k,nx))
-+!           write(*,*) pmb(k, 1)
-+!           write(*,*) TdegK(k, 1)
-+!           write(*,*) theta(k, 1)
-+!           write(*,*) qv(k, 1)
-+!           write(*,*) field(k)
-+!           write *,TdegK(k)
-+!           write *,field(k)
+-           field(k)= 100.*qv(k,nx)/ &
+-                qsaturation(TdegK(k,nx),pmb(k,nx))
++! approx RH=qv/qvs
++!           field(k)= 100.*qv(k,nx)/ &
++!                qsaturation(TdegK(k,nx),pmb(k,nx))
++! exact RH = pv/pvs = rhod * qv * Rv * T / pvs
++!          = pd / (T * Rd) * qv * Rv * T / pvs
++!          = p0 * Ex^(cp/Rd) / Rd * qv * Rv / pvs
++            field(k)= p0*exner(k,nx)**(1./r_on_cp) / R * &
++                qv(k,nx) * Rw / &
++                psaturation(TdegK(k,nx))
          else
             field(k)=unset_real
          end if
