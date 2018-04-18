@@ -24,7 +24,7 @@ def reading_netcdf(netcdf_file, var_l):
     var_d = {}
     var_d["RH_diff"] = netcdf_file.variables["RH"][:] - netcdf_file.variables["RH_lib_ante_cond"][:]
     var_d["T_diff"] = netcdf_file.variables["temperature"][:] - netcdf_file.variables["T_lib_ante_cond"][:]
-    var_d["p_diff"] = netcdf_file.variables["pressure"][:] - netcdf_file.variables["pressure_lib"][:]
+    var_d["p_diff"] = netcdf_file.variables["pressure"][:] - netcdf_file.variables["pressure_lib"][:]/1e4
     for var in var_l + ["z", "x", "time"]:
         var_d[var] = netcdf_file.variables[var][:]
     return var_d
