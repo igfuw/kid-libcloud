@@ -124,6 +124,11 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   #save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
   save_dg(arrays["RH_lib_ante_cond"], it, "RH_lib_ante_cond", "%")
 
+  # pressure from the lib
+  particles.diag_all()
+  particles.diag_pressure()
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "pressure_lib", "%")
+
   # aerosol concentration
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
   particles.diag_wet_rng(0, arrays["bins_D_upper"][params["bins_qc_r20um"][0]] / 2)
