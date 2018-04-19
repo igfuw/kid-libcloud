@@ -1225,9 +1225,21 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
    subroutine check_ncstatus(status, name)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/src/main.f90 kid_a_setup/src/main.f90
 --- kid_a_original_20180125_setup/src/main.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/main.f90	2018-02-07 14:51:34.984900284 +0100
-@@ -97,7 +97,8 @@
++++ kid_a_setup/src/main.f90	2018-04-19 11:30:43.050893539 +0200
+@@ -87,17 +87,18 @@
+           call mphys_column(scheme_id=imphys)
+        end if
  
+-       call step_column
+-       
+        if ( nx == 1 ) then
+           call save_diagnostics_1d
+        else
+           call save_diagnostics_2d
+        endif
+ 
++       call step_column
++
      end do
  
 -    if (l_write_dgs) call write_diagnostics
