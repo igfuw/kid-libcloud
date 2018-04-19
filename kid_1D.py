@@ -154,7 +154,9 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       arrays["Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
       arrays["Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
       arrays["RH_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
+      arrays["pressure_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
       arrays["T_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
+      arrays["psat_lib_formula_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
       arrays["RH_kid"] = np.empty((opts_init.nx, opts_init.nz))
 
     # defining qv and thetad (in every timestep) 
@@ -202,6 +204,11 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # saving RH for the output file
     prtcls.diag_all()
     prtcls.diag_RH()
+    arrays["RH_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).reshape(size_x - 2, size_z) * 100
+
+    prtcls.diag_all()
+    prtcls.diag_pressure()
+    arrays["pressure_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).reshape(size_x - 2, size_z) * 100
     
 #    if timestep == 0:
 #      arrays["rhod"][:] = ptr2np(rhof_ar, 1, size_z)[:]
@@ -212,7 +219,6 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
 
 
-    arrays["RH_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).reshape(size_x - 2, size_z) * 100
 #    for i in range(0, prtcls.opts_init.nx):
 #      for j in range(0, prtcls.opts_init.nz):
 #        arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod_kid"][i,j])
@@ -220,6 +226,11 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     for i in range(0, prtcls.opts_init.nx):
       for j in range(0, prtcls.opts_init.nz):
         arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
+
+
+    for i in range(0, prtcls.opts_init.nx):
+      for j in range(0, prtcls.opts_init.nz):
+        arrays["psat_lib_formula_ante_cond"][i,j] =  libcl.common.p_vs(arrays["T_lib_ante_cond"][i,j])
 
     if timestep == 0:
       print "rhod: ", arrays["rhod"]

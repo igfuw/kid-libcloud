@@ -114,20 +114,27 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   save_dg(arrays["tmp_xz"], it, "T_lib_post_cond", "K")
   save_dg(arrays["T_lib_ante_cond"], it, "T_lib_ante_cond", "K")
 
-  # RH according to the formula used within the library
+  # RH from the library pre cond
+  save_dg(arrays["RH_lib_ante_cond"], it, "RH_lib_ante_cond", "%")
+  # RH from the library pre cond
   particles.diag_all()
   particles.diag_RH()
   save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "RH_lib_post_cond", "%")
+  # RH from the library formula with rv post cond and T pre cond (should be the same as RH saved in KiD)
   #for i in range(0, size_x-2):
   #  for j in range(0, size_z):
-  #    arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
-  #save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
-  save_dg(arrays["RH_lib_ante_cond"], it, "RH_lib_ante_cond", "%")
+  #    arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["T_lib_ante_cond"][i,j] / libcl.common.p_vs(arrays["T_lib_ante_cond"][i,j]) * 100
+  #save_dg(arrays["tmp_xz"], it, "RH_lib_formula_TAnteCond_Rvpostcond", "K")
+  #save_dg(arrays["qv"], it, "qv_for_RH_lib_formula_TAnteCond_Rvpostcond_calc", "")
+
+  # saturation vapour pressure from the library formula ante cond
+  save_dg(arrays["psat_lib_formula_ante_cond"], it, "psat_lib_formula_ante_cond", "")
 
   # pressure from the lib
   particles.diag_all()
   particles.diag_pressure()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "pressure_lib", "%")
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "pressure_lib_post_cond", "%")
+  save_dg(arrays["pressure_lib_ante_cond"], it, "pressure_lib_ante_cond", "%")
 
   # aerosol concentration
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
