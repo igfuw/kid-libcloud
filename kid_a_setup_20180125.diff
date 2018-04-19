@@ -1,4 +1,3 @@
-Binary files kid_a_original_20180125_setup/libcloud_ICMW_1D_output.tar and kid_a_setup/libcloud_ICMW_1D_output.tar differ
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/namelists/1D_input.nml kid_a_setup/namelists/1D_input.nml
 --- kid_a_original_20180125_setup/namelists/1D_input.nml	2017-11-10 14:43:55.000000000 +0100
 +++ kid_a_setup/namelists/1D_input.nml	2018-02-07 14:51:34.937900246 +0100
@@ -125,7 +124,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
         ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/diagnostics.f90	2018-03-02 14:05:50.688802648 +0100
++++ kid_a_setup/src/diagnostics.f90	2018-04-19 11:11:21.378975101 +0200
 @@ -14,13 +14,15 @@
    Use parameters
    Use column_variables

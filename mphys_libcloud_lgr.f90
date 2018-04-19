@@ -4,8 +4,8 @@ module mphys_libcloud_lgr
 
   Use parameters, only : nz, dt, nx
   Use column_variables
-  Use physconst, only : p0, r_on_cp, pi
-  Use common_physics, only : qsaturation
+  Use physconst, only : p0, r_on_cp, pi, Rw, R
+  Use common_physics, only : qsaturation, psaturation
 
   Use diagnostics, only: save_dg, i_dgtime
   use iso_c_binding, only: c_funptr, c_f_procpointer, c_null_char, c_double, c_float
@@ -72,8 +72,18 @@ contains
     do k=1,nz
        do j=0,nx+1
           if (z(k) < 20000.)then
-             RH(k,j)= qv(k,j)/ &
-                  qsaturation(TdegK(k,j),pmb(k,j))
+
+! approx RH=qv/qvs
+!             RH(k,j)= qv(k,j)/ &
+!                  qsaturation(TdegK(k,j),pmb(k,j))
+! exact RH = pv/pvs = rhod * qv * Rv * T / pvs
+!          = pd / (T * Rd) * qv * Rv * T / pvs
+!          = p0 * Ex^(cp/Rd) / Rd * qv * Rv / pvs
+             RH(k,j)= 100. * p0*exner(k,j)**(1./r_on_cp) / R * &
+                qv(k,j) * Rw / &
+                psaturation(TdegK(k,j))
+
+
     !         RH(k,j)= 0.5
           else
              RH(k,j)=0.95 ! some better dummy var?!
