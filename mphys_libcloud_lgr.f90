@@ -56,8 +56,8 @@ contains
     ! do the below only once
     if (associated(fptr) .eqv. .false.) then 
       ! assert for numerical precision  
-      if (wp.ne.c_double) stop("KiD does not use double precision!")          
-      if (sizeof(dt).ne.c_float) stop("dt in KiD is not a float!")
+      if (wp.ne.c_double) stop ("KiD does not use double precision!")          
+      if (sizeof(dt).ne.c_float) stop ("dt in KiD is not a float!")
 
       ! load pointer to Python micro_step() routine (getuid() and getpid() are GNU extensions)
       write (uid, "(I10.0)") getuid()
@@ -95,7 +95,7 @@ contains
     if (.not. fptr(i_dgtime, dt, nz, nx+2 , &
                    theta, qv, rho, rho_half, exner, & 
                    v, v_half, w, w_half, x, z, x_half, z_half, dTheta_mphys, dqv_mphys, RH) &
-    ) stop("Error in Python!!!")
+    ) stop ("Error in Python!!!")
 
   end Subroutine mphys_libcloud_lgr_interface
 
