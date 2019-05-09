@@ -88,7 +88,7 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
 
   # recording puddle
   puddle = particles.diag_puddle();
-  save_dg_scalar(puddle[8], it, "accumulated surface precipitation volume", "m^3")
+  save_dg_scalar(puddle[8] * (4./3) * math.pi, it, "accumulated surface precipitation volume", "m^3")
 
   if first_timestep:
     # temporary arrays (allocating only once)                 
