@@ -38,10 +38,16 @@ last_diag = -1
 prsr = ArgumentParser(add_help=True, description='1D kidA case')
 prsr.add_argument('--n_tot', required=False, type=float, default=params["n_tot"], help='initial aerosol concentation at STP [1/kg_dry_air]')
 prsr.add_argument('--spinup_rain', required=False, type=float, default=params["spinup_rain"], help='time, after which coalescence and sedimentation are turned on [s]')
+prsr.add_argument('--sd_conc', required=False, type=int, default=params["sd_conc"], help='initial no of SD per cell')
+prsr.add_argument('--sstp_cond', required=False, type=int, default=params["sstp_cond"], help='no of cond substeps')
+prsr.add_argument('--sstp_coal', required=False, type=int, default=params["sstp_coal"], help='no of coal substeps')
 args = prsr.parse_args()
 
 params["n_tot"] = args.n_tot # * 1.225 / 1. # 1.225 is air density at stp, 1 is the actual density
 params["spinup_rain"] = args.spinup_rain
+params["sd_conc"] = args.sd_conc
+params["sstp_cond"] = args.sstp_cond
+params["sstp_coal"] = args.sstp_coal
 #savings some parameters from setup.py file and libcl revision number
 params_write = params.copy()
 
