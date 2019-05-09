@@ -11,7 +11,7 @@ import os
 import pdb
 
 # names of variable to plot
-Variable_name_l = ["theta", "vapour", "RH", "number_od_SDs", "aerosol_number", "w", "dtheta_mphys", "dqv_mphys", "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um"]
+Variable_name_l = ["theta", "vapour", "RH", "number_of_SDs", "aerosol_number", "w", "dtheta_mphys", "dqv_mphys", "cloud_number_r20um", "rain_number_r20um", "cloud_mass_r20um", "rain_mass_r20um", "liquid_drops_number", "liquid_drops_mean_r", "liquid_drops_mass"]
 
 prsr = ArgumentParser(add_help=True, description='TODO')
 prsr.add_argument('--outdir', default="", help='output directory from kid_a_setup/output')
@@ -26,9 +26,9 @@ def reading_netcdf(netcdf_file, var_l):
     # also, for tihs comparison to be correct, save_diag in KiD has to be called before applying mphys and adve dtheta/dqv (i.e. before step_column)
     # but then all the diags in KiD are "pre step", which is not the default behaviour
     var_d["RH_diff"] = -(netcdf_file.variables["RH"][:] - netcdf_file.variables["RH_lib_ante_cond"][:])
-    var_d["T_diff"] = -(netcdf_file.variables["temperature"][:] - netcdf_file.variables["T_lib_ante_cond"][:]) / netcdf_file.variables["temperature"][:]
-    var_d["p_diff"] = -(netcdf_file.variables["pressure"][:] - netcdf_file.variables["pressure_lib_ante_cond"][:]/1e4) / netcdf_file.variables["pressure"][:]
-    var_d["psat_diff"] = -(netcdf_file.variables["psat"][:] - netcdf_file.variables["psat_lib_formula_ante_cond"][:]/1e2) / netcdf_file.variables["psat"][:]
+    var_d["T_diff"] = -(netcdf_file.variables["temperature"][:] - netcdf_file.variables["T_lib_ante_cond"][:])# / netcdf_file.variables["temperature"][:]
+    var_d["p_diff"] = -(netcdf_file.variables["pressure"][:] - netcdf_file.variables["pressure_lib_ante_cond"][:]/1e4)# / netcdf_file.variables["pressure"][:]
+    var_d["psat_diff"] = -(netcdf_file.variables["psat"][:] - netcdf_file.variables["psat_lib_formula_ante_cond"][:]/1e2)# / netcdf_file.variables["psat"][:]
     for var in var_l + ["z", "x", "time"]:
         var_d[var] = netcdf_file.variables[var][:]
     return var_d

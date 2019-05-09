@@ -104,19 +104,21 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.dt = dt
       opts_init.nx, opts_init.nz = size_x - 2, size_z
       opts_init.dx, opts_init.dz = dx, dz 
-      opts_init.z0 = dz # skipping the first sub-terrain level
+      #opts_init.z0 = dz # skipping the first sub-terrain level
+      opts_init.z0 = 0 
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
       opts_init.sd_conc = int(params["sd_conc"])
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
-      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard77fast
+      opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard76
       opts_init.kernel = libcl.lgrngn.kernel_t.hall_davis_no_waals
-      opts_init.adve_scheme = libcl.lgrngn.as_t.pred_corr
+      #opts_init.adve_scheme = libcl.lgrngn.as_t.pred_corr
+      opts_init.adve_scheme = libcl.lgrngn.as_t.euler
       opts_init.exact_sstp_cond = 1
       opts_init.sd_conc_large_tail = 1
       opts_init.n_sd_max = int(1.2 * opts_init.nx*opts_init.nz*opts_init.sd_conc)
-      opts_init.periodic_z = 0
       opts_init.aerosol_independent_of_rhod = 1 # set to true, because rhod is supposed to be =1, but we cannot pass rhod=1 as it is not in agreement with the values of p and theta and would lead to wrong T,RH,etc...
+      opts_init.RH_formula = libcl.lgrngn.RH_formula_t.rv_tet
 
       print "nx = ", opts_init.nx
       print "nz = ", opts_init.nz
@@ -124,32 +126,32 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       print "dz = ", opts_init.dz
       print "dt = ", opts_init.dt
       
+    #  try:
+    #    print("Trying with multi_CUDA backend..."),
+    #    prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.multi_CUDA, opts_init)
+    #    print (" OK!")
+    #  except:
+    #    print (" KO!")
+    #    try:
+    #      print("Trying with CUDA backend..."),
+    #      prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
+    #      print (" OK!")
+    #    except:
+    #      print (" KO!")
       try:
-        print("Trying with multi_CUDA backend..."),
-        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.multi_CUDA, opts_init)
+        print("Trying with OpenMP backend..."),
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
         print (" OK!")
       except:
         print (" KO!")
-        try:
-          print("Trying with CUDA backend..."),
-          prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
-          print (" OK!")
-        except:
-          print (" KO!")
-          try:
-            print("Trying with OpenMP backend..."),
-            prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
-            print (" OK!")
-          except:
-            print (" KO!")
-            print("Trying with serial backend..."),
-            prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
-            print (" OK!")
+        print("Trying with serial backend..."),
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
+        print (" OK!")
     
       # allocating arrays for those variables that are not ready to use
       # (i.e. either different size or value conversion needed)
       for name in ("thetad", "qv", "p_d", "T_kid", "rhod_kid"):
-	arrays[name] = np.empty((opts_init.nx, opts_init.nz))
+        arrays[name] = np.empty((opts_init.nx, opts_init.nz))
       arrays["rhod"] = np.empty((opts_init.nz,))
       arrays["Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
       arrays["Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
@@ -166,7 +168,10 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # it seems (c.f. src/test_cases.f90:863 which suggest that exner=(p_d / p_0)^(R_d/c_p)) that theta, p and rhod calculated in KiD are actually dry air values
     # so there's no need to make them dry one more time; BTW: this makes the RH calculated in KiD not correct, because
     # it should be calculated using total pressure and not dry pressure
-    arrays["thetad"][:,:] = ptr2np(th_ar, size_x, size_z)[1:-1, :]
+  #  arrays["thetad"][:,:] = ptr2np(th_ar, size_x, size_z)[1:-1, :]
+    arrays["thetad"][:,:] = ptr2np(th_ar, size_x, size_z).copy()[1:-1, :]
+   # arrays["thetad"][:,:] -= 0.1
+    
     arrays["p_d"][:,:] = (ptr2np(exner_ar, size_x, size_z)[1:-1, :])**(c_pd/R_d) * p_1000# * eps / (eps + arrays["qv"])
     arrays["T_kid"][:,:] = ptr2np(exner_ar, size_x, size_z)[1:-1, :] * ptr2np(th_ar, size_x, size_z)[1:-1, :]
     arrays["rhod_kid"] = arrays["p_d"] / arrays["T_kid"] / R_d
@@ -178,23 +183,25 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # and this leads to wrong RH calculations in libcloud
     # therefore we should use the rhod_kid density and multiply diags by rhod_kid ?!
     if timestep == 0:
-      arrays["rhod"][:] = arrays["rhod_kid"][0,:] # set rhod to be in agreement with other profiles and exner function
+      #arrays["rhod"][:] = arrays["rhod_kid"][0,:] # set rhod to be in agreement with other profiles and exner function
       #arrays["rhod"][:] = rho_kid2dry(ptr2np(rhof_ar, 1, size_z)[:], arrays["qv"][0,:])  # pass rhod from KiD, i.e. rhod=1
+      arrays["rhod"][:] = ptr2np(rhof_ar, 1, size_z)[:]  # pass rhod from KiD, i.e. rhod=1
 
      
     #arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
     assert (arrays["Cx"][0,:] == arrays["Cx"][-1,:]).all()
 
     # putting meaningful values to the sub-terain level (to avoid segfault from library)
-    arrays["Cz"][:, 0] = 0.
-    arrays["qv"][:, 0] = arrays["qv"][:, 1]
-    arrays["thetad"][:,0] = arrays["thetad"][:,1]
-    arrays["rhod"][0] = arrays["rhod"][1]
+    #arrays["Cz"][:, 0] = 0.
+    #arrays["qv"][:, 0] = arrays["qv"][:, 1]
+    #arrays["thetad"][:,0] = arrays["thetad"][:,1]
+    #arrays["rhod"][0] = arrays["rhod"][1]
 
     arrays["Cz"][:, 1:] = ptr2np(wh_ar, size_x, size_z)[1:-1, :] * dt / dz
+    arrays["Cz"][:, 0] = arrays["Cz"][:, 1];
 
     if timestep == 0:
-      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
+      prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["p_d"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
       dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
@@ -204,11 +211,15 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     # saving RH for the output file
     prtcls.diag_all()
     prtcls.diag_RH()
-    arrays["RH_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).reshape(size_x - 2, size_z) * 100
+    arrays["RH_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).copy().reshape(size_x - 2, size_z) * 100
 
     prtcls.diag_all()
     prtcls.diag_pressure()
-    arrays["pressure_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).reshape(size_x - 2, size_z) * 100
+    arrays["pressure_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).copy().reshape(size_x - 2, size_z) * 100
+
+    prtcls.diag_all()
+    prtcls.diag_temperature()
+    arrays["T_lib_ante_cond"] = np.frombuffer(prtcls.outbuf()).copy().reshape(size_x - 2, size_z)
     
 #    if timestep == 0:
 #      arrays["rhod"][:] = ptr2np(rhof_ar, 1, size_z)[:]
@@ -223,9 +234,9 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 #      for j in range(0, prtcls.opts_init.nz):
 #        arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod_kid"][i,j])
 #    print "T_lib_ante_cond with rhod_kid: ", arrays["T_lib_ante_cond"]
-    for i in range(0, prtcls.opts_init.nx):
-      for j in range(0, prtcls.opts_init.nz):
-        arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
+#    for i in range(0, prtcls.opts_init.nx):
+#      for j in range(0, prtcls.opts_init.nz):
+#        arrays["T_lib_ante_cond"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
 
 
     for i in range(0, prtcls.opts_init.nx):

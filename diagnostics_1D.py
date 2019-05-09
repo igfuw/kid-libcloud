@@ -84,7 +84,7 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   # super-droplet concentration per grid cell                               
   particles.diag_all() 
   particles.diag_sd_conc()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "number_od_SDs", "1")
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "number_of_SDs", "1")
 
   # recording puddle
   puddle = particles.diag_puddle();
@@ -108,10 +108,13 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     
     
   # T according to the formula used within the library
-  for i in range(0, size_x-2):
-    for j in range(0, size_z):
-      arrays["tmp_xz"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
-  save_dg(arrays["tmp_xz"], it, "T_lib_post_cond", "K")
+  #for i in range(0, size_x-2):
+  #  for j in range(0, size_z):
+  #    arrays["tmp_xz"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
+  particles.diag_all() 
+  particles.diag_temperature()
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "T_lib_post_cond", "K")
+#  save_dg(arrays["tmp_xz"], it, "T_lib_post_cond", "K")
   save_dg(arrays["T_lib_ante_cond"], it, "T_lib_ante_cond", "K")
 
   # RH from the library pre cond
@@ -119,7 +122,7 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   # RH from the library pre cond
   particles.diag_all()
   particles.diag_RH()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "RH_lib_post_cond", "%")
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * 100, it, "RH_lib_post_cond", "%")
   # RH from the library formula with rv post cond and T pre cond (should be the same as RH saved in KiD)
   #for i in range(0, size_x-2):
   #  for j in range(0, size_z):
@@ -133,14 +136,26 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
   # pressure from the lib
   particles.diag_all()
   particles.diag_pressure()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "pressure_lib_post_cond", "%")
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * 100, it, "pressure_lib_post_cond", "%")
   save_dg(arrays["pressure_lib_ante_cond"], it, "pressure_lib_ante_cond", "%")
 
   # aerosol concentration
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]
   particles.diag_wet_rng(0, arrays["bins_D_upper"][params["bins_qc_r20um"][0]] / 2)
   particles.diag_wet_mom(0)
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * arrays["rhod_kid"], it, "aerosol_number", "/kg") # multiplied by rhod, because rhod should be =1, but this is inconsistent with exner function, so in fact we use rhod !=1, same done below
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "aerosol_number", "/kg") 
+
+  particles.diag_all()
+  particles.diag_wet_mom(0)
+  liquid_drops_number = np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z)
+  save_dg(liquid_drops_number, it, "liquid_drops_number", "/kg") 
+  particles.diag_all()
+  particles.diag_wet_mom(1)
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * 1e6 / liquid_drops_number, it, "liquid_drops_mean_r", "um") 
+
+  particles.diag_all()
+  particles.diag_wet_mom(3)
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * libcl.common.rho_w * (4./3) * math.pi, it, "liquid_drops_mass", "kg/kg") 
 
   # binned wet spectrum                                      
   r_min = 0.
@@ -151,10 +166,10 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     r_min = r_max
     # computing 1-st moment                                  
     particles.diag_wet_mom(0)
-    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * arrays["rhod_kid"] # see aerosol diag
+    arrays["mom_0"][i,:,:] = np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z)
     # computing 3-rd moment                          
     particles.diag_wet_mom(3)
-    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * arrays["rhod_kid"] # see aerosol diag
+    arrays["mom_3"][i,:,:] = np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z)
 
   # saving binned concentrations
   save_dg(arrays["mom_0"], it, "cloud_bin_number", "/kg")
