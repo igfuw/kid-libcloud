@@ -5,7 +5,7 @@ import libcloudphxx as libcl
 # dictionary of simulation parameters
 params = {
   "real_t" : np.float64,
-  "sd_conc" : 100,# 1024,
+  "sd_conc" : 1024,
   "spinup_rain" : 2000000*30, # number of timesteps during which sedimentation and coalescence are off
   "spinup_smax" : 60*10,
   "kappa" : .61,
