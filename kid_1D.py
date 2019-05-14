@@ -31,6 +31,16 @@ ffi.cdef("void __main_MOD_main_loop();")
 prtcls = False
 
 arrays = {}
+prev_val = {}
+prev_val["accr20"] = 0
+prev_val["accr25"] = 0
+prev_val["accr32"] = 0
+prev_val["acnv20"] = 0
+prev_val["acnv25"] = 0
+prev_val["acnv32"] = 0
+prev_val["revp20"] = 0
+prev_val["revp25"] = 0
+prev_val["revp32"] = 0
 timestep = 0
 last_diag = -1
 
@@ -208,7 +218,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
     if timestep == 0:
       prtcls.init(arrays["thetad"], arrays["qv"], arrays["rhod"], arrays["p_d"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
-      dg.diagnostics(prtcls, arrays, 1, size_x, size_z, timestep == 0) # writing down state at t=0
+      dg.diagnostics(prtcls, arrays, prev_val, 1, size_x, size_z, timestep == 0) # writing down state at t=0
 
     # spinup period logic
     opts.sedi = opts.coal = timestep >= params["spinup_rain"]
@@ -283,7 +293,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
     # diagnostics
     if last_diag < it_diag:
-      dg.diagnostics(prtcls, arrays, it_diag, size_x, size_z, timestep == 0)
+      dg.diagnostics(prtcls, arrays, prev_val, it_diag, size_x, size_z, timestep == 0)
       last_diag = it_diag
 
     timestep += 1
