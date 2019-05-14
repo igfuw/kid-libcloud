@@ -275,13 +275,27 @@ def diagnostics(particles, arrays, prev_val, it, size_x, size_z, first_timestep)
 
   particles.diag_wet_rng(20e-6, 1)
   particles.diag_wet_mom(3)
-  save_dg_scalar(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z).sum() * libcl.common.rho_w * (4./3) * math.pi * 25, it, "rain water path r20", "kg/m^2") 
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "rain_water_r20", "kg/kg") 
+  save_dg_scalar(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z).sum() * libcl.common.rho_w * (4./3) * math.pi * 25, it, "rain_water_path_r20", "kg/m^2") 
   particles.diag_wet_rng(25e-6, 1)
   particles.diag_wet_mom(3)
-  save_dg_scalar(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z).sum() * libcl.common.rho_w * (4./3) * math.pi * 25, it, "rain water path r25", "kg/m^2") 
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * libcl.common.rho_w * (4./3) * math.pi, it, "rain_water_r25", "kg/kg") 
+  save_dg_scalar(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z).sum() * libcl.common.rho_w * (4./3) * math.pi * 25, it, "rain_water_path_r25", "kg/m^2") 
   particles.diag_wet_rng(32e-6, 1)
   particles.diag_wet_mom(3)
-  save_dg_scalar(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z).sum() * libcl.common.rho_w * (4./3) * math.pi * 25, it, "rain water path r32", "kg/m^2") 
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * libcl.common.rho_w * (4./3) * math.pi, it, "rain_water_r32", "kg/kg") 
+  save_dg_scalar(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z).sum() * libcl.common.rho_w * (4./3) * math.pi * 25, it, "rain_water_path_r32", "kg/m^2") 
+
+
+  particles.diag_wet_rng(0.5e-6, 20e-6)
+  particles.diag_wet_mom(3)
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * libcl.common.rho_w * (4./3) * math.pi, it, "cloud_water_r20", "kg/kg") 
+  particles.diag_wet_rng(0.5e-6, 25e-6)
+  particles.diag_wet_mom(3)
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * libcl.common.rho_w * (4./3) * math.pi, it, "cloud_water_r25", "kg/kg") 
+  particles.diag_wet_rng(0.5e-6, 32e-6)
+  particles.diag_wet_mom(3)
+  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z) * libcl.common.rho_w * (4./3) * math.pi, it, "cloud_water_r32", "kg/kg") 
 
   # binned dry spectrum? - TODO                       
   # ...                                                               
