@@ -1,13 +1,13 @@
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/1D_input.nml kid_a_setup/namelists/1D_input.nml
 --- kid_a_original_20180125_setup/namelists/1D_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/1D_input.nml	2019-05-07 15:04:51.586683523 +0200
-@@ -3,6 +3,6 @@
++++ kid_a_setup/namelists/1D_input.nml	2019-05-15 14:52:21.585171735 +0200
+@@ -3,6 +3,5 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
  &namelistToUse
 -fileIn='namelists/1D.nml'
-+fileIn='namelists/kida_icmw1D_libcloud_lgr.nml'
- fileOut='output/1D_out.nc'
+-fileOut='output/1D_out.nc'
++fileIn='/home/piotr/praca/code/kid-libcloud/kid_a_setup/namelists/kida_icmw1D_libcloud_lgr.nml'
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
 --- kid_a_original_20180125_setup/namelists/SC_2D_input.nml	2017-11-10 14:43:55.000000000 +0100
@@ -1309,8 +1309,35 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
    end subroutine mphys_column
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/namelists.f90 kid_a_setup/src/namelists.f90
 --- kid_a_original_20180125_setup/src/namelists.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/namelists.f90	2019-05-07 15:04:51.590683521 +0200
-@@ -180,6 +180,9 @@
++++ kid_a_setup/src/namelists.f90	2019-05-15 14:58:19.873379144 +0200
+@@ -86,7 +86,7 @@
+   character(200) :: fileName=''
+   character(200) :: fileNameIn=''
+   character(200) :: fileNameOut=''
+-  character(200) :: namelistIn='namelists/input.nml'
++  character(200) :: namelistIn='namelists/1D_input.nml'
+   character(200) :: fileIn=''
+   character(200) :: fileOut=''
+   logical :: fexist
+@@ -111,6 +111,8 @@
+     CALL GET_COMMAND_ARGUMENT(2,fileNameOut)
+ #endif
+ 
++    CALL get_environment_variable("FILEOUT", fileOut)
++
+     if (trim(fileNameIn)=='')then  ! Not input at the command line 
+                                    ! so use input.nml
+ #ifdef DEF_CASE
+@@ -126,7 +128,7 @@
+         write(*, namelistToUse)
+       end if
+       fileNameIn  = fileIn
+-      if (trim(fileOut)/='')fileNameOut = fileOut
++      if (trim(fileOut)/='')fileNameOut = trim(fileOut) // trim("/1D_out.nc")
+     end if
+     
+     if (trim(fileNameIn)/='')fileName=fileNameIn
+@@ -180,6 +182,9 @@
      case('4A')
         imphys=imphys_4A
         mphys_id='4A'
