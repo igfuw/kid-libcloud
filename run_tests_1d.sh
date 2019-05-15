@@ -29,10 +29,11 @@ do
               sed -i 's/wctrl(1)=2/wctrl(1)=3/g' namelists/kida_icmw1D_libcloud_lgr.nml
             fi
             OUTDIR=/mnt/local/pdziekan/wyniki/kid-a/1D/output_SdConc${sd_conc}_SstpCond${sstp_cond}_SstpCoal${sstp_coal}_wctrl${wctrl}_ntot${ntot}_${RAIN} && mkdir ${OUTDIR}
-            for iter in {1..2}
+            for iter in {1..40}
             do
-              mkdir ${OUTDIR}/${iter} &
+              mkdir ${OUTDIR}/${iter} 
               FILEOUT=${OUTDIR}/${iter} python ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="serial" --sd_conc=$sd_conc --n_tot=$ntot --spinup_rain=$spinup &
+              sleep 1
             done
             wait
           done
