@@ -137,11 +137,11 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.aerosol_independent_of_rhod = 1 # set to true, because rhod is supposed to be =1, but we cannot pass rhod=1 as it is not in agreement with the values of p and theta and would lead to wrong T,RH,etc...
       opts_init.RH_formula = libcl.lgrngn.RH_formula_t.rv_tet
 
-      print "nx = ", opts_init.nx
-      print "nz = ", opts_init.nz
-      print "dx = ", opts_init.dx
-      print "dz = ", opts_init.dz
-      print "dt = ", opts_init.dt
+      #print "nx = ", opts_init.nx
+      #print "nz = ", opts_init.nz
+      #print "dx = ", opts_init.dx
+      #print "dz = ", opts_init.dz
+      #print "dt = ", opts_init.dt
 
       if args.backend == "multi_CUDA":
         prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.multi_CUDA, opts_init)
@@ -269,13 +269,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       for j in range(0, prtcls.opts_init.nz):
         arrays["psat_lib_formula_ante_cond"][i,j] =  libcl.common.p_vs(arrays["T_lib_ante_cond"][i,j])
 
-    if timestep == 0:
-      print "rhod: ", arrays["rhod"]
-      print "thetad: ", arrays["thetad"]
-      print "qv: ", arrays["qv"]
-      print "RH_lib_ante_cond: ", arrays["RH_lib_ante_cond"]
-      print "T_lib_ante_cond: ", arrays["T_lib_ante_cond"]
-      print "T_kid: ", arrays["T_kid"]
+   # if timestep == 0:
+   #   print "rhod: ", arrays["rhod"]
+   #   print "thetad: ", arrays["thetad"]
+   #   print "qv: ", arrays["qv"]
+   #   print "RH_lib_ante_cond: ", arrays["RH_lib_ante_cond"]
+   #   print "T_lib_ante_cond: ", arrays["T_lib_ante_cond"]
+   #   print "T_kid: ", arrays["T_kid"]
 
     # superdroplets: all what have to be done within a timestep
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 
