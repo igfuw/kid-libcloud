@@ -69,9 +69,9 @@ for key_str in ["real_t"]:
   params_write[key_str] = str(params[key_str])
 params_write["libcloudph_git_rev"] = libcl.git_revision
 
-file_out = open("output/python_setup.txt", "w")
-json.dump(params_write, file_out)
-file_out.close()
+#file_out = open("output/python_setup.txt", "w")
+#json.dump(params_write, file_out)
+#file_out.close()
 
 def lognormal(lnr):
   from math import exp, log, sqrt, pi
