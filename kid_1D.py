@@ -51,6 +51,7 @@ prsr.add_argument('--spinup_rain', required=False, type=float, default=params["s
 prsr.add_argument('--sd_conc', required=False, type=int, default=params["sd_conc"], help='initial no of SD per cell')
 prsr.add_argument('--sstp_cond', required=False, type=int, default=params["sstp_cond"], help='no of cond substeps')
 prsr.add_argument('--sstp_coal', required=False, type=int, default=params["sstp_coal"], help='no of coal substeps')
+prsr.add_argument('--backend', required=False, type=str, default="None", help='no of coal substeps')
 args = prsr.parse_args()
 
 params["n_tot"] = args.n_tot # * 1.225 / 1. # 1.225 is air density at stp, 1 is the actual density
@@ -141,28 +142,37 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       print "dx = ", opts_init.dx
       print "dz = ", opts_init.dz
       print "dt = ", opts_init.dt
-      
-      try:
-        print("Trying with multi_CUDA backend..."),
+
+      if args.backend == "multi_CUDA":
         prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.multi_CUDA, opts_init)
-        print (" OK!")
-      except:
-        print (" KO!")
+      elif args.backend == "CUDA":
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
+      elif args.backend == "OpenMP":
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
+      elif args.backend == "serial":
+        prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
+      else:
         try:
-          print("Trying with CUDA backend..."),
-          prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
+          print("Trying with multi_CUDA backend..."),
+          prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.multi_CUDA, opts_init)
           print (" OK!")
         except:
           print (" KO!")
           try:
-            print("Trying with OpenMP backend..."),
-            prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
+            print("Trying with CUDA backend..."),
+            prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.CUDA, opts_init)
             print (" OK!")
           except:
             print (" KO!")
-            print("Trying with serial backend..."),
-            prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
-            print (" OK!")
+            try:
+              print("Trying with OpenMP backend..."),
+              prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.OpenMP, opts_init)
+              print (" OK!")
+            except:
+              print (" KO!")
+              print("Trying with serial backend..."),
+              prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.serial, opts_init)
+              print (" OK!")
     
       # allocating arrays for those variables that are not ready to use
       # (i.e. either different size or value conversion needed)
