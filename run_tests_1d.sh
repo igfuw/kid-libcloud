@@ -33,7 +33,21 @@ do
             do
               mkdir ${OUTDIR}/${iter} 
               FILEOUT=${OUTDIR}/${iter} python ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="serial" --sd_conc=$sd_conc --n_tot=$ntot --spinup_rain=$spinup &
-              sleep 1
+              sleep 2
+            done
+            wait
+            for iter in {41..80}
+            do
+              mkdir ${OUTDIR}/${iter} 
+              FILEOUT=${OUTDIR}/${iter} python ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="serial" --sd_conc=$sd_conc --n_tot=$ntot --spinup_rain=$spinup &
+              sleep 2
+            done
+            wait
+            for iter in {81..120}
+            do
+              mkdir ${OUTDIR}/${iter} 
+              FILEOUT=${OUTDIR}/${iter} python ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="serial" --sd_conc=$sd_conc --n_tot=$ntot --spinup_rain=$spinup &
+              sleep 2
             done
             wait
           done

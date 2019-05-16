@@ -138,6 +138,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.aerosol_independent_of_rhod = 1 # set to true, because rhod is supposed to be =1, but we cannot pass rhod=1 as it is not in agreement with the values of p and theta and would lead to wrong T,RH,etc...
       opts_init.RH_formula = libcl.lgrngn.RH_formula_t.rv_tet
       opts_init.rng_seed = int(time.time())
+      print 'rng seed = ', opts_init.rng_seed
 
       #print "nx = ", opts_init.nx
       #print "nz = ", opts_init.nz
