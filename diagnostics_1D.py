@@ -83,9 +83,9 @@ def save_bindata(arr, name, unit):
 def diagnostics(particles, arrays, prev_val, it, size_x, size_z, first_timestep):
 
   # super-droplet concentration per grid cell                               
-  particles.diag_all() 
-  particles.diag_sd_conc()
-  #save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "number_of_SDs", "1")
+#  particles.diag_all() 
+#  particles.diag_sd_conc()
+#  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "number_of_SDs", "1")
 
   # recording puddle
   puddle = particles.diag_puddle();

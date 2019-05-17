@@ -53,6 +53,7 @@ prsr.add_argument('--sd_conc', required=False, type=int, default=params["sd_conc
 prsr.add_argument('--sstp_cond', required=False, type=int, default=params["sstp_cond"], help='no of cond substeps')
 prsr.add_argument('--sstp_coal', required=False, type=int, default=params["sstp_coal"], help='no of coal substeps')
 prsr.add_argument('--backend', required=False, type=str, default="None", help='no of coal substeps')
+prsr.add_argument('--sd_const_multi', required=False, type=int, default=0, help='should SDs have same multiplicities')
 args = prsr.parse_args()
 
 params["n_tot"] = args.n_tot # * 1.225 / 1. # 1.225 is air density at stp, 1 is the actual density
@@ -125,7 +126,6 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       #opts_init.z0 = dz # skipping the first sub-terrain level
       opts_init.z0 = 0 
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
-      opts_init.sd_conc = int(params["sd_conc"])
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
       opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard76
@@ -133,8 +133,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       #opts_init.adve_scheme = libcl.lgrngn.as_t.pred_corr
       opts_init.adve_scheme = libcl.lgrngn.as_t.euler
       opts_init.exact_sstp_cond = 1
-      opts_init.sd_conc_large_tail = 1
-      opts_init.n_sd_max = int(1.2 * opts_init.nx*opts_init.nz*opts_init.sd_conc)
+      if args.sd_const_multi > 0:
+        opts_init.sd_const_multi = args.sd_const_multi
+        opts_init.n_sd_max = int(120 * 300000 * 1.2)
+      else:
+        opts_init.sd_conc_large_tail = 1
+        opts_init.sd_conc = int(params["sd_conc"])
+        opts_init.n_sd_max = int(1.2 * opts_init.nx*opts_init.nz*opts_init.sd_conc)
       opts_init.aerosol_independent_of_rhod = 1 # set to true, because rhod is supposed to be =1, but we cannot pass rhod=1 as it is not in agreement with the values of p and theta and would lead to wrong T,RH,etc...
       opts_init.RH_formula = libcl.lgrngn.RH_formula_t.rv_tet
       opts_init.rng_seed = int(time.time())
