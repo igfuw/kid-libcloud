@@ -42,6 +42,7 @@ prev_val["acnv32"] = 0
 prev_val["revp20"] = 0
 prev_val["revp25"] = 0
 prev_val["revp32"] = 0
+prev_val["acc_surf_precip"] = 0
 timestep = 0
 last_diag = -1
 
