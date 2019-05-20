@@ -134,8 +134,9 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       opts_init.adve_scheme = libcl.lgrngn.as_t.euler
       opts_init.exact_sstp_cond = 1
       if args.sd_const_multi > 0:
-        opts_init.sd_const_multi = args.sd_const_multi
+        opts_init.sd_const_multi = int(args.sd_const_multi)
         opts_init.n_sd_max = int(120 * 300000 * 1.2)
+        opts_init.sd_conc = int(0)
       else:
         opts_init.sd_conc_large_tail = 1
         opts_init.sd_conc = int(params["sd_conc"])

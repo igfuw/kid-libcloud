@@ -88,6 +88,7 @@ def diagnostics(particles, arrays, prev_val, it, size_x, size_z, first_timestep)
 #  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "number_of_SDs", "1")
 
   # recording puddle
+  particles.diag_all() 
   puddle = particles.diag_puddle();
   #save_dg_scalar(puddle[8] * (4./3) * math.pi, it, "accumulated surface precipitation volume", "m^3")
   save_dg_scalar(puddle[8] * (4./3) * math.pi * 1000 / 10, it, "surface precipitation rate", "mm/s") # hardcoded dt_output = 10s
