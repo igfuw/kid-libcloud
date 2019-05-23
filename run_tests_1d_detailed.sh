@@ -8,7 +8,7 @@ export PYTHONPATH=/mnt/local/pdziekan/lib64/python2.7/site-packages/
 
 #iter=-1
 
-for run_no in {1..10}
+for run_no in {3..10}
 do
   for spinup in 0 1e8
   do
@@ -20,7 +20,8 @@ do
     do
       for sstp_coal in 100
       do
-        for sd_conc in 300000 0
+        for sd_conc in 10000
+        #for sd_conc in 10000 0
         do
           for ntot in 50e6 150e6 300e6
           do
@@ -34,17 +35,17 @@ do
               fi
 
               sd_const_multi=0
-              if [ ${sd_conc} == "0" ] ; then
-                if [ ${ntot} == "50e6" ] ; then
-                  sd_const_multi=4200
-                fi
-                if [ ${ntot} == "150e6" ] ; then
-                  sd_const_multi=12500
-                fi
-                if [ ${ntot} == "300e6" ] ; then
-                  sd_const_multi=25000
-                fi
-              fi
+              #if [ ${sd_conc} == "0" ] ; then
+              #  if [ ${ntot} == "50e6" ] ; then
+              #    sd_const_multi=125000
+              #  fi
+              #  if [ ${ntot} == "150e6" ] ; then
+              #    sd_const_multi=375000
+              #  fi
+              #  if [ ${ntot} == "300e6" ] ; then
+              #    sd_const_multi=750000
+              #  fi
+              #fi
 
               OUTDIR=/mnt/local/pdziekan/wyniki/kid-a/1D/output_SdConc${sd_conc}_SdConstMulti${sd_const_multi}_SstpCond${sstp_cond}_SstpCoal${sstp_coal}_wctrl${wctrl}_ntot${ntot}_${RAIN} && mkdir ${OUTDIR}
   
