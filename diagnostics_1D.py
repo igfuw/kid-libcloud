@@ -83,14 +83,17 @@ def save_bindata(arr, name, unit):
 def diagnostics(particles, arrays, prev_val, it, size_x, size_z, first_timestep):
 
   # super-droplet concentration per grid cell                               
-  particles.diag_all() 
-  particles.diag_sd_conc()
-  #save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "number_of_SDs", "1")
+#  particles.diag_all() 
+#  particles.diag_sd_conc()
+#  save_dg(np.frombuffer(particles.outbuf()).copy().reshape(size_x-2, size_z), it, "number_of_SDs", "1")
 
   # recording puddle
+  particles.diag_all() 
   puddle = particles.diag_puddle();
   #save_dg_scalar(puddle[8] * (4./3) * math.pi, it, "accumulated surface precipitation volume", "m^3")
-  save_dg_scalar(puddle[8] * (4./3) * math.pi * 1000 / 10, it, "surface precipitation rate", "mm/s") # hardcoded dt_output = 10s
+  new_val = puddle[8] * (4./3) * math.pi * 1000
+  save_dg_scalar((new_val - prev_val["acc_surf_precip"]) / 10, it, "surface precipitation rate", "mm/s") # hardcoded dt_output = 10s
+  prev_val["acc_surf_precip"] = new_val
 
   if first_timestep:
     # temporary arrays (allocating only once)                 

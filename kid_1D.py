@@ -10,6 +10,7 @@ import diagnostics_1D as dg
 import os
 import json
 import pdb
+import time
 
 from argparse import ArgumentParser
 
@@ -41,6 +42,7 @@ prev_val["acnv32"] = 0
 prev_val["revp20"] = 0
 prev_val["revp25"] = 0
 prev_val["revp32"] = 0
+prev_val["acc_surf_precip"] = 0
 timestep = 0
 last_diag = -1
 
@@ -52,6 +54,7 @@ prsr.add_argument('--sd_conc', required=False, type=int, default=params["sd_conc
 prsr.add_argument('--sstp_cond', required=False, type=int, default=params["sstp_cond"], help='no of cond substeps')
 prsr.add_argument('--sstp_coal', required=False, type=int, default=params["sstp_coal"], help='no of coal substeps')
 prsr.add_argument('--backend', required=False, type=str, default="None", help='no of coal substeps')
+prsr.add_argument('--sd_const_multi', required=False, type=int, default=0, help='should SDs have same multiplicities')
 args = prsr.parse_args()
 
 params["n_tot"] = args.n_tot # * 1.225 / 1. # 1.225 is air density at stp, 1 is the actual density
@@ -124,7 +127,6 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       #opts_init.z0 = dz # skipping the first sub-terrain level
       opts_init.z0 = 0 
       opts_init.x1, opts_init.z1 = dx * opts_init.nx, dz * opts_init.nz
-      opts_init.sd_conc = int(params["sd_conc"])
       opts_init.dry_distros = { params["kappa"] : lognormal }
       opts_init.sstp_cond, opts_init.sstp_coal = params["sstp_cond"], params["sstp_coal"]
       opts_init.terminal_velocity = libcl.lgrngn.vt_t.beard76
@@ -132,16 +134,24 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       #opts_init.adve_scheme = libcl.lgrngn.as_t.pred_corr
       opts_init.adve_scheme = libcl.lgrngn.as_t.euler
       opts_init.exact_sstp_cond = 1
-      opts_init.sd_conc_large_tail = 1
-      opts_init.n_sd_max = int(1.2 * opts_init.nx*opts_init.nz*opts_init.sd_conc)
+      if args.sd_const_multi > 0:
+        opts_init.sd_const_multi = int(args.sd_const_multi)
+        opts_init.n_sd_max = int(120 * 300000 * 1.2)
+        opts_init.sd_conc = int(0)
+      else:
+        opts_init.sd_conc_large_tail = 1
+        opts_init.sd_conc = int(params["sd_conc"])
+        opts_init.n_sd_max = int(1.2 * opts_init.nx*opts_init.nz*opts_init.sd_conc)
       opts_init.aerosol_independent_of_rhod = 1 # set to true, because rhod is supposed to be =1, but we cannot pass rhod=1 as it is not in agreement with the values of p and theta and would lead to wrong T,RH,etc...
       opts_init.RH_formula = libcl.lgrngn.RH_formula_t.rv_tet
+      opts_init.rng_seed = int(time.time())
+      print 'rng seed = ', opts_init.rng_seed
 
-      print "nx = ", opts_init.nx
-      print "nz = ", opts_init.nz
-      print "dx = ", opts_init.dx
-      print "dz = ", opts_init.dz
-      print "dt = ", opts_init.dt
+      #print "nx = ", opts_init.nx
+      #print "nz = ", opts_init.nz
+      #print "dx = ", opts_init.dx
+      #print "dz = ", opts_init.dz
+      #print "dt = ", opts_init.dt
 
       if args.backend == "multi_CUDA":
         prtcls = libcl.lgrngn.factory(libcl.lgrngn.backend_t.multi_CUDA, opts_init)
@@ -269,13 +279,13 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       for j in range(0, prtcls.opts_init.nz):
         arrays["psat_lib_formula_ante_cond"][i,j] =  libcl.common.p_vs(arrays["T_lib_ante_cond"][i,j])
 
-    if timestep == 0:
-      print "rhod: ", arrays["rhod"]
-      print "thetad: ", arrays["thetad"]
-      print "qv: ", arrays["qv"]
-      print "RH_lib_ante_cond: ", arrays["RH_lib_ante_cond"]
-      print "T_lib_ante_cond: ", arrays["T_lib_ante_cond"]
-      print "T_kid: ", arrays["T_kid"]
+   # if timestep == 0:
+   #   print "rhod: ", arrays["rhod"]
+   #   print "thetad: ", arrays["thetad"]
+   #   print "qv: ", arrays["qv"]
+   #   print "RH_lib_ante_cond: ", arrays["RH_lib_ante_cond"]
+   #   print "T_lib_ante_cond: ", arrays["T_lib_ante_cond"]
+   #   print "T_kid: ", arrays["T_kid"]
 
     # superdroplets: all what have to be done within a timestep
     prtcls.step_sync(opts, arrays["thetad"], arrays["qv"], Cx = arrays["Cx"], Cz = arrays["Cz"]) 

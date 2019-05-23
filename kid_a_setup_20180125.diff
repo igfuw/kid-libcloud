@@ -1,6 +1,6 @@
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/1D_input.nml kid_a_setup/namelists/1D_input.nml
 --- kid_a_original_20180125_setup/namelists/1D_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/1D_input.nml	2019-05-15 15:41:34.166369465 +0200
++++ kid_a_setup/namelists/1D_input.nml	2019-05-15 15:41:01.839241236 +0200
 @@ -3,6 +3,5 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -11,7 +11,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
 --- kid_a_original_20180125_setup/namelists/SC_2D_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/SC_2D_input.nml	2019-05-07 15:04:51.586683523 +0200
++++ kid_a_setup/namelists/SC_2D_input.nml	2019-05-15 15:28:17.740974046 +0200
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -22,7 +22,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/WMO_CASE1_input.nml kid_a_setup/namelists/WMO_CASE1_input.nml
 --- kid_a_original_20180125_setup/namelists/WMO_CASE1_input.nml	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/namelists/WMO_CASE1_input.nml	2019-05-07 15:04:51.590683521 +0200
++++ kid_a_setup/namelists/WMO_CASE1_input.nml	2019-05-15 15:28:17.740974046 +0200
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -33,7 +33,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
  /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/common_physics.f90 kid_a_setup/src/common_physics.f90
 --- kid_a_original_20180125_setup/src/common_physics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/common_physics.f90	2019-05-07 15:04:51.590683521 +0200
++++ kid_a_setup/src/common_physics.f90	2019-05-15 15:28:17.740974046 +0200
 @@ -22,6 +22,10 @@
    Interface qisaturation
       module procedure qisaturation_sp, qisaturation_dp
@@ -79,7 +79,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
      !
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
 --- kid_a_original_20180125_setup/src/compiler_options.inc	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/compiler_options.inc	2019-05-07 15:04:51.590683521 +0200
++++ kid_a_setup/src/compiler_options.inc	2019-05-15 15:28:17.740974046 +0200
 @@ -56,7 +56,7 @@
  LNCDF=-L$(NCPATH)/lib -lnetcdff -lnetcdf
  LDFLAGS=$(INCDF) $(LNCDF)
@@ -91,7 +91,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/derived_fields.f90 kid_a_setup/src/derived_fields.f90
 --- kid_a_original_20180125_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/derived_fields.f90	2019-05-08 12:01:57.663247531 +0200
++++ kid_a_setup/src/derived_fields.f90	2019-05-15 15:28:17.741974043 +0200
 @@ -13,7 +13,7 @@
    Use column_variables
    Use interpolation, only: interpolate, make_wgrid, make_vgrid &
@@ -124,7 +124,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
         ! If we need a staggered grid in horizontal
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
 --- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/diagnostics.f90	2019-05-08 12:04:15.923257827 +0200
++++ kid_a_setup/src/diagnostics.f90	2019-05-15 15:28:17.743974039 +0200
 @@ -14,13 +14,15 @@
    Use parameters
    Use column_variables
@@ -1236,7 +1236,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
    subroutine check_ncstatus(status, name)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/main.f90 kid_a_setup/src/main.f90
 --- kid_a_original_20180125_setup/src/main.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/main.f90	2019-05-09 11:55:13.249338026 +0200
++++ kid_a_setup/src/main.f90	2019-05-15 15:28:17.743974039 +0200
 @@ -88,16 +88,18 @@
         end if
  
@@ -1260,7 +1260,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
  
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/makefile.inc kid_a_setup/src/makefile.inc
 --- kid_a_original_20180125_setup/src/makefile.inc	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/makefile.inc	2019-05-07 15:04:51.590683521 +0200
++++ kid_a_setup/src/makefile.inc	2019-05-15 15:28:17.744974037 +0200
 @@ -29,7 +29,7 @@
  OBJS=$(OBJSF) $(OBJSF90)
  
@@ -1288,7 +1288,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
 +	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/mphys_interface.f90 kid_a_setup/src/mphys_interface.f90
 --- kid_a_original_20180125_setup/src/mphys_interface.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/mphys_interface.f90	2019-05-07 15:04:51.590683521 +0200
++++ kid_a_setup/src/mphys_interface.f90	2019-05-15 15:28:17.744974037 +0200
 @@ -19,6 +19,7 @@
  #if SHIPWAY_MICRO == 1
    Use mphys_4A, only: mphys_4A_interface
@@ -1309,7 +1309,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
    end subroutine mphys_column
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/namelists.f90 kid_a_setup/src/namelists.f90
 --- kid_a_original_20180125_setup/src/namelists.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/namelists.f90	2019-05-15 14:58:19.873379144 +0200
++++ kid_a_setup/src/namelists.f90	2019-05-15 15:28:17.744974037 +0200
 @@ -86,7 +86,7 @@
    character(200) :: fileName=''
    character(200) :: fileNameIn=''
@@ -1349,7 +1349,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
         print*, 'Did you mean:' 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/switches.f90 kid_a_setup/src/switches.f90
 --- kid_a_original_20180125_setup/src/switches.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/switches.f90	2019-05-07 15:04:51.590683521 +0200
++++ kid_a_setup/src/switches.f90	2019-05-15 15:28:17.745974034 +0200
 @@ -96,7 +96,8 @@
         ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
         ,imphys_wsm6             =10 & ! WSM6 scheme
@@ -1362,7 +1362,7 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_
    integer, parameter ::    & 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/test_cases.f90 kid_a_setup/src/test_cases.f90
 --- kid_a_original_20180125_setup/src/test_cases.f90	2017-11-10 14:43:55.000000000 +0100
-+++ kid_a_setup/src/test_cases.f90	2019-05-08 15:59:09.033339197 +0200
++++ kid_a_setup/src/test_cases.f90	2019-05-15 15:28:17.745974034 +0200
 @@ -236,7 +236,7 @@
         !==============================================
         ! Set default control values
