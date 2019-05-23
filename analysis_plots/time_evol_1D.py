@@ -24,7 +24,8 @@ Variable_name_l = ["rain_water_path_r20", "rain_water_path_r25", "rain_water_pat
 Variable_plot_l = Variable_name_l# + ["total_water_mass"]#, "cloud+rain_mass", "LWP"]
 
 prsr = ArgumentParser(add_help=True, description='TODO')
-prsr.add_argument('--outdir', default="", help='output directory from kid_a_setup/output')
+prsr.add_argument('--outfile', default="", help='output file from kid_a')
+prsr.add_argument('--outfile2', default="", help='output file from kid_a')
 args = prsr.parse_args()
 
 # reading variables from the netcdf file
@@ -52,23 +53,26 @@ def time_evolution(var_name_l, var_d, var_u, nr_subpl, nr_fig):
         nr_pl += 1
         plt.ylabel(var + '[' + var_u[var] + ']', fontsize=10)
         plt.xlabel(r'time [s]', fontsize=10)
-        
+
+
+
+def main(filename1, filename2, variable_name_l=Variable_name_l, variable_plot_l=Variable_plot_l, nr_subpl=len(Variable_plot_l)):
+    for filename in filename1, filename2:
+      try:
+        nf = netcdf.netcdf_file(filename, 'r')
+        var_d, var_u = reading_netcdf(nf, variable_name_l)
+        #var_d["total_water_mass"] = var_d["vapour"] + var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
+    #    var_d["total_water_mass"] = var_d["vapour"] + var_d["liquid_drops_mass"]
+        #var_d["LWP"] = var_d["liquid_drops_mass"] * 25. # dz = 25 m
+        #var_d["cloud+rain_mass"] = var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
+        variable_plot_lpl = [variable_plot_l[i:i+nr_subpl] for i in xrange(0, len(variable_plot_l), nr_subpl)]
+        #nr_fig = 1
+        for var_name in variable_plot_lpl:
+            time_evolution(var_name, var_d, var_u, nr_subpl, 0)
+            #nr_fig += 1
+      except:
+        print "error reading?"
     #plt.savefig("time_evolution_" + "-".join(var_name_l) + ".pdf")
     plt.show()
 
-
-
-def main(filename, variable_name_l=Variable_name_l, variable_plot_l=Variable_plot_l, nr_subpl=len(Variable_plot_l)):
-    nf = netcdf.netcdf_file(filename, 'r')
-    var_d, var_u = reading_netcdf(nf, variable_name_l)
-    #var_d["total_water_mass"] = var_d["vapour"] + var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
-#    var_d["total_water_mass"] = var_d["vapour"] + var_d["liquid_drops_mass"]
-    #var_d["LWP"] = var_d["liquid_drops_mass"] * 25. # dz = 25 m
-    #var_d["cloud+rain_mass"] = var_d["cloud_mass_r20um"] + var_d["rain_mass_r20um"]
-    variable_plot_lpl = [variable_plot_l[i:i+nr_subpl] for i in xrange(0, len(variable_plot_l), nr_subpl)]
-    nr_fig = 1
-    for var_name in variable_plot_lpl:
-        time_evolution(var_name, var_d, var_u, nr_subpl, nr_fig)
-        nr_fig += 1
-
-main(os.path.join(args.outdir, "1D_out.nc"))
+main(args.outfile, args.outfile2)
