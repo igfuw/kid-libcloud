@@ -51,7 +51,7 @@ script:
   - cd ..
   - git clone --depth=1 git://github.com/igfuw/libcloudphxx.git
   - cd libcloudphxx
-  - git checkout kidA-1D
+  - git checkout kida-1d
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
