@@ -88,12 +88,12 @@ script:
   - ncap2 -A -s "diff_flag=liquid_water_path<1e-3 && liquid_water_path>-1e-3" diff.nc
   - ncra diff.nc diff_mean.nc
   #- ncks --trd -V -v diff_flag -C -H diff_mean.nc  | grep -q '1'
-  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; assert json.load(sys.stdin)['variables']['diff_flag']['data']==[1]"
+  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; print json.load(sys.stdin); assert json.load(sys.stdin)['variables']['diff_flag']['data']==[1]"
   - cd ..
 
   # run 1D case with w=2m/s
   - sed -i 's/wctrl(1)=3/wctrl(1)=2/g' namelists/kida_icmw1D_libcloud_lgr.nml
-  - FILEOUT=output LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1d.py --backend=OpenMP
+  - FILEOUT=output LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1D.py --backend=OpenMP
   # test the results
   - cd output
   - ncdiff -v liquid_water_path 1D_out.nc ../../refdata/w2_N50_NORAIN.nc diff.nc
