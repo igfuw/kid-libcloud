@@ -12,6 +12,7 @@ addons:
       - gfortran
       - nco
       - libnetcdff-dev 
+      - libnetcdf-dev 
       - python-numpy 
       - python-cffi 
       - libblitz0-dev 
