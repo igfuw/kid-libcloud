@@ -56,7 +56,7 @@ install:
 script:
   # install libcloudphxx in RelWithDebInfo mode
   - cd ..
-  - git clone --depth=1 git://github.com/igfuw/libcloudphxx.git
+  - git clone --single-branch --branch kida-1d --depth=1 git://github.com/igfuw/libcloudphxx.git
   - cd libcloudphxx
   - git checkout kida-1d
   - mkdir build
@@ -78,8 +78,7 @@ script:
 
   # run 1D case with w=3m/s
   - make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
-  - mkdir output
-  - FILEOUT=output LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1d.py --backend=OpenMP
+  - FILEOUT=output LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1D.py --backend=OpenMP
   # test the results
   - cd output
   - ncdiff -v liquid_water_path 1D_out.nc ../../refdata/w3_N50_NORAIN.nc diff.nc
