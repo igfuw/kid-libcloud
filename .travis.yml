@@ -11,17 +11,17 @@ addons:
       - boost1.61
       - gfortran
       - nco
-      - libnetcdfc7
       - libnetcdf-dev 
       - python-numpy 
       - python-cffi 
       - libblitz0-dev 
       - python-pytest
       - libthrust-dev
+#      - libnetcdfc7
     sources: &sources
       - sourceline: 'ppa:rakhimov/boost'
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-trusty-4.0
+#      - llvm-toolchain-trusty-4.0
 
 notifications:
   email: false
@@ -29,8 +29,8 @@ notifications:
 before_install:
 # to avoid python lib/interpreter mismatch; https://github.com/travis-ci/travis-ci/issues/5326
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse restricted"; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export apt_get_install="apt-get install -t trusty --no-install-recommends -y"; fi
+#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse restricted"; fi
+#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export apt_get_install="apt-get install -t trusty --no-install-recommends -y"; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
 
   # locally installed stuff comes first
