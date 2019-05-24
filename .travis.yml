@@ -8,6 +8,8 @@ addons:
     packages:
       - g++-6
       - boost1.61
+      - gfortran
+      - nco
     sources: &sources
       - sourceline: 'ppa:rakhimov/boost'
       - ubuntu-toolchain-r-test
