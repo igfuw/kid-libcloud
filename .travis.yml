@@ -85,11 +85,10 @@ script:
   - cd output
   - ncdiff -O -v liquid_water_path 1D_out.nc ../../refdata/w3_N50_NORAIN.nc diff.nc
   # check if the difference is small enough
-  - ncap2 -A -s "diff_flag=liquid_water_path<1e-3 && liquid_water_path>-1e-3" diff.nc
+  - ncap2 -A -s "diff_flag=liquid_water_path<1.5e-3 && liquid_water_path>-1.5e-3" diff.nc
   - ncra -O diff.nc diff_mean.nc
-  #- ncks --trd -V -v diff_flag -C -H diff_mean.nc  | grep -q '1'
   - ncks --jsn -V -v diff_flag -C -H diff_mean.nc
-  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; print json.load(sys.stdin); assert json.load(sys.stdin)['variables']['diff_flag']['data']==[1]"
+  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; assert json.load(sys.stdin)['data']==[1]"
   - cd ..
 
   # run 1D case with w=2m/s
@@ -99,7 +98,8 @@ script:
   - cd output
   - ncdiff -O -v liquid_water_path 1D_out.nc ../../refdata/w2_N50_NORAIN.nc diff.nc
   # check if the difference is small enough
-  - ncap2 -A -s "diff_flag=liquid_water_path<1e-3 && liquid_water_path>-1e-3" diff.nc
+  - ncap2 -A -s "diff_flag=liquid_water_path<1.5e-3 && liquid_water_path>-1.5e-3" diff.nc
   - ncra -O diff.nc diff_mean.nc
-  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; assert json.load(sys.stdin)['variables']['diff_flag']['data']==[1]"
+  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc
+  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; assert json.load(sys.stdin)['data']==[1]"
   - cd ..
