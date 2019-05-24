@@ -1,43 +1,80 @@
 language: cpp
-os:
+os: 
   - linux
 compiler:
   - gcc
+addons:
+  apt:
+    packages:
+      - g++-6
+      - boost1.61
+    sources: &sources
+      - sourceline: 'ppa:rakhimov/boost'
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-trusty-4.0
+
+notifications:
+  email: false
 
 before_install:
-  - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse"
-  - sudo apt-get update
+# to avoid python lib/interpreter mismatch; https://github.com/travis-ci/travis-ci/issues/5326
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse restricted"; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export apt_get_install="apt-get install -t trusty --no-install-recommends -y"; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
+
+  # locally installed stuff comes first
+  - export PATH=/usr/local/bin:$PATH
 
 install:
-  - if [[ $CXX == 'clang++' ]]; then sudo apt-get install --no-install-recommends clang; fi
-  - if [[ $CXX == 'g++'     ]]; then sudo apt-get install --no-install-recommends g++ ; fi
-  - sudo apt-get install --no-install-recommends libnetcdfc7
-  - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi libblitz0-dev cmake libboost-python-dev libthrust-dev
+#compiler
+  - if [[ $TRAVIS_OS_NAME == 'linux' && $CXX == 'g++'     ]]; then export CC=gcc-6; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' && $CXX == 'g++'     ]]; then export CXX=g++-6; fi
 
-# get boost odeint > 1.58
-  - git clone --depth=1 https://github.com/boostorg/odeint.git
-  - sudo rm -f /usr/include/boost/numeric/odeint.hpp
-  - sudo rm -rf /usr/include/boost/numeric/odeint
-  - sudo ln -s `pwd`/odeint/include/boost/numeric/odeint.hpp /usr/include/boost/numeric/odeint.hpp
-  - sudo ln -s `pwd`/odeint/include/boost/numeric/odeint  /usr/include/boost/numeric/
+# cmake 
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo sh cmake-3.13.2-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir; fi
 
-  # libcloudphxx
+# recent boost is installed using addons functionality
+
+#libcloudphxx dependencies
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo $apt_get_install libblitz0-dev python-numpy python-scipy libthrust-dev python-pytest; fi
+
+# newest thrust
+  - git clone --depth=1 git://github.com/thrust/thrust.git;
+  - sudo ln -s `pwd`/thrust/thrust /usr/local/include/thrust;
+
+script:
+  # install libcloudphxx in RelWithDebInfo mode
   - cd ..
   - git clone --depth=1 git://github.com/igfuw/libcloudphxx.git
   - cd libcloudphxx
+  - git checkout kidA-1D
   - mkdir build
   - cd build
-  - if [[ $CXX == 'clang++' ]]; then cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ../; fi # Travis default is not the packaged one
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+  - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
   - make
   - sudo make install
   - cd ../..
 
-script:
   - cd kid-libcloud
   - gcc -fPIC -shared ptrutil.c -o ptrutil.so
-  - tar xvzf kid_a_setup-201506.tar.gz
+  - tar xvzf kid_a_setup-20180125.tar.gz
+  - cp mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90 
+  - cp kida_icmwSC_2D_libcloud_lgr.nml kid_a_setup/namelists/
+  - cp kida_icmw1D_libcloud_lgr.nml kid_a_setup/namelists/
+  - cp ICMW_SC_input.nml kid_a_setup/namelists/
   - cd kid_a_setup
-  - patch -p1 < ../kid_a_setup.diff
-  - make SHELL=/bin/bash CASE=WMO_CASE1 COMPILER=gfortran NCPATH=/usr all
-  - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py
+  - patch -p1 < ../kid_a_setup_20180125.diff
+  # run 1D case:
+  - make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
+  - mkdir output
+  - FILEOUT=output LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1d.py --backend=OpenMP
+  # test the results
+  - cd output
+  - ncdiff -v liquid_water_path 1D_out.nc ../../refdata/1D_out.nc diff.nc
+  # check if the difference is small enough
+  - ncap2 -A -s "diff_flag=liquid_water_path<1e-3 && liquid_water_path>-1e-3" diff.nc
+  - ncra diff.nc diff_mean.nc
+  - ncks --trd -V -v diff_flag -C -H diff_mean.nc  | grep -q '0'
+
