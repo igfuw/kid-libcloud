@@ -10,6 +10,14 @@ addons:
       - boost1.61
       - gfortran
       - nco
+      - libnetcdfc7
+      - libnetcdf-dev 
+      - python-numpy 
+      - python-cffi 
+      - libblitz0-dev 
+      - libboost-python-dev 
+      - python-pytest
+      - libthrust-dev
     sources: &sources
       - sourceline: 'ppa:rakhimov/boost'
       - ubuntu-toolchain-r-test
@@ -40,7 +48,7 @@ install:
 # recent boost is installed using addons functionality
 
 #libcloudphxx dependencies
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo $apt_get_install libblitz0-dev python-numpy python-scipy libthrust-dev python-pytest; fi
+#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo $apt_get_install libblitz0-dev python-numpy python-scipy libthrust-dev python-pytest; fi
 
 # newest thrust
   - git clone --depth=1 git://github.com/thrust/thrust.git;
