@@ -87,6 +87,12 @@ script:
   # check if the difference is small enough
   - ncap2 -A -s "diff_flag=liquid_water_path<1.5e-3 && liquid_water_path>-1.5e-3" diff.nc
   - ncra -O diff.nc diff_mean.nc
+  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
+  - ncks --jsn -v diff_flag -C -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
+  - ncks --jsn -V -v diff_flag -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
+  - ncks --jsn -V -v diff_flag -C diff_mean.nc | python -c "import sys; print sys.stdin.read();"
+  - ncks --jsn -v diff_flag diff_mean.nc | python -c "import sys; print sys.stdin.read();"
+  - ncks --xml -V -v diff_flag -C -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
   - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; print sys.stdin.read(); print json.load(sys.stdin); print json.load(sys.stdin)['data']; assert json.load(sys.stdin)['data']==[1]"
   - cd ..
 
