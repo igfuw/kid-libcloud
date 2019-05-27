@@ -87,8 +87,7 @@ script:
   # check if the difference is small enough
   - ncap2 -A -s "diff_flag=liquid_water_path<1.5e-3 && liquid_water_path>-1.5e-3" diff.nc
   - ncra -O diff.nc diff_mean.nc
-  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc
-  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; assert json.load(sys.stdin)['data']==[1]"
+  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; print sys.stdin.read(); print json.load(sys.stdin); print json.load(sys.stdin)['data']; assert json.load(sys.stdin)['data']==[1]"
   - cd ..
 
   # run 1D case with w=2m/s
@@ -100,6 +99,5 @@ script:
   # check if the difference is small enough
   - ncap2 -A -s "diff_flag=liquid_water_path<1.5e-3 && liquid_water_path>-1.5e-3" diff.nc
   - ncra -O diff.nc diff_mean.nc
-  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc
   - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; assert json.load(sys.stdin)['data']==[1]"
   - cd ..
