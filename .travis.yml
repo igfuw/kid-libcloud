@@ -31,8 +31,6 @@ notifications:
 before_install:
 # to avoid python lib/interpreter mismatch; https://github.com/travis-ci/travis-ci/issues/5326
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
-#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse restricted"; fi
-#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export apt_get_install="apt-get install -t trusty --no-install-recommends -y"; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
 
   # locally installed stuff comes first
@@ -46,11 +44,6 @@ install:
 # cmake 
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo sh cmake-3.13.2-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir; fi
-
-# recent boost is installed using addons functionality
-
-#libcloudphxx dependencies
-#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo $apt_get_install libblitz0-dev python-numpy python-scipy libthrust-dev python-pytest; fi
 
 # newest thrust
   - git clone --depth=1 git://github.com/thrust/thrust.git;
@@ -87,17 +80,8 @@ script:
   # check if the difference is small enough
   - ncap2 -A -s "diff_flag=liquid_water_path<1.5e-3 && liquid_water_path>-1.5e-3" diff.nc
   - ncra -O diff.nc diff_mean.nc
-#  - ncdump -v diff_flag diff_mean.nc | grep 'diff_flag = 1'
   - ncks -V -v diff_flag -C -H diff_mean.nc
   - ncks -V -v diff_flag -C -H diff_mean.nc | grep '1'
-
-#  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
-#  - ncks --jsn -v diff_flag -C -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
-#  - ncks --jsn -V -v diff_flag -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
-#  - ncks --jsn -V -v diff_flag -C diff_mean.nc | python -c "import sys; print sys.stdin.read();"
-#  - ncks --jsn -v diff_flag diff_mean.nc | python -c "import sys; print sys.stdin.read();"
-#  - ncks --xml -V -v diff_flag -C -H diff_mean.nc | python -c "import sys; print sys.stdin.read();"
-#  - ncks --jsn -V -v diff_flag -C -H diff_mean.nc | python -c "import sys, json; print sys.stdin.read(); print json.load(sys.stdin); print json.load(sys.stdin)['data']; assert json.load(sys.stdin)['data']==[1]"
   - cd ..
 
   # run 1D case with w=2m/s
