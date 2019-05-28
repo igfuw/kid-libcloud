@@ -1,6 +1,6 @@
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
---- kid_a_setup.orig/namelists/SC_2D_input.nml	2014-07-23 17:16:13.000000000 +0200
-+++ kid_a_setup/namelists/SC_2D_input.nml	2014-11-24 12:52:23.968646937 +0100
+--- kid_a_setup.orig/namelists/SC_2D_input.nml	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/namelists/SC_2D_input.nml	2015-08-18 12:19:50.307569068 +0200
 @@ -3,6 +3,6 @@
  ! comment out this call (in namelists.nml) and use this file to input
  ! the value.
@@ -9,9 +9,20 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
  fileOut='output/SC_2D_out.nc'
  /
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/namelists/WMO_CASE1_input.nml kid_a_setup/namelists/WMO_CASE1_input.nml
+--- kid_a_setup.orig/namelists/WMO_CASE1_input.nml	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/namelists/WMO_CASE1_input.nml	2015-08-18 13:06:38.503423920 +0200
+@@ -3,6 +3,6 @@
+ ! comment out this call (in namelists.nml) and use this file to input
+ ! the value.
+ &namelistToUse
+-fileIn='namelists/WMO_CASE1.nml'
++fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
+ fileOut='output/WMO_CASE1_out.nc'
+ /
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
---- kid_a_setup.orig/src/compiler_options.inc	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/compiler_options.inc	2014-11-24 12:52:23.968646937 +0100
+--- kid_a_setup.orig/src/compiler_options.inc	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/src/compiler_options.inc	2015-08-18 12:19:50.307569068 +0200
 @@ -53,10 +53,11 @@
  LD=$(F90)   # Linker
  
@@ -26,8 +37,8 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  F2PY=/usr/local/cdat/bin/f2py 
  F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
---- kid_a_setup.orig/src/diagnostics.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/diagnostics.f90	2015-01-02 17:45:24.951787310 +0100
+--- kid_a_setup.orig/src/diagnostics.f90	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/src/diagnostics.f90	2015-08-18 15:19:25.619012121 +0200
 @@ -21,6 +21,8 @@
  
    Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
@@ -774,8 +785,8 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
    subroutine check_ncstatus(status, name)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/main.f90 kid_a_setup/src/main.f90
---- kid_a_setup.orig/src/main.f90	2014-07-25 10:17:27.000000000 +0200
-+++ kid_a_setup/src/main.f90	2014-12-30 20:33:12.091361917 +0100
+--- kid_a_setup.orig/src/main.f90	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/src/main.f90	2015-08-18 12:19:50.311569067 +0200
 @@ -97,7 +97,8 @@
  
      end do
@@ -787,8 +798,8 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
    end subroutine main_loop
  
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/makefile.inc kid_a_setup/src/makefile.inc
---- kid_a_setup.orig/src/makefile.inc	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/makefile.inc	2014-12-09 16:44:09.923562471 +0100
+--- kid_a_setup.orig/src/makefile.inc	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/src/makefile.inc	2015-08-18 12:19:50.311569067 +0200
 @@ -29,7 +29,7 @@
  OBJS=$(OBJSF) $(OBJSF90)
  
@@ -815,17 +826,17 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
 +$(SHARED_LIB): $(OBJS) $(OBJPTRUTIL) $(OBJSF90_UM) $(OBJSF90_4A)
 +	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/mphys_interface.f90 kid_a_setup/src/mphys_interface.f90
---- kid_a_setup.orig/src/mphys_interface.f90	2014-07-25 10:17:27.000000000 +0200
-+++ kid_a_setup/src/mphys_interface.f90	2014-11-24 12:52:23.972646937 +0100
+--- kid_a_setup.orig/src/mphys_interface.f90	2015-07-06 19:54:49.000000000 +0200
++++ kid_a_setup/src/mphys_interface.f90	2015-08-18 12:19:50.311569067 +0200
 @@ -19,6 +19,7 @@
  #if SHIPWAY_MICRO == 1
    Use mphys_4A, only: mphys_4A_interface
  #endif
 +  Use mphys_libcloud_lgr, only: mphys_libcloud_lgr_interface
    Use switches
- 
- contains
-@@ -44,6 +45,9 @@
+   Use column_variables, only: theta, dtheta_adv, dtheta_div
+   Use pressure_update, only : exner_timestep_upd
+@@ -54,6 +55,9 @@
      case(imphys_4A)         ! Shipway 4A scheme
         call mphys_4A_interface
  #endif
@@ -836,23 +847,21 @@ diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.
  
    end subroutine mphys_column
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/namelists.f90 kid_a_setup/src/namelists.f90
---- kid_a_setup.orig/src/namelists.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/namelists.f90	2014-11-24 12:52:23.972646937 +0100
-@@ -173,6 +173,11 @@
+--- kid_a_setup.orig/src/namelists.f90	2015-07-06 19:56:43.000000000 +0200
++++ kid_a_setup/src/namelists.f90	2015-08-18 12:30:04.475537323 +0200
+@@ -177,6 +177,9 @@
      case('4A')
         imphys=imphys_4A
         mphys_id='4A'
 +    case('libcloud_lgr')
 +       imphys=imphys_libcloud_lgr
 +       mphys_id='libcloud_lgr'
-+
-+
-      case default
+     case default
         print*, 'Mphys scheme not recognized: ', mphys_scheme
         print*, 'Did you mean:' 
 diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output' '--exclude=gmon.out' kid_a_setup.orig/src/switches.f90 kid_a_setup/src/switches.f90
---- kid_a_setup.orig/src/switches.f90	2014-07-25 10:17:28.000000000 +0200
-+++ kid_a_setup/src/switches.f90	2014-11-24 12:52:23.972646937 +0100
+--- kid_a_setup.orig/src/switches.f90	2015-06-02 09:23:07.000000000 +0200
++++ kid_a_setup/src/switches.f90	2015-08-18 12:19:50.315569067 +0200
 @@ -96,7 +96,8 @@
         ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
         ,imphys_wsm6             =10 & ! WSM6 scheme

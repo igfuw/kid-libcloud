@@ -1,0 +1,1374 @@
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/1D_input.nml kid_a_setup/namelists/1D_input.nml
+--- kid_a_original_20180125_setup/namelists/1D_input.nml	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/namelists/1D_input.nml	2019-05-15 15:41:01.839241236 +0200
+@@ -3,6 +3,5 @@
+ ! comment out this call (in namelists.nml) and use this file to input
+ ! the value.
+ &namelistToUse
+-fileIn='namelists/1D.nml'
+-fileOut='output/1D_out.nc'
++fileIn='namelists/kida_icmw1D_libcloud_lgr.nml'
+ /
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/SC_2D_input.nml kid_a_setup/namelists/SC_2D_input.nml
+--- kid_a_original_20180125_setup/namelists/SC_2D_input.nml	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/namelists/SC_2D_input.nml	2019-05-15 15:28:17.740974046 +0200
+@@ -3,6 +3,6 @@
+ ! comment out this call (in namelists.nml) and use this file to input
+ ! the value.
+ &namelistToUse
+-fileIn='namelists/SC_2D.nml'
++fileIn='namelists/kida_icmwSC_2D_libcloud_lgr.nml'
+ fileOut='output/SC_2D_out.nc'
+ /
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/namelists/WMO_CASE1_input.nml kid_a_setup/namelists/WMO_CASE1_input.nml
+--- kid_a_original_20180125_setup/namelists/WMO_CASE1_input.nml	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/namelists/WMO_CASE1_input.nml	2019-05-15 15:28:17.740974046 +0200
+@@ -3,6 +3,6 @@
+ ! comment out this call (in namelists.nml) and use this file to input
+ ! the value.
+ &namelistToUse
+-fileIn='namelists/WMO_CASE1.nml'
++fileIn='namelists/kida_SC_2D_libcloud_lgr.nml'
+ fileOut='output/WMO_CASE1_out.nc'
+ /
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/common_physics.f90 kid_a_setup/src/common_physics.f90
+--- kid_a_original_20180125_setup/src/common_physics.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/common_physics.f90	2019-05-15 15:28:17.740974046 +0200
+@@ -22,6 +22,10 @@
+   Interface qisaturation
+      module procedure qisaturation_sp, qisaturation_dp
+   end Interface
++
++  Interface psaturation
++     module procedure psaturation_sp, psaturation_dp
++  end Interface
+   
+ contains
+ 
+@@ -81,6 +85,31 @@
+ 
+   END FUNCTION Qsaturation_dp
+ 
++  REAL(SP) FUNCTION Psaturation_sp (T)  
++    IMPLICIT NONE  
++    ! Tetens formula
++    !
++    real(sp), INTENT (IN) :: T 
++    ! Temperature in Kelvin
++    real(sp), PARAMETER::tk0c = 273.15, mul = 0.61078, num_mul = 17.27, den_add = 237.3
++
++    psaturation_sp = mul * EXP (num_mul * (T - tk0c) / ((T-tk0c) + den_add))
++
++  END FUNCTION Psaturation_sp
++
++  REAL(DP) FUNCTION Psaturation_dp (T)  
++    IMPLICIT NONE  
++    ! Tetens formula
++    !
++    real(dp), INTENT (IN) :: T 
++    ! Temperature in Kelvin
++    ! return pressure in hPa
++    real(dp), PARAMETER::tk0c = 273.15, mul = 6.1078, num_mul = 17.27, den_add = 237.3
++
++    psaturation_dp = mul * EXP (num_mul * (T - tk0c) / ((T-tk0c) + den_add))
++
++  END FUNCTION Psaturation_dp
++
+   REAL(SP) FUNCTION QIsaturation_sp (T, p)  
+     IMPLICIT NONE  
+     !
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/compiler_options.inc kid_a_setup/src/compiler_options.inc
+--- kid_a_original_20180125_setup/src/compiler_options.inc	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/compiler_options.inc	2019-05-15 15:28:17.740974046 +0200
+@@ -56,7 +56,7 @@
+ LNCDF=-L$(NCPATH)/lib -lnetcdff -lnetcdf
+ LDFLAGS=$(INCDF) $(LNCDF)
+ 
+-EXECUTABLE=$(MODEL)_$(CASE).exe
++SHARED_LIB=$(MODEL)_$(CASE).so
+ 
+ F2PY=/usr/local/cdat/bin/f2py 
+ F2PY_OPTS=--fcompiler-exec=$(COMPILER) $(LDFLAGS) 
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/derived_fields.f90 kid_a_setup/src/derived_fields.f90
+--- kid_a_original_20180125_setup/src/derived_fields.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/derived_fields.f90	2019-05-15 15:28:17.741974043 +0200
+@@ -13,7 +13,7 @@
+   Use column_variables
+   Use interpolation, only: interpolate, make_wgrid, make_vgrid &
+        ,interpolate_x
+-  Use physconst, only : r_on_cp, g, p0, pi
++  Use physconst, only : r_on_cp, g, p0, pi, R, Rw
+   Use switches, only : icase
+ 
+   Implicit none
+@@ -28,11 +28,19 @@
+     integer :: k,j
+ 
+     TdegK(:,:)=exner(:,:)*theta(:,:)
++    ! calc partial pressure of druy air
+     pmb(:,:)=.01*p0*exner(:,:)**(1./r_on_cp)
++    ! add partial pressure of water vapor
++!!    do j = 1,nx
++!!    pmb(:, :) = pmb(:, :) + p0*exner(:,:)**(1./r_on_cp-1.)/ &
++!!                (R*theta(:, :)) * qv(:, :) * Rw
++!    ! p = p_d + rho_d * q_v * R_v * T
++!    pmb(:, :) = pmb(:, :) + pmb(:,:) / R * qv(:, :) * Rw
++!!    end do
+ 
+     ! If we need a staggered grid in vertical...
+ 
+-    if (icase /= 650) then 
++    if (icase /= 650 .OR. icase /= 101) then 
+        call make_wgrid(z,z_half)
+        if ( nx > 1 ) then 
+        ! If we need a staggered grid in horizontal
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/diagnostics.f90 kid_a_setup/src/diagnostics.f90
+--- kid_a_original_20180125_setup/src/diagnostics.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/diagnostics.f90	2019-05-15 15:28:17.743974039 +0200
+@@ -14,13 +14,15 @@
+   Use parameters
+   Use column_variables
+   Use runtime
+-  Use physconst, only: r_on_cp, p0
+-  Use common_physics, only : qsaturation, qisaturation
++  Use physconst, only: r_on_cp, p0, R, Rw
++  Use common_physics, only : qsaturation, qisaturation, psaturation
+   Use header_data
+   Use switches, only: l_diverge
+ 
+   Use namelists, only: KiD_outdir, KiD_outfile, fileNameOut
+ 
++  use iso_c_binding, only: c_int, c_float, c_char
++
+   Implicit none
+ 
+   type, public :: dgID
+@@ -390,13 +392,28 @@
+     !RH liquid
+      do k=1,nz
+         if (z(k) < 20000.)then
++! approx RH=qv/qvs
+            field(k)= 100.*qv(k,nx)/ &
+                 qsaturation(TdegK(k,nx),pmb(k,nx))
++! exact RH = pv/pvs = rhod * qv * Rv * T / pvs
++!          = pd / (T * Rd) * qv * Rv * T / pvs
++!          = p0 * Ex^(cp/Rd) / Rd * qv * Rv / pvs
++!            field(k)= p0*exner(k,nx)**(1./r_on_cp) / R * &
++!                qv(k,nx) * Rw / &
++!                psaturation(TdegK(k,nx))
+         else
+            field(k)=unset_real
+         end if
+      end do
+      call save_dg(field(:)*field_mask(:,nx), 'RH', i_dgtime, units, dims)
++     do k=1,nz
++        if (z(k) < 20000.)then
++            field(k)= psaturation(TdegK(k,nx))
++        else
++           field(k)=unset_real
++        end if
++     end do
++     call save_dg(field(:)*field_mask(:,nx), 'psat', i_dgtime, units, dims)
+ 
+     !RH ice
+      do k=1,nz
+@@ -468,6 +485,10 @@
+          write (unit=6,fmt='(T3, i3, a)') int(100*i_dgtime&
+          &/float(maxn_dgtimes)), '% completed...'
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++call write_diagnostics                                    !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
+   end subroutine save_diagnostics_1d
+ 
+   subroutine save_diagnostics_2d
+@@ -838,13 +859,15 @@
+     deallocate(field_bin_r)
+ 
+     n_dgtimes=i_dgtime
+-
+     ! Write out progress indicator in 2% chunks.
+     if ( mod( int(100*i_dgtime/float(maxn_dgtimes)), 2) < &
+          mod( int(100*(i_dgtime-1)/float(maxn_dgtimes)), 2) ) &
+          write (unit=6,fmt='(T3, i3, a)') int(100*i_dgtime&
+          &/float(maxn_dgtimes)), '% completed...'
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++call write_diagnostics                                    !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   end subroutine save_diagnostics_2d
+ 
+   subroutine allocate_dgs_1DTS(dgStore)
+@@ -858,13 +881,13 @@
+     if (nx == 1) then 
+        
+        maxn_dgtimes=max(maxn_dgtimes, int(n_dgtimes*dt/dg_dt)+1)
+-       allocate(dgStore%data(nz, maxn_dgtimes))
++       allocate(dgStore%data(nz, 2))                      !!!!
+        dgStore%data=unset_real
+        
+     else
+ 
+        maxn_dgtimes=max(maxn_dgtimes, int(n_dgtimes*dt/dg_dt)+1)
+-       allocate(dgStore%data(1:nx, maxn_dgtimes))
++       allocate(dgStore%data(1:nx, 2))                    !!!!
+        dgStore%data=unset_real      
+ 
+     endif
+@@ -880,7 +903,7 @@
+     n_dgtimes = n_times - n_offset 
+     
+     maxn_dgtimes=max(maxn_dgtimes, int(n_dgtimes*dt/dg_dt)+1) 
+-    allocate(dgStore%data(nz, 1:nx, maxn_dgtimes))
++    allocate(dgStore%data(nz, 1:nx, 2))                   !!!!
+     dgStore%data=unset_real
+ 
+   end subroutine allocate_dgs_2DTS
+@@ -894,7 +917,7 @@
+     n_dgtimes = n_times - n_offset   
+ 
+     maxn_dgtimes=max(maxn_dgtimes, int(n_dgtimes*dt/dg_dt)+1)
+-    allocate(dgStore%data(nz, max_nbins, maxn_dgtimes))    
++    allocate(dgStore%data(nz, max_nbins, 2))              !!!!
+     dgStore%data=unset_real    
+ 
+   end subroutine allocate_dgs_bindgs 
+@@ -908,7 +931,7 @@
+     n_dgtimes = n_times - n_offset   
+ 
+     maxn_dgtimes=max(maxn_dgtimes, int(n_dgtimes*dt/dg_dt)+1)
+-    allocate(dgStore%data(nz, nx, max_nbins, maxn_dgtimes))    
++    allocate(dgStore%data(nz, nx, max_nbins, 2))          !!!!
+     dgStore%data=unset_real    
+ 
+   end subroutine allocate_dgs_bindgs_2d  
+@@ -922,7 +945,7 @@
+     n_dgtimes = n_times - n_offset 
+ 
+     maxn_dgtimes=max(maxn_dgtimes, int(n_dgtimes*dt/dg_dt)+1)
+-    allocate(dgStore%data(maxn_dgtimes))
++    allocate(dgStore%data(2))                             !!!!
+     dgStore%data=unset_real
+ 
+   end subroutine allocate_dgs_ScalarTS
+@@ -968,11 +991,25 @@
+           
+   end subroutine getUniqueId
+ 
++  subroutine save_dg_1d_sp_c( &
++    field, nx, nz,            & 
++    name, namelen,            &
++    units, unitslen,          &
++    itime                     &
++  )
++    integer(c_int), intent(in), value :: nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_1d_sp(field(:,1), name, itime, units, "x")
++  end subroutine
++
+   subroutine save_dg_1d_sp(field, name, itime, units, dim, longname)
+      
+     real(sp), intent(in) :: field(:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables for column diagnostics
+@@ -1019,6 +1056,9 @@
+        dg(ivar)%longname=trim(clongname)
+     end if
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,itime)=field(:)
+        
+   end subroutine save_dg_1d_sp
+@@ -1029,7 +1069,7 @@
+     integer, intent(in) :: ks, ke  ! start and end of range
+     real(sp), intent(in) :: field(:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1074,6 +1114,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(ks:ke,itime)=field(ks:ke)
+ 
+   end subroutine save_dg_1d_range_sp
+@@ -1084,7 +1127,7 @@
+     integer, intent(in) :: k ! index of value to input
+     real(sp), intent(in) :: value
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1128,16 +1171,34 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(k,itime)=value
+ 
+   end subroutine save_dg_1d_point_sp
+ 
++
++  subroutine save_dg_2d_sp_c( &
++    field, nx, nz,            & 
++    name, namelen,            &
++    units, unitslen,          &
++    itime                     &
++  )
++    integer(c_int), intent(in), value :: nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_2d_sp(field, name, itime, units, "z,x")
++  end subroutine
++
+   subroutine save_dg_2d_sp(field, name, itime, units, &
+        dim, longname)
+ 
+     real(sp), intent(in) :: field(:,:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1146,6 +1207,7 @@
+     character(max_char_len):: cunits, cdim, clongname
+     integer :: ivar
+ 
++
+     if (.not. l_dgstep) return
+ 
+     ! We're assuming diagnostics are instant for now
+@@ -1182,6 +1244,9 @@
+        dg(ivar)%longname=trim(clongname)
+     end if
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,:,itime)=field(:,:)
+     
+   end subroutine save_dg_2d_sp
+@@ -1192,7 +1257,7 @@
+     integer, intent(in) :: k ,l! indices of value to input
+     real(sp), intent(in) :: value
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1236,15 +1301,33 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(k,l,itime)=value
+     
+   end subroutine save_dg_2d_point_sp
+ 
++  subroutine save_dg_scalar_sp_c( &
++    scalar,                   & 
++    name, namelen,            &
++    units, unitslen,          &
++    itime                     &
++  )
++    integer(c_int), intent(in), value :: itime, namelen, unitslen
++    real(c_float), intent(in), value :: scalar
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_scalar_sp(scalar, name, itime, units, "x")
++  end subroutine
++
++
+   subroutine save_dg_scalar_sp(value, name, itime, units, dim, longname)
+ 
+     real(sp), intent(in) :: value
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1285,6 +1368,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(itime)=value
+ 
+   end subroutine save_dg_scalar_sp
+@@ -1293,7 +1379,7 @@
+ 
+     real(dp), intent(in) :: field(:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1338,6 +1424,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,itime)=field(:)
+ 
+   end subroutine save_dg_1d_dp
+@@ -1348,7 +1437,7 @@
+     integer, intent(in) :: ks, ke  ! start and end of range
+     real(dp), intent(in) :: field(:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1393,6 +1482,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(ks:ke,itime)=field(ks:ke)
+ 
+   end subroutine save_dg_1d_range_dp
+@@ -1403,7 +1495,7 @@
+     integer, intent(in) :: k ! index of value to input
+     real(dp), intent(in) :: value
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1447,6 +1539,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(k,itime)=value
+ 
+   end subroutine save_dg_1d_point_dp
+@@ -1456,7 +1551,7 @@
+ 
+     real(dp), intent(in) :: field(:,:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1500,6 +1595,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,:,itime)=field(:,:)
+     
+   end subroutine save_dg_2d_dp
+@@ -1510,7 +1608,7 @@
+     integer, intent(in) :: k ,l! indices of value to input
+     real(dp), intent(in) :: value
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1554,6 +1652,9 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(k,l,itime)=value
+     
+   end subroutine save_dg_2d_point_dp
+@@ -1563,7 +1664,7 @@
+ 
+     real(dp), intent(in) :: value
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+     
+     !local variables
+@@ -1604,17 +1705,34 @@
+        dg(ivar)%dim=trim(cdim)
+        dg(ivar)%longname=trim(clongname)
+     end if
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(itime)=value
+ 
+   end subroutine save_dg_scalar_dp
+ 
++  subroutine save_dg_1d_bin_sp_c( &
++    field, nb, nx, nz,            & 
++    name, namelen,                &
++    units, unitslen,              &
++    itime                         &
++  )
++    integer(c_int), intent(in), value :: nb, nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx, nb)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_bin_sp(field(:, 1, :), name, itime, units, "x,b")
++  end subroutine
++
+   subroutine save_dg_bin_sp(field, name, itime, units, &
+      dim, longname)
+     
+     real(sp), intent(in) :: field(:,:)
+     character(*), intent(in) :: name
+     !character(*), intent(in) :: bin  
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+ 
+     !local variables
+@@ -1659,6 +1777,9 @@
+        dg(ivar)%longname=trim(clongname)
+     end if
+     
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,:,itime)=field(:,:)
+     
+   end subroutine save_dg_bin_sp
+@@ -1669,7 +1790,7 @@
+     real(dp), intent(in) :: field(:,:)
+     character(*), intent(in) :: name
+     !character(*), intent(in) :: bin  
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+ 
+     !local variables
+@@ -1714,16 +1835,33 @@
+        dg(ivar)%longname=trim(clongname)
+     end if
+     
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,:,itime)=field(:,:)
+     
+   end subroutine save_dg_bin_dp
+ 
++  subroutine save_dg_2d_bin_sp_c( &
++    field, nb, nx, nz,            & 
++    name, namelen,                &
++    units, unitslen,              &
++    itime                         &
++  )
++    integer(c_int), intent(in), value :: nb, nx, nz, itime, namelen, unitslen
++    real(c_float), intent(in) :: field(nz, nx, nb)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_dg_2d_bin_sp(field, name, itime, units, "z,x,b")
++  end subroutine
++
+ subroutine save_dg_2d_bin_sp(field, name, itime, units, &
+      dim, longname)
+     
+     real(sp), intent(in) :: field(:,:,:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+ 
+     !local variables
+@@ -1768,6 +1906,9 @@
+        dg(ivar)%longname=trim(clongname)
+     end if
+     
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,:,:,itime)=field(:,:,:)
+     
+   end subroutine save_dg_2d_bin_sp
+@@ -1777,7 +1918,7 @@
+     
+     real(dp), intent(in) :: field(:,:,:)
+     character(*), intent(in) :: name
+-    integer, intent(in) :: itime
++    integer, value :: itime                               !!!!
+     character(*), intent(in), optional :: units, dim, longname
+ 
+     !local variables
+@@ -1822,10 +1963,26 @@
+        dg(ivar)%longname=trim(clongname)
+     end if
+     
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (itime .gt. 1) itime = 2                               !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     dg(ivar)%data(:,:,:,itime)=field(:,:,:)
+     
+   end subroutine save_dg_2d_bin_dp
+ 
++  subroutine save_binData_sp_c(&
++    field, nb,                 & 
++    name, namelen,             &
++    units, unitslen            &
++  )
++    integer(c_int), intent(in), value :: nb, namelen, unitslen
++    real(c_float), intent(in) :: field(nb)
++    character(namelen) :: name
++    character(unitslen) :: units
++    
++    call save_binData_sp(field, name, units)
++  end subroutine
++
+   subroutine save_binData_sp(field, name, units, &
+        longname)
+     ! Save the bin data (e.g. sizes or masses)
+@@ -1912,7 +2069,7 @@
+     
+   end subroutine save_binData_dp
+ 
+-  subroutine write_diagnostics
++  recursive subroutine write_diagnostics                  !!!!
+ 
+     Use netcdf
+     Use switches, only : icase
+@@ -1924,15 +2081,35 @@
+     integer :: ivar, itmp=1, offset=3, n_dgs, k, iq, tim, ibin
+     character(4) :: char4
+     
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++integer, save :: ncid                                     !!!!
++integer :: vid, itime                                     !!!!
++logical, save :: init = .false.                           !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
+     ! netcdf variables
+-    integer :: status, ncid, zid, xid, timeid, binsid
++    integer :: status, zid, xid, timeid, binsid           !!!!
+     integer :: tzdim(2), txdim(2), tzldim(3), tzxdim(3), tzxbindim(4)  & 
+         ,dim, dim2d(2), dim3d(3), dim4d(4) 
+     integer, allocatable :: varid(:)
+-    real, allocatable :: field3d(:,:,:)
+-    real, allocatable :: field4d(:,:,:,:)
+-    
+-    write(6,*) 'Integration complete.'
++    real, allocatable :: field1d(:)                     !!!!
++    real, allocatable :: field2d(:,:)                     !!!!
++    real, allocatable :: field3d(:,:)                     !!!!
++    real, allocatable :: field4d(:,:,:)                   !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (i_dgtime .eq. 1) return                               !!!! 
++                                                          !!!!
++if ((i_dgtime .eq. 2) .and. (init .eqv. .false.)) then    !!!!
++  init = .true.                                           !!!!
++  call write_diagnostics                                  !!!!
++endif                                                     !!!!
++                                                          !!!!
++itime = 2                                                 !!!!
++                                                          !!!!
++if (init) then                                            !!!!
++    itime = 1                                             !!!!
++    i_dgtime = 1                                          !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+     if (fileNameOut=='')then
+       write(char4,'(I4.4)')icase
+@@ -1990,7 +2167,7 @@
+     status=nf90_put_att(ncid, nf90_global, 'references', references)
+     status=nf90_put_att(ncid, nf90_global, 'comments', comments)
+     
+-    status=nf90_def_dim(ncid, 'time', int(n_dgtimes, kind=incdfp), timeid)
++    status=nf90_def_dim(ncid, 'time', NF90_UNLIMITED, timeid)  !!!!
+     call check_ncstatus(status)
+     status=nf90_def_dim(ncid, 'z', int(nz, kind=incdfp), zid)
+     call check_ncstatus(status)
+@@ -1999,11 +2176,11 @@
+     status=nf90_def_dim(ncid, 'x', int(nx, kind=incdfp), xid)
+     call check_ncstatus(status)
+ 
+-    tzdim=(/ timeid, zid /)
+-    txdim=(/ timeid, xid /)
+-    tzldim=(/ timeid, binsid, zid /)
+-    tzxdim=(/ timeid, xid, zid /)
+-    tzxbindim=(/ timeid, binsid, xid, zid /)
++    tzdim=(/ zid, timeid /)                               !!!!
++    txdim=(/ xid, timeid /)                               !!!!
++    tzldim=(/ binsid, zid, timeid /)                      !!!!
++    tzxdim=(/ xid, zid, timeid /)                         !!!!
++    tzxbindim=(/ binsid, xid, zid, timeid /)              !!!!
+ 
+     ! Do the dim variables
+     n_dgs=2
+@@ -2063,7 +2240,13 @@
+     deallocate(varid)
+     
+     ! Do scalars (including time)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     n_dgs=ID_Scalars%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     allocate(varid(n_dgs))
+     status=nf90_redef(ncid)
+     dim=timeid
+@@ -2084,25 +2267,48 @@
+     
+     status=nf90_enddef(ncid)
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     do ivar=1,n_dgs
+-       status=nf90_put_var(ncid, varid(ivar), &
+-            scalars(ivar)%data(1:n_dgtimes))
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++       name=scalars(ivar)%name                            !!!!
++       call sanitize(name)                                !!!!
++       status=nf90_inq_varid(ncid, name, vid)             !!!!
++       call check_ncstatus(status)                        !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++       status=nf90_put_var(ncid, vid, &                   !!!!
++            scalars(ivar)%data(itime), start=(/i_dgtime/))!!!!
+        call check_ncstatus(status)
+     end do
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+     deallocate(varid)
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++                                                          !!!!
++write(6,*) 'Writing data @ i_dgtime=', i_dgtime           !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     if (nx == 1) then
+-
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!                   nx == 1 case not finished!         !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! Do the instantaneous diags (1D)
+        n_dgs=ID_instant_column%nids
++
++
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        allocate(varid(n_dgs))
+        status=nf90_redef(ncid)
+        dim2d=tzdim
+ 
+        do ivar=1,n_dgs
+-
+           status=nf90_def_var(ncid, instant_column(ivar)%name &
+                , nf90_float, dim2d, varid(ivar))
+           call check_ncstatus(status)
+@@ -2115,17 +2321,35 @@
+        end do
+        
+        status=nf90_enddef(ncid)
++
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
+        
+        do ivar=1,n_dgs
+-          status=nf90_put_var(ncid, varid(ivar), &
+-               transpose(instant_column(ivar)%data(1:nz,1:n_dgtimes)))
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++         name=instant_column(ivar)%name                     !!!!
++         call sanitize(name)                                !!!!
++         status=nf90_inq_varid(ncid, name, vid)             !!!!
++         call check_ncstatus(status)                        !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_put_var(ncid, vid, &
++               instant_column(ivar)%data(1:nz,itime), start=(/1,i_dgtime/))
+           call check_ncstatus(status)
+        end do
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+        ! Do the instantaneous bin diags (2D)
+        n_dgs=ID_instant_bindgs%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        allocate(varid(n_dgs))
+        status=nf90_redef(ncid)
+        dim3d=tzldim
+@@ -2143,18 +2367,29 @@
+        end do
+ 
+        status=nf90_enddef(ncid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+-       allocate(field3d(n_dgtimes, max_nbins, nz))
++!!!! TODO
++       allocate(field3d(max_nbins, nz))
+ 
+        do ivar=1,n_dgs
+-          do tim=1,n_dgtimes
++!!          do tim=1,n_dgtimes
+              do iq=1, max_nbins
+                 do k = 1,nz
+-                   field3d(tim,iq,k)= instant_bindgs(ivar)%data(k,iq,tim)
++                   field3d(iq,k)= instant_bindgs(ivar)%data(k,iq,itime) !!!!
+                 enddo
+              enddo
+-          enddo
+-          status=nf90_put_var(ncid, varid(ivar), field3d)
++!!          enddo
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          name=instant_bindgs(ivar)%name                     !!!!
++          call sanitize(name)                                !!!!
++          status=nf90_inq_varid(ncid, &                   !!!!
++               instant_bindgs(ivar)%name, vid)          !!!!
++          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_put_var(ncid, vid, field3d, start=(/1,1,i_dgtime/))
+           
+           call check_ncstatus(status)
+           
+@@ -2162,12 +2397,187 @@
+        
+        deallocate(field3d)
+        
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        deallocate(varid)      
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++
++!!!!! ------ new try of 1D diag from a copy of the 2d diag ------
++       
++       ! Do the instantaneous diags (1D)
++!       n_dgs=ID_instant_column%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(varid(n_dgs))
++!       status=nf90_redef(ncid)
++!       dim3d=tzldim
++!
++!       do ivar=1,n_dgs
++!          status=nf90_def_var(ncid, instant_column(ivar)%name &
++!               , nf90_float, dim2d, varid(ivar))
++!          call check_ncstatus(status)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'units', instant_column(ivar)%units)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'dim', instant_column(ivar)%dim)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'missing_value', unset_real)
++!       end do
++!       
++!       status=nf90_enddef(ncid)
++!       
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(field1d(nz)) !!!!
++!       
++!       do ivar=1,n_dgs
++!!!!!     do tim=1,n_dgtimes                               !!!!
++!                do k = 1,nz
++!                   field1d(k)= instant_column(ivar)%data(k,itime) 
++!                enddo
++!          !!enddo
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_inq_varid(ncid, &                   !!!!
++!               instant_column(ivar)%name, vid)                !!!!
++!          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_put_var(ncid, vid, field1d, start=(/1,i_dgtime/)) !!!!
++!
++!          call check_ncstatus(status)
++!
++!       enddo
++!
++!       deallocate(field1d)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!
++!       ! Do the instantaneous bin micro diags (1D)
++!       n_dgs=ID_instant_bindgs%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(varid(n_dgs))
++!       status=nf90_redef(ncid)
++!       dim4d=tzxbindim
++!
++!       do ivar=1,n_dgs
++!          status=nf90_def_var(ncid, instant_bindgs(ivar)%name &
++!               , nf90_float, dim3d, varid(ivar))
++!          call check_ncstatus(status)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'units', instant_bindgs(ivar)%units)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'dim', instant_bindgs(ivar)%dim)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'missing_value', unset_real)
++!       end do
++!       
++!       status=nf90_enddef(ncid)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(field2d(max_nbins, nz))
++!       
++!       do ivar=1,n_dgs
++!!!!!     do tim=1,n_dgtimes                               !!!!
++!             do ibin= 1,max_nbins 
++!                   do k = 1,nz
++!                      field2d(ibin,k)= instant_bindgs(ivar)%data(k,ibin,itime)  !!!!
++!                   enddo
++!!!!!        enddo                                         !!!!
++!          enddo
++!         
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_inq_varid(ncid, &                   !!!!
++!               instant_bindgs(ivar)%name, vid)          !!!!
++!          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!
++!          status=nf90_put_var(ncid, vid, field2d(:,:), start=(/1,1,i_dgtime/))  !!!!
++!
++!          call check_ncstatus(status)
++!
++!       enddo
++!
++!       deallocate(field2d)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++       ! Do the instantaneous diags (nx vs time)
++!       n_dgs=ID_instant_column%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       allocate(varid(n_dgs))
++!       status=nf90_redef(ncid)
++!       dim2d=txdim
++!    
++!       do ivar=1,n_dgs
++!          status=nf90_def_var(ncid, instant_column(ivar)%name &
++!               , nf90_float, dim2d, varid(ivar))
++!          call check_ncstatus(status)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'units', instant_column(ivar)%units)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'dim', instant_column(ivar)%dim)
++!          status=nf90_put_att(ncid, varid(ivar),        &
++!               'missing_value', unset_real)
++!       end do
++!
++!       status=nf90_enddef(ncid)
++!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!
++!       do ivar=1,n_dgs
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_inq_varid(ncid, &                   !!!!
++!               instant_column(ivar)%name, vid)            !!!!
++!          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!          status=nf90_put_var(ncid, vid, instant_column(ivar)%data(1:nx,itime), start=(/1, i_dgtime/)) !!!!
++!          call check_ncstatus(status)
++!       end do
++!       
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!       deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++
++
+        
++    ! nx > 1
+     else
+        
+        ! Do the instantaneous diags (2D)
+        n_dgs=ID_instant_2D%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        allocate(varid(n_dgs))
+        status=nf90_redef(ncid)
+        dim3d=tzxdim
+@@ -2186,18 +2596,26 @@
+        
+        status=nf90_enddef(ncid)
+ 
+-       allocate(field3d(n_dgtimes, nx, nz))
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++       allocate(field3d(nx, nz)) !!!!
+        
+        do ivar=1,n_dgs
+-          do tim=1,n_dgtimes
++!!!!     do tim=1,n_dgtimes                               !!!!
+              do j = 1, nx
+                 do k = 1,nz
+-                   field3d(tim,j,k)= field_mask(k,j)*instant_2D(ivar)%data(k,j,tim) &
++                   field3d(j,k)= field_mask(k,j)*instant_2D(ivar)%data(k,j,itime) &
+                         +(1.-field_mask(k,j))*unset_real
+                 enddo
+-             enddo
++!!!!        enddo                                         !!!!
+           enddo
+-          status=nf90_put_var(ncid, varid(ivar), field3d)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_inq_varid(ncid, &                   !!!!
++               instant_2D(ivar)%name, vid)                !!!!
++          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_put_var(ncid, vid, field3d, start=(/1,1,i_dgtime/)) !!!!
+ 
+           call check_ncstatus(status)
+ 
+@@ -2205,10 +2623,19 @@
+ 
+        deallocate(field3d)
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+        ! Do the instantaneous bin micro diags (2D)
+        n_dgs=ID_instant_2Dbindgs%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        allocate(varid(n_dgs))
+        status=nf90_redef(ncid)
+        dim4d=tzxbindim
+@@ -2227,20 +2654,30 @@
+        
+        status=nf90_enddef(ncid)
+ 
+-       allocate(field4d(n_dgtimes, max_nbins, nx, nz))
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++       allocate(field4d(max_nbins, nx, nz))
+        
+        do ivar=1,n_dgs
+-          do tim=1,n_dgtimes
++!!!!     do tim=1,n_dgtimes                               !!!!
+              do ibin= 1,max_nbins 
+                 do j = 1, nx
+                    do k = 1,nz
+-                      field4d(tim,ibin,j,k)= field_mask(k,j)*instant_2Dbindgs(ivar)%data(k,j,ibin,tim) &
++                      field4d(ibin,j,k)= field_mask(k,j)*instant_2Dbindgs(ivar)%data(k,j,ibin,itime) & !!!!
+                            +(1.-field_mask(k,j))*unset_real 
+                    enddo
+                 enddo
+-             enddo
++!!!!        enddo                                         !!!!
+           enddo
+-          status=nf90_put_var(ncid, varid(ivar), field4d)
++         
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_inq_varid(ncid, &                   !!!!
++               instant_2Dbindgs(ivar)%name, vid)          !!!!
++          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++          status=nf90_put_var(ncid, vid, field4d(:,:,:), start=(/1,1,1,i_dgtime/))  !!!!
+ 
+           call check_ncstatus(status)
+ 
+@@ -2248,10 +2685,19 @@
+ 
+        deallocate(field4d)
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+        ! Do the instantaneous diags (nx vs time)
+        n_dgs=ID_instant_column%nids
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        allocate(varid(n_dgs))
+        status=nf90_redef(ncid)
+        dim2d=txdim
+@@ -2270,19 +2716,39 @@
+ 
+        status=nf90_enddef(ncid)
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
+        do ivar=1,n_dgs
+-          status=nf90_put_var(ncid, varid(ivar), &
+-               transpose(instant_column(ivar)%data(1:nx,1:n_dgtimes)))
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_inq_varid(ncid, &                   !!!!
++               instant_column(ivar)%name, vid)            !!!!
++          call check_ncstatus(status)                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++          status=nf90_put_var(ncid, vid, instant_column(ivar)%data(1:nx,itime), start=(/1, i_dgtime/)) !!!!
+           call check_ncstatus(status)
+        end do
+        
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        deallocate(varid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+     endif
+   
+-    status=nf90_close(ncid)
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++    status = nf90_sync(ncid)                              !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++!!!! status=nf90_close(ncid)                              !!!!
+     call check_ncstatus(status)
+ 
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++if (init) then                                            !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+     ! We now write out the full namelist data to file
+     nmlfile=outfile(1:len_trim(outfile)-3)//'.nml'
+@@ -2296,8 +2762,11 @@
+     write(99, switch)
+     write(99, addcontrol)
+     close(99)
+-
+-
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++i_dgtime = 2                                              !!!!
++init = .false.                                            !!!!
++endif                                                     !!!!
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   end subroutine write_diagnostics
+ 
+   subroutine check_ncstatus(status, name)
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/main.f90 kid_a_setup/src/main.f90
+--- kid_a_original_20180125_setup/src/main.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/main.f90	2019-05-15 15:28:17.743974039 +0200
+@@ -88,16 +88,18 @@
+        end if
+ 
+        call step_column
+-       
++
+        if ( nx == 1 ) then
+           call save_diagnostics_1d
+        else
+           call save_diagnostics_2d
+        endif
+ 
++
+     end do
+ 
+-    if (l_write_dgs) call write_diagnostics
++!!!! if (l_write_dgs) call write_diagnostics              !!!!
++!!!! included in save_diagnostics_                        !!!!
+ 
+   end subroutine main_loop
+ 
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/makefile.inc kid_a_setup/src/makefile.inc
+--- kid_a_original_20180125_setup/src/makefile.inc	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/makefile.inc	2019-05-15 15:28:17.744974037 +0200
+@@ -29,7 +29,7 @@
+ OBJS=$(OBJSF) $(OBJSF90)
+ 
+ 
+-all: defs $(EXECUTABLE)
++all: defs $(SHARED_LIB)
+ 
+ defs:
+ 	touch case.used
+@@ -49,10 +49,13 @@
+ 	$(F90D) -c $< -o $@ $(INCDF)
+ 
+ $(OBJSF90): $(OBJDIR)/%.o: %.f90 
+-	$(F90D) -c $< -o $@ $(INCDF)
++	$(F90D) -c -fPIC $< -o $@ $(INCDF)
+ 
+ $(OBJSF): $(OBJDIR)/%.o: %.f 
+-	$(F90D)  -c $< -o $@ $(INCDF)
++	$(F90D) -c -fPIC $< -o $@ $(INCDF)
+ 
+ $(EXECUTABLE): $(OBJS) $(OBJSF90_UM) $(OBJSF90_4A)
+ 	$(LD) -o $(EXECDIR)/$(EXECUTABLE) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
++
++$(SHARED_LIB): $(OBJS) $(OBJPTRUTIL) $(OBJSF90_UM) $(OBJSF90_4A)
++	$(LD) -shared -o $(EXECDIR)/$(SHARED_LIB) $(OBJDIR)/*.o $(OBJSF90_4A) $(OBJSF90_UM) $(LDFLAGS)
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/mphys_interface.f90 kid_a_setup/src/mphys_interface.f90
+--- kid_a_original_20180125_setup/src/mphys_interface.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/mphys_interface.f90	2019-05-15 15:28:17.744974037 +0200
+@@ -19,6 +19,7 @@
+ #if SHIPWAY_MICRO == 1
+   Use mphys_4A, only: mphys_4A_interface
+ #endif
++  Use mphys_libcloud_lgr, only: mphys_libcloud_lgr_interface
+   Use switches
+   Use column_variables, only: theta, dtheta_adv, dtheta_div
+   Use pressure_update, only : exner_timestep_upd
+@@ -54,6 +55,9 @@
+     case(imphys_4A)         ! Shipway 4A scheme
+        call mphys_4A_interface
+ #endif
++    case(imphys_libcloud_lgr) ! libcloudph++: lagrangian scheme (super-droplet)
++       call mphys_libcloud_lgr_interface
++
+     end select
+ 
+   end subroutine mphys_column
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/namelists.f90 kid_a_setup/src/namelists.f90
+--- kid_a_original_20180125_setup/src/namelists.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/namelists.f90	2019-05-15 15:28:17.744974037 +0200
+@@ -86,7 +86,7 @@
+   character(200) :: fileName=''
+   character(200) :: fileNameIn=''
+   character(200) :: fileNameOut=''
+-  character(200) :: namelistIn='namelists/input.nml'
++  character(200) :: namelistIn='namelists/1D_input.nml'
+   character(200) :: fileIn=''
+   character(200) :: fileOut=''
+   logical :: fexist
+@@ -111,6 +111,8 @@
+     CALL GET_COMMAND_ARGUMENT(2,fileNameOut)
+ #endif
+ 
++    CALL get_environment_variable("FILEOUT", fileOut)
++
+     if (trim(fileNameIn)=='')then  ! Not input at the command line 
+                                    ! so use input.nml
+ #ifdef DEF_CASE
+@@ -126,7 +128,7 @@
+         write(*, namelistToUse)
+       end if
+       fileNameIn  = fileIn
+-      if (trim(fileOut)/='')fileNameOut = fileOut
++      if (trim(fileOut)/='')fileNameOut = trim(fileOut) // trim("/1D_out.nc")
+     end if
+     
+     if (trim(fileNameIn)/='')fileName=fileNameIn
+@@ -180,6 +182,9 @@
+     case('4A')
+        imphys=imphys_4A
+        mphys_id='4A'
++    case('libcloud_lgr')
++       imphys=imphys_libcloud_lgr
++       mphys_id='libcloud_lgr'
+     case default
+        print*, 'Mphys scheme not recognized: ', mphys_scheme
+        print*, 'Did you mean:' 
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/switches.f90 kid_a_setup/src/switches.f90
+--- kid_a_original_20180125_setup/src/switches.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/switches.f90	2019-05-15 15:28:17.745974034 +0200
+@@ -96,7 +96,8 @@
+        ,imphys_um7_3            =9  & ! UM test: Jonathan Wilkinson
+        ,imphys_wsm6             =10 & ! WSM6 scheme
+        ,imphys_wdm6             =11 & ! WDM6 scheme
+-       ,imphys_4A               =12   ! Shipway scheme
++       ,imphys_4A               =12 & ! Shipway scheme
++       ,imphys_libcloud_lgr     =44   ! libcloudph++: lagrangian scheme (super-droplet)
+       
+   ! Integer switches to choose input data type and/or test case
+   integer, parameter ::    & 
+diff -ruN '--exclude=mphys_libcloud_lgr.f90' '--exclude=kida_icmwSC_2D_libcloud_lgr.nml' '--exclude=SC_2D_libcloud_lgr.nml' '--exclude=*~' '--exclude=*.mod' '--exclude=*.o' '--exclude=bin' '--exclude=4A_code' '--exclude=UM_source' '--exclude=.includes' '--exclude=case.used' '--exclude=output*' '--exclude=gmon.out' '--exclude=*.orig*' '--exclude=*rej*' '--exclude=*.out' '--exclude=kida_icmw1D_libcloud_lgr.nml' '--exclude=ICMW_SC_input.nml' '--exclude=.*' '--exclude=out' kid_a_original_20180125_setup/src/test_cases.f90 kid_a_setup/src/test_cases.f90
+--- kid_a_original_20180125_setup/src/test_cases.f90	2017-11-10 14:43:55.000000000 +0100
++++ kid_a_setup/src/test_cases.f90	2019-05-15 15:28:17.745974034 +0200
+@@ -236,7 +236,7 @@
+        !==============================================
+        ! Set default control values
+        if (all(zctrl==0.))zctrl(1)=3000.
+-       if (all(wctrl==0.))wctrl(1)=2.
++!       if (all(wctrl==0.))wctrl(1)=2.
+        if (all(tctrl==0.))tctrl(1:2)=(/3600., 600./)
+        if (ipctrl==0)ipctrl=1
+ 

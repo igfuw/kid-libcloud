@@ -1,39 +1,67 @@
 language: cpp
-os:
+os: 
   - linux
 compiler:
   - gcc
+dist: xenial
+addons:
+  apt:
+    packages:
+      - g++-6
+      - boost1.61
+      - gfortran
+      - nco
+      - libnetcdff-dev 
+      - libnetcdf-dev 
+      - python-numpy 
+      - python-cffi 
+      - libblitz0-dev 
+      - python-pytest
+      - libthrust-dev
+
+#      - libnetcdfc7
+    sources: &sources
+      - sourceline: 'ppa:rakhimov/boost'
+      - ubuntu-toolchain-r-test
+#      - llvm-toolchain-trusty-4.0
+
+notifications:
+  email: false
 
 before_install:
-  - sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ trusty main universe multiverse"
-  - sudo apt-get update
+# to avoid python lib/interpreter mismatch; https://github.com/travis-ci/travis-ci/issues/5326
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
+
+  # locally installed stuff comes first
+  - export PATH=/usr/local/bin:$PATH
 
 install:
-  - if [[ $CXX == 'clang++' ]]; then sudo apt-get install --no-install-recommends clang; fi
-  - if [[ $CXX == 'g++'     ]]; then sudo apt-get install --no-install-recommends g++ ; fi
-  - sudo apt-get install --no-install-recommends libnetcdfc7
-  - sudo apt-get install --no-install-recommends gfortran libnetcdf-dev python-numpy python-cffi libblitz0-dev cmake libboost-python-dev libthrust-dev
+#compiler
+  - if [[ $TRAVIS_OS_NAME == 'linux' && $CXX == 'g++'     ]]; then export CC=gcc-6; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' && $CXX == 'g++'     ]]; then export CXX=g++-6; fi
 
-  # libcloudphxx
-  - cd ..
-  - git clone --depth=1 git://github.com/igfuw/libcloudphxx.git
+# cmake 
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo sh cmake-3.13.2-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir; fi
+
+# newest thrust
+  - git clone --depth=1 git://github.com/thrust/thrust.git;
+  - sudo ln -s `pwd`/thrust/thrust /usr/local/include/thrust;
+
+  # install libcloudphxx in RelWithDebInfo mode
+  - git clone --single-branch --branch kida-1d --depth=1 git://github.com/igfuw/libcloudphxx.git
   - cd libcloudphxx
   - mkdir build
   - cd build
-  - if [[ $CXX == 'clang++' ]]; then cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ../; fi # Travis default is not the packaged one
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+  - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
   - make
   - sudo make install
   - cd ../..
 
+before_script:
+  - chmod +x ./.travis_scripts/*
+
 script:
-  - cd kid-libcloud
-  - gcc -fPIC -shared ptrutil.c -o ptrutil.so
-  - tar xvzf kid_a_setup.tar.gz
-  - cd kid_a_setup
-  - patch -p1 < ../kid_a_setup.diff
-  - patch -p1 < ../kid_a_setup_adrian_20150311_test_cases_2d.f90_ZSCALE=1000.diff
-  - patch -p1 < ../kid_a_setup_adrian_20150304_defines.inc.diff
-  - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
-  #- bin/KiD_1D.exe
-  - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py
+  - . ./.travis_scripts/lwp_test.sh
+

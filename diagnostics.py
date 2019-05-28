@@ -6,7 +6,7 @@ import math
 import pdb
 
 ffi = cffi.FFI()
-flib = ffi.dlopen('KiD_SC_2D.so')
+flib = ffi.dlopen('KiD_ICMW_SC.so')
 
 # Fortran functions (_sp_ means single precision)
 ffi.cdef("void __diagnostics_MOD_save_dg_2d_sp_c(float*, int, int, char*, int,     char*, int,      int   );")
@@ -16,6 +16,10 @@ ffi.cdef("void __diagnostics_MOD_save_bindata_sp_c(float*, int, char*, int,     
 ffi.cdef("void __diagnostics_MOD_save_dg_2d_bin_sp_c(float*, int, int, int, char*, int, char*, int,      int   );")
 #                                                    field,  nb,  nx,  nz,  name,  namelen,units, unitslen, itime
 
+ffi.cdef("void __diagnostics_MOD_save_dg_scalar_sp_c(float, char*, int,     char*, int,      int );")
+#                                                    scalar, name, namelen, units, unitslen, itime
+#    call save_dg(time, 'time', i_dgtime,  units='s',dim='time')
+
 def save_helper(arr):
   # astype() takes keywords arguments for newer numpy versions (1.7?)                       
   try:
@@ -24,7 +28,27 @@ def save_helper(arr):
     arr = arr.astype(np.float32)
   arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
   return arr, arr_ptr
+#  # remove the subterrenean level z=0 from output
+#  print arr.ndim, arr
+#  if (arr.ndim == 2):
+#    arr_wo_subterr = np.delete(arr,0,1)
+#    print arr_wo_subterr
+#    arr_ptr = ffi.cast("float*", arr_wo_subterr.__array_interface__['data'][0])
+#    return arr_wo_subterr, arr_ptr
+#  else:
+#    arr_ptr = ffi.cast("float*", arr.__array_interface__['data'][0])
+#    return arr, arr_ptr
 
+
+def save_dg_scalar(scal, it, name, units):
+#  scal = scal.astype(np.float32)
+#  scal_cast = ffi.cast("float", scal)
+  flib.__diagnostics_MOD_save_dg_scalar_sp_c(
+    scal,
+    name, len(name),
+    units, len(units),
+    it
+  )
 
 def save_dg(arr, it, name, units):
   arr, arr_ptr = save_helper(arr)
@@ -59,9 +83,13 @@ def save_bindata(arr, name, unit):
 def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
 
   # super-droplet concentration per grid cell                               
-  # TODO: select all particles?                                 
+  particles.diag_all() 
   particles.diag_sd_conc()
-  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "sd_conc", "1")
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z), it, "number_od_SDs", "1")
+
+  # recording puddle
+  puddle = particles.diag_puddle();
+  save_dg_scalar(puddle[8], it, "accumulated surface precipitation volume", "m^3")
 
   if first_timestep:
     # temporary arrays (allocating only once)                 
@@ -85,12 +113,17 @@ def diagnostics(particles, arrays, it, size_x, size_z, first_timestep):
     for j in range(0, size_z):
       arrays["tmp_xz"][i,j] = libcl.common.T(arrays["thetad"][i,j], arrays["rhod"][j])
   save_dg(arrays["tmp_xz"], it, "T_lib_post_cond", "K")
+  save_dg(arrays["T_lib_ante_cond"], it, "T_lib_ante_cond", "K")
 
   # RH according to the formula used within the library
-  for i in range(0, size_x-2):
-    for j in range(0, size_z):
-      arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
-  save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
+  particles.diag_all()
+  particles.diag_RH()
+  save_dg(np.frombuffer(particles.outbuf()).reshape(size_x-2, size_z) * 100, it, "RH_lib_post_cond", "%")
+  #for i in range(0, size_x-2):
+  #  for j in range(0, size_z):
+  #    arrays["tmp_xz"][i,j] = arrays["rhod"][j] * arrays["qv"][i,j] * libcl.common.R_v * arrays["tmp_xz"][i,j] / libcl.common.p_vs(arrays["tmp_xz"][i,j])
+  #save_dg(arrays["tmp_xz"], it, "RH_lib_post_cond", "K")
+  save_dg(arrays["RH_lib_ante_cond"], it, "RH_lib_ante_cond", "%")
 
   # aerosol concentration
   assert params["bins_qc_r20um"][0] == params["bins_qc_r32um"][0]

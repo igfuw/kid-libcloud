@@ -6,11 +6,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import matplotlib.ticker as ticker
+from argparse import ArgumentParser
+import os
 import pdb
 
 # names of variable to plot
 Variable_name_l = ["vapor", "cloud_mass_r20um", "rain_mass_r20um"]
 Variable_plot_l = Variable_name_l + ["total_water_mass", "cloud+rain_mass"]
+
+prsr = ArgumentParser(add_help=True, description='TODO')
+prsr.add_argument('--outdir', default="", help='output directory from kid_a_setup/output')
+args = prsr.parse_args()
 
 # reading variables from the netcdf file
 def reading_netcdf(netcdf_file, var_l):
@@ -49,4 +55,4 @@ def main(filename, variable_name_l=Variable_name_l, variable_plot_l=Variable_plo
         time_evolution(var_name, var_d, nr_subpl, nr_fig)
         nr_fig += 1
 
-main("../kid_a_setup/output/SC_2D_out.nc")
+main(os.path.join(args.outdir, "SC_2D_out.nc"))

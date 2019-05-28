@@ -19,9 +19,20 @@ the libcloudph++ library) you need to follow these steps:
 
   - cd kid-libcloud
   - gcc -fPIC -shared ptrutil.c -o ptrutil.so
-  - tar xvzf kid_a_setup.tar.gz
+  - tar xvzf kid_a_setup-20180125.tar.gz
+  - cp mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90 
+  - cp kida_icmwSC_2D_libcloud_lgr.nml kid_a_setup/namelists/
+  - cp kida_icmw1D_libcloud_lgr.nml kid_a_setup/namelists/
+  - cp ICMW_SC_input.nml kid_a_setup/namelists/
   - cd kid_a_setup
-  - patch -p1 < ../kid_a_setup.diff
-  - make SHELL=/bin/bash CASE=SC_2D COMPILER=gfortran NCPATH=/usr all
-  #- bin/KiD_1D.exe
+  - patch -p1 < ../kid_a_setup_20180125.diff
+
+to run 2D Sc:
+  - make SHELL=/bin/bash CASE=ICMW_SC COMPILER=gfortran NCPATH=/usr all
   - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py 
+
+to run 1D case:
+  - make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
+  - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1D.py 
+
+
