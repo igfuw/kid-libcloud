@@ -25,8 +25,6 @@ cd ..
 
 # run 1D case with w=2m/s
 sed -i 's/wctrl(1)=3/wctrl(1)=2/g' namelists/kida_icmw1D_libcloud_lgr.nml
-pwd
-ls -la
 FILEOUT=output LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1D.py --backend=OpenMP
 # test the results
 cd output
