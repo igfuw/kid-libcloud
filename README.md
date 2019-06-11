@@ -29,10 +29,10 @@ the libcloudph++ library) you need to follow these steps:
 
 to run 2D Sc:
   - make SHELL=/bin/bash CASE=ICMW_SC COMPILER=gfortran NCPATH=/usr all
-  - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py 
+  - FILEOUT=output_dir LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid.py 
 
 to run 1D case:
   - make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
-  - LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1D.py 
+  - FILEOUT=output_dir LD_LIBRARY_PATH=..:bin LD_PRELOAD=ptrutil.so python ../kid_1D.py 
 
 
