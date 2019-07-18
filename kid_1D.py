@@ -193,8 +193,8 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
       for name in ("thetad", "qv", "p_d", "T_kid", "rhod_kid"):
         arrays[name] = np.empty((opts_init.nx, opts_init.nz))
       arrays["rhod"] = np.empty((opts_init.nz,))
-      arrays["Cx"] = np.empty((opts_init.nx+1, opts_init.nz))
-      arrays["Cz"] = np.empty((opts_init.nx, opts_init.nz+1))
+      arrays["Cx"] = np.empty((opts_init.nx+4+1, opts_init.nz))
+      arrays["Cz"] = np.empty((opts_init.nx+4, opts_init.nz+1))
       arrays["RH_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
       arrays["pressure_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
       arrays["T_lib_ante_cond"] = np.empty((opts_init.nx, opts_init.nz))
