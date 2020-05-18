@@ -13,7 +13,7 @@ make SHELL=/bin/bash CASE=1D COMPILER=gfortran NCPATH=/usr all
 
 # run 1D case with w=3m/s
 sed -i 's/wctrl(1)=2/wctrl(1)=3/g' namelists/kida_icmw1D_libcloud_lgr.nml
-FILEOUT=output LD_LIBRARY_PATH=..:bin:$LD_LIBRARY_PATH LD_PRELOAD=ptrutil.so python3 ../kid_1D.py --backend=OpenMP
+FILEOUT=output LD_LIBRARY_PATH=..:bin:$LD_LIBRARY_PATH LD_PRELOAD=$PWD/ptrutil.so python3 ../kid_1D.py --backend=OpenMP
 # test the results
 cd output
 ncdiff -O -v liquid_water_path 1D_out.nc ../../refdata/w3_N50_NORAIN.nc diff.nc
@@ -26,7 +26,7 @@ cd ..
 
 # run 1D case with w=2m/s
 sed -i 's/wctrl(1)=3/wctrl(1)=2/g' namelists/kida_icmw1D_libcloud_lgr.nml
-FILEOUT=output LD_LIBRARY_PATH=..:bin:$LD_LIBRARY_PATH LD_PRELOAD=ptrutil.so python3 ../kid_1D.py --backend=OpenMP
+FILEOUT=output LD_LIBRARY_PATH=..:bin:$LD_LIBRARY_PATH LD_PRELOAD=$PWD/ptrutil.so python3 ../kid_1D.py --backend=OpenMP
 # test the results
 cd output
 ncdiff -O -v liquid_water_path 1D_out.nc ../../refdata/w2_N50_NORAIN.nc diff.nc
