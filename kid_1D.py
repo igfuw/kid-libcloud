@@ -328,7 +328,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
     return True
     
 # storing pointers to Python functions
-clib.save_ptr(ptrfname, micro_step)
+clib.save_ptr(ptrfname.encode('ascii'), micro_step)
 
 # running Fortran stuff
 # note: not using command line arguments, namelist name hardcoded in
