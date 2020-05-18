@@ -63,5 +63,5 @@ before_script:
   - chmod +x ./.travis_scripts/*
 
 script:
-  - . ./.travis_scripts/lwp_test.sh
+  - . ./.travis_scripts/lwp_test.sh python
 
