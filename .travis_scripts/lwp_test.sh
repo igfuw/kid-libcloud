@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 set -ex
 gcc -fPIC -shared ptrutil.c -o ptrutil.so
+ldd ptrutil.so
 tar xvzf kid_a_setup-20180125.tar.gz
 cp mphys_libcloud_lgr.f90 kid_a_setup/src/mphys_libcloud_lgr.f90 
 cp kida_icmwSC_2D_libcloud_lgr.nml kid_a_setup/namelists/
