@@ -13,10 +13,11 @@ addons:
       - nco
       - libnetcdff-dev 
       - libnetcdf-dev 
-      - python-numpy 
-      - python-cffi 
+      - python3-dev 
+      - python3-numpy 
+      - python3-cffi 
       - libblitz0-dev 
-      - python-pytest
+      - python3-pytest
       - libthrust-dev
 
 #      - libnetcdfc7
@@ -30,8 +31,10 @@ notifications:
 
 before_install:
 # to avoid python lib/interpreter mismatch; https://github.com/travis-ci/travis-ci/issues/5326
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
+#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
+#  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
+
+  - sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so; # different naming conventions for boost python with python 3
 
   # locally installed stuff comes first
   - export PATH=/usr/local/bin:$PATH

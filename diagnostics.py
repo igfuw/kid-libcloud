@@ -45,8 +45,8 @@ def save_dg_scalar(scal, it, name, units):
 #  scal_cast = ffi.cast("float", scal)
   flib.__diagnostics_MOD_save_dg_scalar_sp_c(
     scal,
-    name, len(name),
-    units, len(units),
+    name.encode('ascii'), len(name),
+    units.encode('ascii'), len(units),
     it
   )
 
@@ -55,15 +55,15 @@ def save_dg(arr, it, name, units):
   if (arr.ndim == 2):
     flib.__diagnostics_MOD_save_dg_2d_sp_c(
       arr_ptr, arr.shape[0], arr.shape[1],
-      name, len(name),
-      units, len(units),
+      name.encode('ascii'), len(name),
+      units.encode('ascii'), len(units),
       it
     )
   elif (arr.ndim == 3):
     flib.__diagnostics_MOD_save_dg_2d_bin_sp_c(
       arr_ptr, arr.shape[0], arr.shape[1], arr.shape[2],
-      name, len(name),
-      units, len(units),
+      name.encode('ascii'), len(name),
+      units.encode('ascii'), len(units),
       it
     )
   else:
@@ -75,8 +75,8 @@ def save_bindata(arr, name, unit):
   arr, arr_ptr = save_helper(arr)
   flib.__diagnostics_MOD_save_bindata_sp_c(
     arr_ptr, arr.shape[0],
-    name, len(name),
-    unit, len(unit)
+    name.encode('ascii'), len(name),
+    unit.encode('ascii'), len(unit)
   )
 
 
