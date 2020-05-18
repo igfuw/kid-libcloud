@@ -34,6 +34,8 @@ before_install:
 #  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g"); fi
 #  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
 
+  - sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so; # different naming conventions for boost python with python 3
+
   # locally installed stuff comes first
   - export PATH=/usr/local/bin:$PATH
 
