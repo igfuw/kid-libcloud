@@ -48,6 +48,8 @@ do
               #fi
 
               OUTDIR=/mnt/local/pdziekan/wyniki/kid-a/1D/output_SdConc${sd_conc}_SdConstMulti${sd_const_multi}_SstpCond${sstp_cond}_SstpCoal${sstp_coal}_wctrl${wctrl}_ntot${ntot}_${RAIN} && mkdir ${OUTDIR}
+              mkdir ${OUTDIR}/${run_no} 
+              echo ${OUTDIR}/${run_no}
 
               # look for an idle gpu and run on it
               iter=-1 # simulation iterator
