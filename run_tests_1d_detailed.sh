@@ -4,11 +4,11 @@ cd kid_a_setup
 
 export LD_LIBRARY_PATH=..:bin:$LD_LIBRARY_PATH 
 export LD_PRELOAD=ptrutil.so 
-export PYTHONPATH=/mnt/local/pdziekan/lib64/python2.7/site-packages/
+export PYTHONPATH=/mnt/local/pdziekan/usr/local/lib/python3/dist-packages/
 
-#iter=-1
+gpu_number=4 # number of gpus to be used by this simulation
 
-for run_no in {3..10}
+for run_no in {1..10}
 do
   for spinup in 0 1e8
   do
@@ -48,17 +48,24 @@ do
               #fi
 
               OUTDIR=/mnt/local/pdziekan/wyniki/kid-a/1D/output_SdConc${sd_conc}_SdConstMulti${sd_const_multi}_SstpCond${sstp_cond}_SstpCoal${sstp_coal}_wctrl${wctrl}_ntot${ntot}_${RAIN} && mkdir ${OUTDIR}
-  
-              # parallel runs on 3 GPUs
-              #iter=$(($iter+1))
-              #CUDA_DEVICE=$(($iter%3))
-              #CUDA_VISIBLE_DEVICES=${CUDA_DEVICE} FILEOUT=${OUTDIR} python ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="CUDA" --sd_conc=$sd_conc --n_tot=$ntot --spinup_rain=$spinup & 
-              #sleep 2
-  
-              # sequential runs of an ensemble on 1 GPU
-              mkdir ${OUTDIR}/${run_no} 
-              echo ${OUTDIR}/${run_no}
-              FILEOUT=${OUTDIR}/${run_no} python ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="CUDA" --sd_conc=$sd_conc --sd_const_multi=$sd_const_multi --n_tot=$ntot --spinup_rain=$spinup 
+
+              # look for an idle gpu and run on it
+              iter=-1 # simulation iterator
+              while :
+              do
+                iter=$(($iter+1))
+                gpu_id=$(($iter%$gpu_number))
+                if [[ $(nvidia-smi -i ${gpu_id}  --query-compute-apps=pid --format=csv,noheader) ]]; then
+                  :
+                else
+                  echo "gpu ${gpu_id} is idle, running on it"
+                  #CUDA_DEVICE_ORDER set to PCI_BUS_ID to get consistency of CUDA_VISIBLE_DEVICES setting with nvidia-smi output
+                  CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=${gpu_id} FILEOUT=${OUTDIR}/${run_no} python3 ../kid_1D.py --sstp_coal=$sstp_coal --sstp_cond=$sstp_cond --backend="CUDA" --sd_conc=$sd_conc --sd_const_multi=$sd_const_multi --n_tot=$ntot --spinup_rain=$spinup &
+                  sleep 10 # startup make sime time
+                  break
+                fi
+                sleep 2
+              done
             done
           done
         done
