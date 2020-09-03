@@ -48,8 +48,8 @@ install:
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo sh cmake-3.13.2-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir; fi
 
-# newest thrust
-  - git clone --depth=1 git://github.com/thrust/thrust.git;
+# working thrust release
+  - git clone --depth=1 git://github.com/thrust/thrust.git --branch 1.9.10-1;
   - sudo ln -s `pwd`/thrust/thrust /usr/local/include/thrust;
 
   # install libcloudphxx in RelWithDebInfo mode
