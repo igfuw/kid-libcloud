@@ -229,6 +229,7 @@ def micro_step(it_diag, dt, size_z, size_x, th_ar, qv_ar, rhof_ar, rhoh_ar, exne
 
      
     #arrays["Cx"][:,:] = ptr2np(uh_ar, size_x, size_z)[:-1, :] * dt / dx 
+    arrays["Cx"][:,:] = 0
     assert (arrays["Cx"][0,:] == arrays["Cx"][-1,:]).all()
 
     # putting meaningful values to the sub-terain level (to avoid segfault from library)
