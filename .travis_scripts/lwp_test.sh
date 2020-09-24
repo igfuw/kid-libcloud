@@ -31,7 +31,7 @@ FILEOUT=output LD_LIBRARY_PATH=..:bin:$LD_LIBRARY_PATH LD_PRELOAD=ptrutil.so pyt
 cd output
 ncdiff -O -v liquid_water_path 1D_out.nc ../../refdata/w2_N50_NORAIN.nc diff.nc
 # check if the difference is small enough
-ncap2 -A -s "diff_flag=liquid_water_path<2e-3 && liquid_water_path>-2e-3" diff.nc
+ncap2 -A -s "diff_flag=liquid_water_path<2.2e-3 && liquid_water_path>-2.2e-3" diff.nc
 ncra -O diff.nc diff_mean.nc
 ncks -V -v diff_flag -C -H diff_mean.nc
 ncks -V -v diff_flag -C -H diff_mean.nc | grep '1'
