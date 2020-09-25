@@ -17,6 +17,8 @@ import numpy as np
 from scipy.stats import gamma
 import matplotlib.pyplot as plt
 
+import netCDF4
+
 fig, axarr = plt.subplots(1, 2)
 
 axarr[0].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='number density function over ln(d) [1/cc]')
@@ -24,6 +26,9 @@ axarr[1].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='mass den
 
 #total time of simulation
 simulation_time = 3600
+
+# total number of SD in the whole ensemble
+tot_sd_no = 1e6
 
 #root mean square deviation
 def RMSD(a1, a2):
@@ -92,15 +97,9 @@ opts_init.dt = simulation_time
 
 opts_init.dx = 1
 opts_init.dz = 1
-opts_init.nx = 100
 opts_init.nz = 1
-opts_init.x1 = opts_init.dx * opts_init.nx
 opts_init.z1 = opts_init.dz * opts_init.nz
 
-
-rhod =   1. * np.ones((opts_init.nx, opts_init.nz))
-th   = 300. * np.ones((opts_init.nx, opts_init.nz))
-rv   = 0.01 * np.ones((opts_init.nx, opts_init.nz))
 
 kappa = 1e-10
 
@@ -156,8 +155,36 @@ def diag_tot_conc_mass():
   mass = np.frombuffer(prtcls.outbuf()).mean() * 4./3. * np.pi * 1e3
   return conc, mass
 
-for sd_conc in [1000, 10000]:
+print(bins_d)
+
+# netcdf output stuff
+ncfile = netCDF4.Dataset('UWLCM_box_dsd.nc',mode='w',format='NETCDF4_CLASSIC') 
+bin_edges_dim = ncfile.createDimension('bin_edges', n_bins+1)
+bin_data_dim = ncfile.createDimension('bin_data', n_bins)
+
+bin_edges = ncfile.createVariable('bin_edges', np.float32, ('bin_edges',))
+bin_edges.units = "m"
+bin_edges.long_name = "droplet diameter at the edges of output bins"
+
+bin_conc = ncfile.createVariable('bin_conc', np.float32, ('bin_data',))
+bin_conc.units = "m^{-3}"
+bin_conc.long_name = "concentration of droplets with sizes within a bin"
+
+bin_mass = ncfile.createVariable('bin_mass', np.float32, ('bin_data',))
+bin_mass.units = "kg m^{-3}"
+bin_mass.long_name = "mass of droplets with sizes within a bin"
+
+bin_edges[:] = bins_d[:]
+
+for sd_conc in [100]:
   for dt_coal in [1]:
+
+    opts_init.nx = int(tot_sd_no / sd_conc)
+    opts_init.x1 = opts_init.dx * opts_init.nx
+
+    rhod =   1. * np.ones((opts_init.nx, opts_init.nz))
+    th   = 300. * np.ones((opts_init.nx, opts_init.nz))
+    rv   = 0.01 * np.ones((opts_init.nx, opts_init.nz))
 
     opts_init.rng_seed = int(time.time())
     opts_init.sd_conc = sd_conc
@@ -188,6 +215,9 @@ for sd_conc in [1000, 10000]:
     prtcls.step_async(opts)
         
     diag_dsd(res_conc, res_mass)
+    # output final dsd to netcdf
+    bin_conc[:] = res_conc[:]
+    bin_mass[:] = res_mass[:]
     axarr[0].plot(bins_d_ctr*1e6, res_conc / bins_d_wdt * bins_d_ctr / 1e6, label='sd_conc: '+str(sd_conc)+' dt_coal: '+str(dt_coal)) 
     axarr[1].plot(bins_d_ctr*1e6, res_mass / bins_d_wdt * bins_d_ctr * 1e3, label='sd_conc: '+str(sd_conc)+' dt_coal: '+str(dt_coal)) 
   
@@ -199,3 +229,5 @@ for sd_conc in [1000, 10000]:
 axarr[0].legend()
 axarr[1].legend()
 plt.show()
+
+ncfile.close()
