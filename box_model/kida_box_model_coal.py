@@ -1,0 +1,201 @@
+# test coalescence algorithm for geometric kernel with Hall efficiencies for drops with r>30um and Davis&Rogers efficiencies for smaller ones
+# by comparing mass density function with results of EFM modeling
+
+import sys
+import time
+#try:
+#  import boost.mpi
+#except:
+#  pass
+
+sys.path.insert(0, "/home/piotr/usr/local/lib/python3/dist-packages/")
+
+from libcloudphxx import lgrngn
+from math import exp, sqrt
+import numpy as np
+
+from scipy.stats import gamma
+import matplotlib.pyplot as plt
+
+fig, axarr = plt.subplots(1, 2)
+
+axarr[0].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='number density function over ln(d) [1/cc]')
+axarr[1].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='mass density function over ln(d) [g/kg]')
+
+#total time of simulation
+simulation_time = 3600
+
+#root mean square deviation
+def RMSD(a1, a2):
+  nonempty = 0 
+  tot = 0 
+  for i in range(a1.size):
+    if(a1[i] > 0 or a2[i] > 0): 
+      tot+=pow(a1[i] - a2[i], 2)
+      nonempty+=1
+  return np.sqrt(tot/nonempty)
+
+# numerical integral of the distirbution to get total mass
+def int_gamma(alfa, theta):
+  r_edges = np.linspace(gamma(alfa, scale = theta).ppf(0.0001),
+                  gamma(alfa, scale = theta).ppf(0.9999), 10001) # bin edges
+#  print(r_edges)
+  dr = np.zeros(len(r_edges)-1)
+  r_centers = np.zeros(len(r_edges)-1)
+  mass = np.zeros(len(r_edges)-1)
+  conc = np.zeros(len(r_edges)-1)
+  
+  dr[:] = r_edges[1:] - r_edges[:-1]
+  r_centers[:] = r_edges[:-1] + 0.5 * dr[:]
+  water_dens = 1e3 # kg/m^3
+  conc = n_zero * dr * gamma(alfa, scale = theta).pdf(r_centers)
+  mass = conc * 4./3. * np.pi * r_centers**3 * water_dens
+  return np.sum(conc), np.sum(mass)
+  
+#initial conditions
+n_zero = 50e6
+shape_param = 2.5
+liq_mass = 0.001 # kg/kg
+
+# initial gamma distribution of droplet radii, defined as in Pruppacher & Klett Eq. (11-108)
+alfa = shape_param + 1 # shape parameter in the shape-rate representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
+#beta = shape_param + 1 # rate parameter in the shape-rate representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
+#theta = 1 / beta       # scale parameter in the shape-scale representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
+theta = 4e-6
+
+# look for a scale parameter that would give desrired liquid mass
+eps = 1e-3 # relative tolerance
+while True:
+  conc, mass = int_gamma(alfa, theta)
+  if abs(mass - liq_mass) / liq_mass < eps:
+    break
+  if mass > liq_mass:
+    theta /= 1.0001
+  if mass < liq_mass:
+    theta *= 1.0001
+
+print(theta, conc, mass)
+
+# plotting the gamma distribution, as a function of diameter
+#x = np.linspace(gamma(alfa, scale = theta).ppf(0.01),
+#                gamma(alfa, scale = theta).ppf(0.99), 100)
+#axarr[0].plot(2*x, n_zero * gamma(alfa, scale = theta).pdf(x) / 2., # *2 and /2 because its in radius
+#       'r-', lw=5, alpha=0.6, label='gamma pdf')
+
+# gamma distribution used to init dsd in libcloud. function of ln(r)
+def gammalnr(lnr):
+  r=np.exp(lnr)
+  return n_zero * gamma(alfa, scale = theta).pdf(r) * r
+
+opts_init = lgrngn.opts_init_t()
+opts_init.dt = simulation_time
+
+opts_init.dx = 1
+opts_init.dz = 1
+opts_init.nx = 100
+opts_init.nz = 1
+opts_init.x1 = opts_init.dx * opts_init.nx
+opts_init.z1 = opts_init.dz * opts_init.nz
+
+
+rhod =   1. * np.ones((opts_init.nx, opts_init.nz))
+th   = 300. * np.ones((opts_init.nx, opts_init.nz))
+rv   = 0.01 * np.ones((opts_init.nx, opts_init.nz))
+
+kappa = 1e-10
+
+opts_init.dry_distros = {kappa:gammalnr}
+
+opts_init.kernel = lgrngn.kernel_t.hall
+#opts_init.kernel = lgrngn.kernel_t.hall_davis_no_waals
+opts_init.terminal_velocity = lgrngn.vt_t.beard76
+
+opts_init.sd_conc_large_tail = 1
+opts_init.aerosol_independent_of_rhod = 1
+
+opts = lgrngn.opts_t()
+opts.adve = False
+opts.sedi = False
+opts.cond = False
+opts.coal = True
+opts.chem = False
+
+# calc output bin edges, in diameter, mass doubling
+d0 = 3.125e-6 # first bin left edge
+n_bins = 50
+bins_m = np.zeros(n_bins+1)
+bins_m[0] = d0**3 # mass of droplets with d0, without 1/6 pi liq_dens
+for i in np.arange(1,n_bins+1):
+  bins_m[i] = 2*bins_m[i-1]
+bins_d = pow(bins_m, 1./3.)
+bins_d_ctr = np.zeros(n_bins)
+bins_d_wdt = np.zeros(n_bins)
+for i in range(n_bins):
+  bins_d_ctr[i] = (bins_d[i] + bins_d[i+1]) / 2.
+  bins_d_wdt[i] = (bins_d[i+1] - bins_d[i])
+
+res_conc = np.zeros(n_bins)
+res_mass = np.zeros(n_bins)
+
+def diag_dsd(conc, mass):
+  for i in range(conc.size) :
+    prtcls.diag_wet_rng(bins_d[i] / 2., bins_d[i+1] / 2.)
+    prtcls.diag_wet_mom(0)
+    conc[i]= np.frombuffer(prtcls.outbuf()).mean()
+
+    prtcls.diag_wet_rng(bins_d[i] / 2., bins_d[i+1] / 2.)
+    prtcls.diag_wet_mom(3)
+    mass[i]= np.frombuffer(prtcls.outbuf()).mean() * 4. / 3. * np.pi * 1e3
+
+def diag_tot_conc_mass():
+  prtcls.diag_all()
+  prtcls.diag_wet_mom(0)
+  conc = np.frombuffer(prtcls.outbuf()).mean()
+  prtcls.diag_all()
+  prtcls.diag_wet_mom(3)
+  mass = np.frombuffer(prtcls.outbuf()).mean() * 4./3. * np.pi * 1e3
+  return conc, mass
+
+for sd_conc in [1000, 10000]:
+  for dt_coal in [1]:
+
+    opts_init.rng_seed = int(time.time())
+    opts_init.sd_conc = sd_conc
+    opts_init.n_sd_max = int(opts_init.nx * opts_init.sd_conc * 1.1) # make room for large tail
+    opts_init.sstp_coal = int(simulation_time / dt_coal)
+
+    print('sd_conc: ', sd_conc, 'dt_coal: ', dt_coal)
+  
+    try:
+      prtcls = lgrngn.factory(lgrngn.backend_t.OpenMP, opts_init)
+    except:
+      prtcls = lgrngn.factory(lgrngn.backend_t.serial, opts_init)
+    
+    prtcls.init(th, rv, rhod)
+  
+    init_conc, init_mass = diag_tot_conc_mass()
+    print("initial conc of droplets: ", init_conc, '[1/kg]')
+    print("initial mass of droplets: ", init_mass, '[kg/kg]')
+  
+    diag_dsd(res_conc, res_mass)
+    # res_conc is N, the number of droplets in the disred range of radii. we want to plot number density function, n, over ln(D). by definition N = n(ln(D)) d ln(D), 
+    # so n(ln(D)) = N / d ln(D) = N * dD / dD / d ln(D) = N / dD * D
+    axarr[0].plot(bins_d_ctr*1e6, res_conc / bins_d_wdt * bins_d_ctr / 1e6, label=None) # / 1e6 to get 1/cc 
+    axarr[1].plot(bins_d_ctr*1e6, res_mass / bins_d_wdt * bins_d_ctr * 1e3, label=None) # * 1e3 to get grams
+    
+    #simulation loop
+    prtcls.step_sync(opts, th, rv, rhod)
+    prtcls.step_async(opts)
+        
+    diag_dsd(res_conc, res_mass)
+    axarr[0].plot(bins_d_ctr*1e6, res_conc / bins_d_wdt * bins_d_ctr / 1e6, label='sd_conc: '+str(sd_conc)+' dt_coal: '+str(dt_coal)) 
+    axarr[1].plot(bins_d_ctr*1e6, res_mass / bins_d_wdt * bins_d_ctr * 1e3, label='sd_conc: '+str(sd_conc)+' dt_coal: '+str(dt_coal)) 
+  
+    final_conc, final_mass = diag_tot_conc_mass()
+    print("final conc of droplets: ", final_conc, '[1/kg]')
+    print("final mass of droplets: ", final_mass, '[kg/kg]')
+    print("final mass of droplets in outpput bins: ", np.sum(res_mass), '[kg/kg]')
+  
+axarr[0].legend()
+axarr[1].legend()
+plt.show()
