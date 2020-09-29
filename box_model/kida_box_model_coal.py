@@ -20,12 +20,16 @@ import netCDF4
 #axarr[0].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='number density function over ln(d) [1/cc]')
 #axarr[1].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='mass density function over ln(d) [g/kg]')
 
+# initial values for the search of shape parameter
+init_theta = {2.5: {50e6: 3.8e-6, 150e6 : 2.6e-6, 300e6: 2.1e-6}}
+
+
 #total time of simulation
 simulation_time = 3600
 output_interval = 2 # dsd stored each 2s
 
 # total number of SD in the whole ensemble
-tot_sd_no = 1e6
+tot_sd_no = 1e5
 
 #root mean square deviation
 def RMSD(a1, a2):
@@ -126,7 +130,7 @@ for n_zero in [50e6, 150e6, 300e6]:
     alfa = shape_param + 1 # shape parameter in the shape-rate representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
     #beta = shape_param + 1 # rate parameter in the shape-rate representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
     #theta = 1 / beta       # scale parameter in the shape-scale representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
-    theta = 4e-6
+    theta = init_theta[shape_param][n_zero]
     
     # look for a scale parameter that would give desrired liquid mass
     eps = 1e-3 # relative tolerance
@@ -135,9 +139,9 @@ for n_zero in [50e6, 150e6, 300e6]:
       if abs(mass - liq_mass) / liq_mass < eps:
         break
       if mass > liq_mass:
-        theta /= 1.001
+        theta /= 1.0001
       if mass < liq_mass:
-        theta *= 1.001
+        theta *= 1.0001
     
     print(n_zero, shape_param, ': ', theta, conc, mass)
     
@@ -158,7 +162,7 @@ for n_zero in [50e6, 150e6, 300e6]:
     for sd_conc in [100]:
       for dt_coal in [1]:
         # netcdf output stuff
-        ncfile = netCDF4.Dataset('UWLCM_box_N'+str(n_zero)+'_shape'+str(shape_param)+'_SD'+str(sd_conc)+'_dtCoal'+str(dt_coal)+'dsd.nc',mode='w',format='NETCDF4_CLASSIC') 
+        ncfile = netCDF4.Dataset('UWLCM_box_N'+str(n_zero)+'_shape'+str(shape_param)+'_SD'+str(sd_conc)+'_dtCoal'+str(dt_coal)+'_totSD'+str(tot_sd_no)+'_dsd.nc',mode='w',format='NETCDF4_CLASSIC') 
         
         #dimensions
         bin_edges_dim = ncfile.createDimension('bin_edges', n_bins+1)
