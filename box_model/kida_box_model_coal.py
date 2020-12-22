@@ -21,7 +21,8 @@ import netCDF4
 #axarr[1].set(xscale='log', yscale='log', xlabel='diameter[um]', ylabel='mass density function over ln(d) [g/kg]')
 
 # initial values for the search of shape parameter
-init_theta = {2.5: {50e6: 3.8e-6, 150e6 : 2.6e-6, 300e6: 2.1e-6}}
+init_theta = {2.5: {50e6: 3.8e-6, 150e6 : 2.6e-6, 300e6: 2.1e-6},
+              0:   {50e6: 9.3e-6, 150e6 : 6.462821053522438e-06, 300e6: 5.129933456758218e-06}}
 
 
 #total time of simulation
@@ -62,6 +63,7 @@ def int_gamma(alfa, theta):
 
 opts_init = lgrngn.opts_init_t()
 opts_init.dt = output_interval
+
 
 opts_init.dx = 1
 opts_init.dz = 1
@@ -125,7 +127,8 @@ def diag_tot_conc_mass():
 liq_mass = 0.001 # kg/kg
 
 for n_zero in [50e6, 150e6, 300e6]:
-  for shape_param in [2.5]:
+  for shape_param in [0]:
+  #for shape_param in [0, 2.5]:
     # initial gamma distribution of droplet radii, defined as in Pruppacher & Klett Eq. (11-108)
     alfa = shape_param + 1 # shape parameter in the shape-rate representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
     #beta = shape_param + 1 # rate parameter in the shape-rate representation (see https://en.wikipedia.org/wiki/Gamma_distribution)
@@ -154,9 +157,13 @@ for n_zero in [50e6, 150e6, 300e6]:
     # gamma distribution used to init dsd in libcloud. function of ln(r)
     def gammalnr(lnr):
       r=np.exp(lnr)
+      if(shape_param==0 and r<1e-10): # shape_param==0 gives non-zero n for r=0, we cut it off
+        return 0
       return n_zero * gamma(alfa, scale = theta).pdf(r) * r
     
     opts_init.dry_distros = {kappa:gammalnr}
+#    if(shape_param == 0):
+#      opts_init.rd_min = 1e-9 # don't init smaller than 0.1nm. For shape_param=0, init distro is nonzero for r=0
     
     
     for sd_conc in [100]:
