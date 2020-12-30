@@ -91,7 +91,7 @@ def diagnostics(particles, arrays, prev_val, it, size_x, size_z, first_timestep)
   particles.diag_all() 
   puddle = particles.diag_puddle();
   #save_dg_scalar(puddle[8] * (4./3) * math.pi, it, "accumulated surface precipitation volume", "m^3")
-  new_val = puddle[8] * (4./3) * math.pi * 1000
+  new_val = puddle[8] * 1000
   save_dg_scalar((new_val - prev_val["acc_surf_precip"]) / 10, it, "surface precipitation rate", "mm/s") # hardcoded dt_output = 10s
   prev_val["acc_surf_precip"] = new_val
 
