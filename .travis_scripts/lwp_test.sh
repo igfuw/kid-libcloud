@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -ex
+#set -ex
 gcc -fPIC -shared ptrutil.c -o ptrutil.so
 ldd ptrutil.so
 tar xvzf kid_a_setup-20180125.tar.gz
@@ -37,5 +37,5 @@ ncks -V -v diff_flag -C -H diff_mean.nc
 ncks -V -v diff_flag -C -H diff_mean.nc | grep '1'
 cd ..
 
-set +ex # see https://github.com/travis-ci/travis-ci/issues/6522
+#set +ex # see https://github.com/travis-ci/travis-ci/issues/6522
 
